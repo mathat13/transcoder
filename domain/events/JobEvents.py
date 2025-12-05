@@ -15,3 +15,8 @@ class JobCreated(DomainEvent):
     job_id: int
     job_status: str
     source_path: str
+
+@dataclass
+class JobTranscodeCompleted(DomainEvent):
+    job_id: int
+    output_path: str
