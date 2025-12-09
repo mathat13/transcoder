@@ -7,11 +7,12 @@ class FakeEventBus:
         self.subscribers.setdefault(event_type, []).append(handler)
 
     def publish(self, event):
+        if not self.subscribers:
+            return
+        self.published.append(event)
         for handler in self.subscribers[type(event)]:
             handler(event)
 
     def publish_all(self, events):
         for evt in events:
-            self.published.append(evt)
-            for handler in self.subscribers.get(type(evt), []):
-                handler(evt)
+            self.publish(evt)

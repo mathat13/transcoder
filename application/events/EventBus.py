@@ -9,6 +9,8 @@ class EventBus:
         self._subscribers[event_type].append(handler)
 
     def publish(self, event):
+        if event.__class__ not in self._subscribers:
+            return
         for handler in self._subscribers[type(event)]:
             handler(event)
 

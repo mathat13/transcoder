@@ -3,16 +3,18 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import List
 
-from domain.events.JobEvents import JobStatusChanged, JobCreated
+from domain.events.DomainEvents import JobStatusChanged, JobCreated
 from domain.services.JobStateMachine import JOB_STATE_MACHINE
+from domain.services.DomainEventFactory import DOMAIN_EVENT_FACTORY
 from domain.value_objects.JobStatus import JobStatus
+from domain.value_objects.FileInfo import FileInfo
 
 @dataclass
 class Job:
     id: int | None
     job_type: str
-    source_path: str
-    output_path: str | None
+    source_path: FileInfo
+    output_path: FileInfo | None
     status: JobStatus = JobStatus.pending
 
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -44,28 +46,25 @@ class Job:
         self.status = new_status
         self.updated_at = self._now()
 
-        self._emit(JobStatusChanged(
-            job_id=self.id,
-            old_status=old.value,
-            new_status=new_status.value,
-        ))
+        event = DOMAIN_EVENT_FACTORY.create(self, old, new_status)
+        self._emit(event)
     
     @classmethod
     def create(cls, job_id: int, job_type: str, source_path: str) -> Job:
         """Factory for creating a valid Job aggregate."""
+        path = FileInfo(source_path)
+        transcoded_path = path.transcoded_path
+
         job = cls(
             id=job_id,
             job_type=job_type,
-            source_path=source_path,
-            output_path=None,
+            source_path=path,
+            output_path=transcoded_path,
             status=JobStatus.pending,
         )
         
          # Emit the domain event *on the newly created instance*
-        job._emit(JobCreated(
-            job_id=job.id,
-            job_status=job.status.value,
-            source_path=job.source_path,
-        ))
+        event = DOMAIN_EVENT_FACTORY.create(job, "created", job.status)
+        job._emit(event)
 
         return job

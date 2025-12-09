@@ -1,7 +1,25 @@
 from unittest.mock import MagicMock
 
-from application import FakeEventBus, FakeJobRepository, FakeLogger, FakeFileSystem, JobService, FileChecker, EventBus
-from domain import JobStatusChanged, JobFactory, JobCreated, JobStatus, JobTranscodeCompleted
+from application import (
+    FakeEventBus,
+    FakeJobRepository,
+    FakeLogger,
+    FakeFileSystem,
+    JobService,
+    FileChecker,
+    EventBus,
+    JobVerifyingOrchestrator,
+    TranscodeVerified,
+    TranscodeVerificationFailed
+)
+from domain import (
+    JobStatusChanged,
+    JobFactory,
+    JobCreated,
+    JobStatus,
+    JobTranscodeCompleted,
+    JobMovedToVerifying
+)
 
 def test_event_bus_calls_subscribers():
     bus = FakeEventBus()
@@ -16,6 +34,24 @@ def test_event_bus_calls_subscribers():
     bus.publish_all(evt)
 
     assert called == evt
+
+def test_event_bus_no_subscribers():
+    bus = FakeEventBus()
+
+    evt = JobStatusChanged(job_id=1, old_status=JobStatus.pending, new_status=JobStatus.success)
+
+    # Should not raise
+    bus.publish(evt)
+
+def test_event_bus_publish_called_directly():
+    bus = FakeEventBus()
+    handled = []
+    bus.subscribe(JobStatusChanged, lambda evt: handled.append(evt))
+
+    evt = JobStatusChanged(job_id=1, old_status=JobStatus.pending, new_status=JobStatus.success)
+    bus.publish(evt)
+
+    assert evt in handled
 
 def test_creating_a_job_emits_event_and_saves_to_repo():
     repo = FakeJobRepository()
@@ -37,7 +73,6 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
 
     # domain events
     assert len(job.events) == 0         # cleared after publish
-    print(bus.published)
     assert isinstance(bus.published[0], JobCreated)
 
     # subscriber
@@ -123,3 +158,58 @@ def test_FileChecker_missing_files():
     assert len(logger.errors) == 2
     assert "Output missing" in logger.errors[1]
 
+def test_JobVerifyingOrchestrator_unit_test():
+    fs = FakeFileSystem()
+    bus = FakeEventBus()
+    logger = FakeLogger()
+    orchestrator = JobVerifyingOrchestrator(bus, logger, fs)
+    handled = []
+
+    def transcode_verified_handler(event):
+        handled.append(event)
+    
+    bus.subscribe(TranscodeVerified, transcode_verified_handler)
+    bus.subscribe(TranscodeVerificationFailed, transcode_verified_handler)
+
+    # Simulate JobMovedToVerifying event with existing file
+    event = JobStatusChanged(job_id=1, old_status=JobStatus.processing, new_status=JobStatus.verifying)
+    orchestrator(event)
+
+    assert any(isinstance(evt, TranscodeVerified) for evt in handled)
+    assert not any(isinstance(evt, TranscodeVerificationFailed) for evt in handled)
+
+    # Clear published events
+    handled.clear()
+
+    # Simulate JobMovedToVerifying event with missing file
+    event = JobStatusChanged(job_id=2, old_status=JobStatus.processing, new_status=JobStatus.verifying)
+    orchestrator(event)
+
+    assert any(isinstance(evt, TranscodeVerificationFailed) for evt in handled)
+    assert not any(isinstance(evt, TranscodeVerified) for evt in handled)
+
+def test_JobVerifyingOrchestrator_integration():
+    fs = FakeFileSystem()
+    bus = EventBus()
+    logger = FakeLogger()
+    repo = FakeJobRepository()
+
+    svc = JobService(repo, bus)
+    orchestrator = JobVerifyingOrchestrator(bus, logger, fs)
+
+    handled = []
+
+    def transcode_verified_handler(event):
+        handled.append(event)
+
+    bus.subscribe(JobStatusChanged, orchestrator)
+    bus.subscribe(TranscodeVerified, transcode_verified_handler)
+    bus.subscribe(TranscodeVerificationFailed, transcode_verified_handler)
+
+    job = svc.create_job("episode", "/input.mp4")
+    svc.transition_job(job.id, JobStatus.processing)
+    job.output_path = "/path/to/verified_output.mp4"
+    svc.transition_job(job.id, JobStatus.verifying)
+
+    print(handled)
+    assert any(isinstance(evt, TranscodeVerificationFailed) for evt in handled)
