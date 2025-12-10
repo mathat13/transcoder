@@ -15,13 +15,51 @@ from domain import (
     JobStatusChanged,
     JobFactory,
     JobCreated,
+    JobMovedToProcessing,
+    JobMovedToVerifying,
+    JobCompleted,
+    JobFailed,
     JobStatus,
     FileInfo,
-    JobMovedToVerifying
 )
 
 def test_JobService_emits_correct_events_on_status_transition():
-    pass
+    bus = EventBus()
+    repo = FakeJobRepository()
+
+    svc = JobService(repo, bus)
+
+    published_events = []
+
+    def handler(event):
+        published_events.append(event)
+
+    bus.subscribe(JobCreated, handler)
+    bus.subscribe(JobMovedToProcessing, handler)
+    bus.subscribe(JobMovedToVerifying, handler)
+    bus.subscribe(JobCompleted, handler)
+    bus.subscribe(JobFailed, handler)
+
+    job = svc.create_job("episode", "/input.mp4")
+    assert isinstance(published_events[0], JobCreated)
+
+    svc.transition_job(job.id, JobStatus.processing)
+    assert isinstance(published_events[1], JobMovedToProcessing)
+
+    svc.transition_job(job.id, JobStatus.verifying)
+    assert isinstance(published_events[2], JobMovedToVerifying)
+
+    svc.transition_job(job.id, JobStatus.success)
+    assert isinstance(published_events[3], JobCompleted)
+
+    # Save a new job to test failure transition 
+    job2 = JobFactory(id=2, status=JobStatus.verifying)
+    repo.save(job2)
+
+    # Test failure transition
+    svc.transition_job(job2.id, JobStatus.error)
+    assert isinstance(published_events[4], JobFailed)
+
 
 def test_event_bus_calls_subscribers():
     bus = FakeEventBus()
@@ -122,7 +160,6 @@ def test_JobVerifyingOrchestrator_unit_test():
 
     assert any(isinstance(evt, TranscodeVerified) for evt in handled)
     assert not any(isinstance(evt, TranscodeVerificationFailed) for evt in handled)
-
 
 def test_JobVerifyingOrchestrator_integration():
     fs = FakeFileSystem()
