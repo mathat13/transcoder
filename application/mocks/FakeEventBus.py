@@ -9,6 +9,7 @@ class FakeEventBus:
     def publish(self, event):
         if not self.subscribers:
             return
+
         self.published.append(event)
         for handler in self.subscribers[type(event)]:
             handler(event)
