@@ -35,8 +35,3 @@ class JobCompleted(DomainEvent):
 class JobFailed(DomainEvent):
     job_id: int
     reason: Optional[str] = None
-
-@dataclass
-class JobTranscodeCompleted(DomainEvent):
-    job_id: int
-    output_path: FileInfo

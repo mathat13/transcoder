@@ -6,7 +6,6 @@ from application import (
     FakeLogger,
     FakeFileSystem,
     JobService,
-    FileChecker,
     EventBus,
     JobVerifyingOrchestrator,
     TranscodeVerified,
@@ -18,11 +17,10 @@ from domain import (
     JobCreated,
     JobStatus,
     FileInfo,
-    JobTranscodeCompleted,
     JobMovedToVerifying
 )
 
-def test_JobService_emits_correect_events_on_status_transition():
+def test_JobService_emits_correct_events_on_status_transition():
     pass
 
 def test_event_bus_calls_subscribers():
@@ -150,62 +148,3 @@ def test_JobVerifyingOrchestrator_integration():
 
     print(handled)
     assert any(isinstance(evt, TranscodeVerified) for evt in handled)
-
-def test_FileChecker_successful_workflow():
-    fs = FakeFileSystem()
-    logger = FakeLogger()
-
-    fchecker = FileChecker(fs, logger)
-
-    # Simulate JobCreated event
-    job_created_event = JobCreated(job_id=1, job_status=JobStatus.pending, source_path="/path/to/source.mp4")
-    fchecker(job_created_event)
-
-    assert len(logger.messages) == 1
-    assert "Source OK" in logger.messages[0]
-
-    # Simulate JobTranscodeCompleted event
-
-    transcode_completed_event = JobTranscodeCompleted(job_id=1, output_path="/path/to/output.mp4")
-    fchecker(transcode_completed_event)
-
-    assert len(logger.messages) == 2
-    assert "Output OK" in logger.messages[1]
-
-def test_FileChecker_missing_files():
-    fs = FakeFileSystem()
-    logger = FakeLogger()
-
-    fchecker = FileChecker(fs, logger)
-
-    # Simulate JobCreated event with missing source
-    job_created_event = JobCreated(job_id=1, job_status=JobStatus.pending, source_path="")
-    fchecker(job_created_event)
-
-    assert len(logger.errors) == 1
-    assert "Source missing" in logger.errors[0]
-
-    # Simulate JobTranscodeCompleted event with missing output
-
-    transcode_completed_event = JobTranscodeCompleted(job_id=1, output_path="")
-    fchecker(transcode_completed_event)
-
-    assert len(logger.errors) == 2
-    assert "Output missing" in logger.errors[1]
-
-def test_FileChecker_Full_workflow():
-    fs = FakeFileSystem()
-    logger = FakeLogger()
-    fchecker = FileChecker(fs, logger)
-
-    repo = FakeJobRepository()
-    bus = EventBus()
-    svc = JobService(repo, bus)
-
-    bus.subscribe(JobCreated, fchecker)
-    
-    # JobCreated event emitted here
-    svc.create_job("episode", "/input.mp4")
-
-    assert len(logger.messages) == 1
-    assert "Source OK" in logger.messages[0]
