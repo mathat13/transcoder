@@ -5,7 +5,9 @@ from dataclasses import dataclass
 class FileInfo:
     path: str
 
-    @property
+    def __post_init__(self):
+        self.validate()
+
     def validate(self):
         if not self.path or "/" not in self.path:
             raise ValueError("Invalid file path format.")

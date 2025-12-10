@@ -24,6 +24,20 @@ def test_FileInfo_creation():
     assert isinstance(transcoded, FileInfo)
     assert transcoded.path == "/media/source/video_transcoded.mkv"
 
+def test_FileInfo_invalid_path_raises_value_error():
+
+    # String without a slash
+    with pytest.raises(ValueError) as excinfo:
+        FileInfo("invalidpath")
+    assert "Invalid file path format." in str(excinfo.value)
+
+    # Empty string
+    with pytest.raises(ValueError) as excinfo:
+        FileInfo("")
+    assert "Invalid file path format." in str(excinfo.value)
+
+
+
 def test_job_added():
     job = Job.create(job_id=1,job_type="episode", source_path="/path/to/source.mkv")
     assert job.id is not None
