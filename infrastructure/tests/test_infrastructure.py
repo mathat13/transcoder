@@ -1,8 +1,8 @@
 import pytest
 from sqlalchemy import func
 
-from domain import Job, JobStatus, FileInfo
-from infrastructure import JobModel, JobRepository
+from domain import Job, JobStatus, JobFactory, FileInfo
+from infrastructure import JobModel, JobRepository, JobMapper
 
 def test_can_create_job(db_session):
     job = JobModel(
@@ -70,3 +70,46 @@ def test_job_repository_get_next_id(db_session, job_repository):
     db_session.add(job2)
     db_session.commit()
     assert job_repository.get_next_id() == 11
+
+def test_JobMapper():
+    job = JobFactory()
+    job_record = JobMapper.to_JobModel(job)
+
+    assert job_record.id == job.id
+    assert isinstance(job_record.source_path, str)
+    assert isinstance(job_record.output_path, str)
+    assert isinstance(job_record.status, str)
+    assert job_record.source_path == job.source_path.path
+    assert job_record.output_path == job.output_path.path
+
+    converted_job = JobMapper.to_Job(job_record)
+
+    assert job_record.id == converted_job.id
+    assert isinstance(converted_job.source_path, FileInfo)
+    assert isinstance(converted_job.output_path, FileInfo)
+    assert isinstance(converted_job.status, JobStatus)
+    assert job_record.source_path == converted_job.source_path.path
+    assert job_record.output_path == converted_job.output_path.path
+
+def test_JobRepository_save(db_session, job_repository):
+    job = JobFactory()
+    job_repository.save(job)
+
+    retrieved_job = db_session.query(JobModel).filter(JobModel.id == job.id).first()
+
+    assert retrieved_job.id == job.id
+
+def test_JobRepository_get_job_by_id(db_session, job_repository):
+    job = JobFactory()
+
+    db_session.add(job)
+    db_session.commit()
+
+    retrieved_job = job_repository.get_job_by_id(job.id)
+
+    assert retrieved_job.id == job.id
+
+
+
+
+

@@ -1,5 +1,7 @@
 from domain import Job
 from infrastructure.persistence.models.JobModel import JobModel
+from infrastructure.persistence.models.mappers.JobMapper import JobMapper
+
 from sqlalchemy import func
 
 class JobRepository:
@@ -13,10 +15,11 @@ class JobRepository:
         
 
     def save(self, job: Job) -> None:
-        self.db.add(job)
-        self.db.commit()
-        self.db.refresh(job)
-        return job
+        job_record = JobMapper.to_JobModel(job)
+        self.session.add(job_record)
+        self.session.commit()
+        self.session.refresh(job_record)
 
     def get_job_by_id(self, job_id: int) -> Job | None:
-        return self._store.get(job_id)
+        retrieved_job_record = self.session.query(JobModel).filter(JobModel.id == job_id).first()
+        return JobMapper.to_Job(retrieved_job_record)
