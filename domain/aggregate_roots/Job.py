@@ -2,8 +2,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import List
+from uuid import uuid4, UUID
 
-from domain.events.DomainEvents import JobStatusChanged, JobCreated
 from domain.services.JobStateMachine import JOB_STATE_MACHINE
 from domain.services.DomainEventFactory import DOMAIN_EVENT_FACTORY
 from domain.value_objects.JobStatus import JobStatus
@@ -11,15 +11,17 @@ from domain.value_objects.FileInfo import FileInfo
 
 @dataclass
 class Job:
-    id: int | None
+
+    # Non-Default
     job_type: str
     source_path: FileInfo
-    output_path: FileInfo | None
+    output_path: FileInfo
+    
+    # Default
+    id: UUID = field(default_factory=uuid4)
     status: JobStatus = JobStatus.pending
-
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-
     events: List = field(default_factory=list, init=False)
 
     # ---------------------------
@@ -50,13 +52,12 @@ class Job:
         self._emit(event)
     
     @classmethod
-    def create(cls, job_id: int, job_type: str, source_path: str) -> Job:
+    def create(cls, job_type: str, source_path: str) -> "Job":
         """Factory for creating a valid Job aggregate."""
         path = FileInfo(source_path)
         transcoded_path = path.transcoded_path
 
         job = cls(
-            id=job_id,
             job_type=job_type,
             source_path=path,
             output_path=transcoded_path,

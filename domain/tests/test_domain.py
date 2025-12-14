@@ -39,7 +39,7 @@ def test_FileInfo_invalid_path_raises_value_error():
 
 
 def test_job_added():
-    job = Job.create(job_id=1,job_type="episode", source_path="/path/to/source.mkv")
+    job = Job.create(job_type="episode", source_path="/path/to/source.mkv")
 
     assert job.id is not None
     assert job.status == JobStatus.pending

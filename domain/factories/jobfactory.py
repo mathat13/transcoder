@@ -1,6 +1,7 @@
 import factory
 from faker import Faker
 import datetime
+from uuid import uuid4
 
 from domain.aggregate_roots.Job import Job
 from domain.value_objects.JobStatus import JobStatus
@@ -12,7 +13,7 @@ class JobFactory(factory.Factory):
     class Meta:
         model = Job
 
-    id = factory.Sequence(lambda n: n + 1)
+    id = uuid4()
     job_type = "episode"
     source_path = FileInfo(fake.file_path(extension="mkv"))
     output_path = source_path.transcoded_path
