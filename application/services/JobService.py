@@ -6,8 +6,7 @@ class JobService:
         self.event_bus = event_bus
     
     def create_job(self, job_type: str, source: str):
-        job_id = self.repo.next_id()
-        job = Job.create(job_id, job_type, source)
+        job = Job.create(job_type, source)
 
         self.repo.save(job)
 
