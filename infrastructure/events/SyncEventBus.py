@@ -1,7 +1,7 @@
 from collections import defaultdict
 from typing import Callable, Type
 
-class EventBus:
+class SyncEventBus:
     def __init__(self):
         self._subscribers = defaultdict(list)
 

@@ -1,4 +1,4 @@
-class FakeEventBus:
+class FakeSyncEventBus:
     def __init__(self):
         self.subscribers = {}
         self.published = []

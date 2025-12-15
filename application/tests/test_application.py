@@ -1,12 +1,12 @@
 from unittest.mock import MagicMock
 
+from infrastructure import SyncEventBus
 from application import (
-    FakeEventBus,
+    FakeSyncEventBus,
     FakeJobRepository,
     FakeLogger,
     FakeFileSystem,
     JobService,
-    EventBus,
     JobVerifyingOrchestrator,
     TranscodeVerified,
     TranscodeVerificationFailed
@@ -24,7 +24,7 @@ from domain import (
 )
 
 def test_JobService_emits_correct_events_on_status_transition():
-    bus = EventBus()
+    bus = SyncEventBus()
     repo = FakeJobRepository()
 
     svc = JobService(repo, bus)
@@ -62,7 +62,7 @@ def test_JobService_emits_correct_events_on_status_transition():
 
 
 def test_event_bus_calls_subscribers():
-    bus = FakeEventBus()
+    bus = FakeSyncEventBus()
     called = []
 
     def handler(event):
@@ -76,7 +76,7 @@ def test_event_bus_calls_subscribers():
     assert called == evt
 
 def test_event_bus_no_subscribers():
-    bus = FakeEventBus()
+    bus = FakeSyncEventBus()
 
     evt = JobStatusChanged(job_id=1, old_status=JobStatus.pending, new_status=JobStatus.success)
 
@@ -84,7 +84,7 @@ def test_event_bus_no_subscribers():
     bus.publish(evt)
 
 def test_event_bus_publish_called_directly():
-    bus = FakeEventBus()
+    bus = FakeSyncEventBus()
     handled = []
     bus.subscribe(JobStatusChanged, lambda evt: handled.append(evt))
 
@@ -95,7 +95,7 @@ def test_event_bus_publish_called_directly():
 
 def test_creating_a_job_emits_event_and_saves_to_repo():
     repo = FakeJobRepository()
-    bus = FakeEventBus()
+    bus = FakeSyncEventBus()
 
     handled = []
     bus.subscribe(JobCreated, lambda evt: handled.append(evt))
@@ -120,7 +120,7 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
 
 def test_subscriber_receives_domain_event():
     repo = FakeJobRepository()
-    bus = FakeEventBus()
+    bus = FakeSyncEventBus()
     service = JobService(repo, bus)
 
     received = []
@@ -143,7 +143,7 @@ def test_subscriber_receives_domain_event():
 
 def test_JobVerifyingOrchestrator_unit_test():
     fs = FakeFileSystem()
-    bus = FakeEventBus()
+    bus = FakeSyncEventBus()
     logger = FakeLogger()
     orchestrator = JobVerifyingOrchestrator(bus, logger, fs)
     handled = []
@@ -163,7 +163,7 @@ def test_JobVerifyingOrchestrator_unit_test():
 
 def test_JobVerifyingOrchestrator_integration():
     fs = FakeFileSystem()
-    bus = EventBus()
+    bus = SyncEventBus()
     logger = FakeLogger()
     repo = FakeJobRepository()
 
