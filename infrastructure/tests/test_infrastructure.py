@@ -1,5 +1,4 @@
 import pytest
-from sqlalchemy import func
 from uuid import UUID
 
 from domain import Job, JobStatus, JobFactory, FileInfo
