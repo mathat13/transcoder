@@ -8,12 +8,6 @@ class JobRepository:
     def __init__(self, session):
         self.session = session
 
-
-    def get_next_id(self) -> int:
-        last_id = self.session.query(func.max(JobModel.id)).scalar()
-        return (last_id or 0) + 1
-        
-
     def save(self, job: Job) -> None:
         job_record = JobMapper.to_JobModel(job)
         self.session.add(job_record)
