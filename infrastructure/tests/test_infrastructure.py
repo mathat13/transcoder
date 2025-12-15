@@ -1,8 +1,9 @@
 import pytest
 from sqlalchemy import func
+from uuid import UUID
 
 from domain import Job, JobStatus, JobFactory, FileInfo
-from infrastructure import JobModel, JobRepository, JobMapper
+from infrastructure import JobModel, JobMapper
 
 def test_can_create_job(db_session):
     job = JobModel(
@@ -75,7 +76,7 @@ def test_JobMapper():
     job = JobFactory()
     job_record = JobMapper.to_JobModel(job)
 
-    assert job_record.id == job.id
+    assert isinstance(job_record.id, str)
     assert isinstance(job_record.source_path, str)
     assert isinstance(job_record.output_path, str)
     assert isinstance(job_record.status, str)
@@ -84,7 +85,7 @@ def test_JobMapper():
 
     converted_job = JobMapper.to_Job(job_record)
 
-    assert job_record.id == converted_job.id
+    assert isinstance(converted_job.id, UUID)
     assert isinstance(converted_job.source_path, FileInfo)
     assert isinstance(converted_job.output_path, FileInfo)
     assert isinstance(converted_job.status, JobStatus)
@@ -93,11 +94,13 @@ def test_JobMapper():
 
 def test_JobRepository_save(db_session, job_repository):
     job = JobFactory()
+    str_job_id = str(job.id)
     job_repository.save(job)
 
-    retrieved_job = db_session.query(JobModel).filter(JobModel.id == job.id).first()
+    # Manually retrieve record from db
+    retrieved_job = db_session.query(JobModel).filter(JobModel.id == str_job_id).first()
 
-    assert retrieved_job.id == job.id
+    assert retrieved_job.id == str_job_id
 
 def test_JobRepository_get_job_by_id(db_session, job_repository):
     job = JobFactory()

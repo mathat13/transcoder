@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from domain import Job, FileInfo, JobStatus
 from infrastructure.persistence.models.JobModel import JobModel
 
@@ -6,7 +8,7 @@ class JobMapper:
     @staticmethod
     def to_JobModel(job: Job) -> JobModel:
         return JobModel(
-            id = job.id,
+            id = str(job.id),
             job_type = job.job_type,
             source_path = job.source_path.path,
             output_path = job.output_path.path,
@@ -18,7 +20,7 @@ class JobMapper:
     @staticmethod
     def to_Job(job_model: JobModel) -> Job:
         return JobModel(
-            id = job_model.id,
+            id = UUID(job_model.id),
             job_type = job_model.job_type,
             source_path = FileInfo(job_model.source_path),
             output_path = FileInfo(job_model.output_path),
