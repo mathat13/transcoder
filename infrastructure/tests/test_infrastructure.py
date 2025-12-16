@@ -2,7 +2,7 @@ import pytest
 from uuid import UUID
 
 from domain import Job, JobStatus, JobFactory, FileInfo
-from infrastructure import JobModel, JobMapper
+from infrastructure import JobModel, JobMapper, JobModelFactory
 
 def test_can_create_job(db_session):
     job = JobModel(
@@ -48,13 +48,34 @@ def test_JobRepository_save(db_session, job_repository):
 
 def test_JobRepository_get_job_by_id(db_session, job_repository):
     job = JobFactory()
+    converted_job = JobMapper.to_JobModel(job)
 
-    db_session.add(job)
+    db_session.add(converted_job)
     db_session.commit()
+    db_session.refresh(converted_job)
 
-    retrieved_job = job_repository.get_job_by_id(job.id)
+    retrieved_job = job_repository._get_job_by_id(converted_job.id)
 
     assert retrieved_job.id == job.id
+
+def test_JobModelFactory():
+    pass
+
+def test_JobRepository_get_next_pending_job(db_session, job_repository):
+    job_models = JobModelFactory.build_batch(10, status="pending")
+
+    assert len(job_models) == 10
+
+    next_job_with_repo = job_repository.get_next_pending_job()
+    next_job_direct = (
+            db_session.query(JobModel)
+            .filter(JobModel.status == "pending")
+            .order_by(JobModel.created_at.asc())
+            .first()
+        )
+
+    assert next_job_with_repo == next_job_direct
+
 
 
 
