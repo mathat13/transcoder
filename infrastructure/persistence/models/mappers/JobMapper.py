@@ -13,13 +13,14 @@ class JobMapper:
             source_path = job.source_path.path,
             output_path = job.output_path.path,
             status = job.status.value,
+            # datetime object conversion handled by sqlalchemy
             created_at = job.created_at,
             updated_at  = job.updated_at
         )
     
     @staticmethod
     def to_Job(job_model: JobModel) -> Job:
-        return JobModel(
+        return Job(
             id = UUID(job_model.id),
             job_type = job_model.job_type,
             source_path = FileInfo(job_model.source_path),

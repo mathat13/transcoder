@@ -3,7 +3,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from infrastructure import Base, JobModel
+from infrastructure import Base, JobModel, JobModelFactory
 
 TEST_DATABASE_URL = "sqlite://"
 
@@ -37,3 +37,8 @@ def db_session():
 def job_repository(db_session):
     from infrastructure import JobRepository
     return JobRepository(db_session)
+
+@pytest.fixture()
+def job_model_factory(db_session):
+    JobModelFactory._meta.sqlalchemy_session = db_session
+    return JobModelFactory

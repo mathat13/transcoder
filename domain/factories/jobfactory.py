@@ -1,7 +1,7 @@
 import factory
 from faker import Faker
 import datetime
-from uuid import uuid4
+import uuid
 
 from domain.aggregate_roots.Job import Job
 from domain.value_objects.JobStatus import JobStatus
@@ -13,10 +13,10 @@ class JobFactory(factory.Factory):
     class Meta:
         model = Job
 
-    id = uuid4()
+    id = factory.LazyFunction(lambda: uuid.uuid4())
     job_type = "episode"
-    source_path = FileInfo(fake.file_path(extension="mkv"))
-    output_path = source_path.transcoded_path
+    source_path = factory.LazyFunction(lambda: FileInfo(f"/media/{fake.file_name(extension='mkv')}"))
+    output_path = factory.LazyFunction(lambda: FileInfo(f"/media/{fake.file_name(extension='mkv')}"))
     status = JobStatus.pending
     created_at = factory.LazyFunction(lambda: fake.date_time_this_year(tzinfo=datetime.timezone.utc))
     updated_at = factory.LazyFunction(lambda: fake.date_time_this_year(tzinfo=datetime.timezone.utc))
