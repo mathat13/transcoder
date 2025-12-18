@@ -3,7 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from infrastructure import Base, JobModel, JobModelFactory
+from infrastructure import Base
+
+from tests import JobModelFactory
 
 TEST_DATABASE_URL = "sqlite://"
 

@@ -1,11 +1,5 @@
-from unittest.mock import MagicMock
-
 from infrastructure import SyncEventBus
 from application import (
-    FakeSyncEventBus,
-    FakeJobRepository,
-    FakeLogger,
-    FakeFileSystem,
     JobService,
     JobVerifyingOrchestrator,
     TranscodeVerified,
@@ -13,7 +7,6 @@ from application import (
 )
 from domain import (
     JobStatusChanged,
-    JobFactory,
     JobCreated,
     JobMovedToProcessing,
     JobMovedToVerifying,
@@ -22,6 +15,16 @@ from domain import (
     JobStatus,
     FileInfo,
 )
+
+from tests import (
+    FakeSyncEventBus,
+    FakeJobRepository,
+    FakeLogger,
+    FakeFileSystem,
+    JobFactory
+)
+
+
 
 def test_JobService_emits_correct_events_on_status_transition():
     bus = SyncEventBus()

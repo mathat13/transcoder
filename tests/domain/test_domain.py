@@ -3,14 +3,15 @@ import pytest
 from domain import (
     Job,
     JobStatus,
-    JobFactory,
     JobCreated,
     JobMovedToProcessing,
     JobMovedToVerifying,
     JobCompleted,
     JobFailed,
     FileInfo
-) 
+)
+
+from tests import JobFactory
 
 def test_FileInfo_creation():
     path_str = "/media/source/video.mkv"

@@ -2,8 +2,20 @@ import pytest
 from uuid import UUID
 from datetime import datetime
 
-from domain import Job, JobStatus, JobFactory, FileInfo
-from infrastructure import JobModel, JobMapper
+from domain import (
+    Job,
+    JobStatus,
+    FileInfo
+)
+
+from infrastructure import (
+    JobMapper,
+    JobModel
+)
+
+from tests import (
+    JobFactory
+)
 
 def test_job_model_factory(db_session, job_model_factory):
     # Add job_model to database with the create method
