@@ -4,3 +4,4 @@ from .services.JobStateMachine import *
 from .services.DomainEventFactory import *
 from .aggregate_roots.Job import *
 from .events.DomainEvents import *
+from .events.Base import *

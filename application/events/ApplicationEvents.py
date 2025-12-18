@@ -1,16 +1,18 @@
 from dataclasses import dataclass
 from typing import Optional
 
-@dataclass
-class ApplicationEvent:
+from domain import Event
+
+@dataclass(kw_only=True)
+class ApplicationEvent(Event):
     pass
 
-@dataclass
+@dataclass(kw_only=True)
 class TranscodeVerified(ApplicationEvent):
     job_id: int
     file_path: str
 
-@dataclass
+@dataclass(kw_only=True)
 class TranscodeVerificationFailed(ApplicationEvent):
     job_id: int
     file_path: str
