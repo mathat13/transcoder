@@ -56,7 +56,7 @@ def test_JobService_emits_correct_events_on_status_transition():
     assert isinstance(published_events[3], JobCompleted)
 
     # Save a new job to test failure transition 
-    job2 = JobFactory(id=2, status=JobStatus.verifying)
+    job2 = JobFactory(status=JobStatus.verifying)
     repo.save(job2)
 
     # Test failure transition
@@ -108,7 +108,7 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
     job = svc.create_job("episode", "/input.mp4")
 
     # repo
-    saved = repo.get(job.id)
+    saved = repo._get_job_by_id(job.id)
     assert saved.id == job.id
     assert saved.source_path == job.source_path
     assert saved.status == job.status
@@ -134,10 +134,10 @@ def test_subscriber_receives_domain_event():
     bus.subscribe(JobMovedToVerifying, subscriber)
     
     # store job
-    job = JobFactory(id=1, status=JobStatus.processing)
+    job = JobFactory(status=JobStatus.processing)
     repo.save(job)
 
-    service.transition_job(1, JobStatus.verifying)
+    service.transition_job(job.id, JobStatus.verifying)
 
     assert len(received) == 1
     event = bus.published[0]

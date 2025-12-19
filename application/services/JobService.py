@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from domain import Job
 
 class JobService:
@@ -16,8 +18,8 @@ class JobService:
 
         return job
 
-    def transition_job(self, job_id: int, new_status: str):
-        job = self.repo.get(job_id)
+    def transition_job(self, job_id: UUID, new_status: str):
+        job = self.repo._get_job_by_id(job_id)
         job.transition_to(new_status)
 
         self.repo.save(job)
