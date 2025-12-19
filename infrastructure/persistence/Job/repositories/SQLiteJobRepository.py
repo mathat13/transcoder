@@ -1,10 +1,10 @@
 from uuid import UUID
 
 from domain import Job
-from infrastructure.persistence.models.JobModel import JobModel
-from infrastructure.persistence.models.mappers.JobMapper import JobMapper
+from infrastructure.persistence.Job.models.JobModel import JobModel
+from infrastructure.persistence.Job.mappers.JobMapper import JobMapper
 
-class JobRepository:
+class SQLiteJobRepository:
     def __init__(self, session):
         self.session = session
 

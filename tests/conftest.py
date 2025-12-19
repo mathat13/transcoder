@@ -37,8 +37,8 @@ def db_session():
 
 @pytest.fixture()
 def job_repository(db_session):
-    from infrastructure import JobRepository
-    return JobRepository(db_session)
+    from infrastructure import SQLiteJobRepository
+    return SQLiteJobRepository(db_session)
 
 @pytest.fixture()
 def job_model_factory(db_session):

@@ -1,7 +1,12 @@
 from uuid import UUID
 
-from domain import Job, FileInfo, JobStatus
-from infrastructure.persistence.models.JobModel import JobModel
+from domain import (
+    Job,
+    FileInfo,
+    JobStatus
+)
+
+from infrastructure.persistence.Job.models.JobModel import JobModel
 
 class JobMapper:
 

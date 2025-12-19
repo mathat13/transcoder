@@ -3,7 +3,7 @@ from sqlalchemy.orm import declarative_base
 import datetime
 import uuid
 
-from infrastructure.persistence.base import Base
+from infrastructure.persistence.db.shared.base import Base
 
 class JobModel(Base):
     __tablename__ = "jobs"

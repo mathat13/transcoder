@@ -1,7 +1,7 @@
-from .persistence.base import Base
-from .persistence.engine import engine
-from .persistence.session import get_db_session, SessionLocal
-from .persistence.repositories.JobRepository_sqlite import JobRepository
-from .persistence.models.JobModel import JobModel
-from .persistence.models.mappers.JobMapper import JobMapper
+from .persistence.db.shared.base import Base
+from .persistence.db.sqlite.engine import engine
+from .persistence.db.sqlite.session import get_db_session, SessionLocal
+from .persistence.Job.repositories.SQLiteJobRepository import SQLiteJobRepository
+from .persistence.Job.models.JobModel import JobModel
+from .persistence.Job.mappers.JobMapper import JobMapper
 from .events.SyncEventBus import SyncEventBus

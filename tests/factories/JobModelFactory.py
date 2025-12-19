@@ -3,7 +3,7 @@ from faker import Faker
 import datetime
 import uuid
 
-from infrastructure.persistence.models.JobModel import JobModel
+from infrastructure.persistence.Job.models.JobModel import JobModel
 
 fake = Faker()
 
