@@ -3,9 +3,11 @@ from faker import Faker
 import datetime
 import uuid
 
-from domain.aggregate_roots.Job import Job
-from domain.value_objects.JobStatus import JobStatus
-from domain.value_objects.FileInfo import FileInfo
+from domain import (
+    Job,
+    JobStatus,
+    FileInfo
+)
 
 fake = Faker()
 
