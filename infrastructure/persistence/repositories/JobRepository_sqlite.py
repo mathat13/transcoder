@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from domain import Job
 from infrastructure.persistence.models.JobModel import JobModel
 from infrastructure.persistence.models.mappers.JobMapper import JobMapper
@@ -6,10 +8,10 @@ class JobRepository:
     def __init__(self, session):
         self.session = session
 
-    def _get_job_by_id(self, job_id: str) -> Job | None:
+    def _get_job_by_id(self, job_id: UUID) -> Job | None:
         retrieved_job_record = (
             self.session.query(JobModel)
-            .filter(JobModel.id == job_id)
+            .filter(JobModel.id == str(job_id))
             .first()
         )
 
