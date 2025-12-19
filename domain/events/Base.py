@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from dataclasses import dataclass, field
+from uuid import UUID
 
 @dataclass(kw_only=True)
 class Event:
