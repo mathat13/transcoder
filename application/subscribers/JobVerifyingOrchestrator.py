@@ -2,17 +2,17 @@ from domain import JobMovedToVerifying, JobStatus
 from application.events.ApplicationEvents import TranscodeVerified, TranscodeVerificationFailed
 
 class JobVerifyingOrchestrator:
-    def __init__(self, event_bus, logger, file_checker):
+    def __init__(self, event_bus, logger, filesystem):
         self.bus = event_bus
         self.logger = logger
-        self.file_checker = file_checker
+        self.filesystem = filesystem
 
     def __call__(self, event: JobMovedToVerifying):
         self._VerifyTranscodeCompleted(event)
         # Add further workflows as needed
         
     def _VerifyTranscodeCompleted(self, event):
-        if not self.file_checker.exists(event.output_path.path):
+        if not self.filesystem.exists(event.output_path):
             self.logger.publish_error(f"[Job {event.job_id}] Output missing: {event.output_path.path}")
             self.bus.publish(TranscodeVerificationFailed(job_id=event.job_id,file_path=event.output_path.path))
             return

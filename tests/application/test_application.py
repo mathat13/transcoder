@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from infrastructure import SyncEventBus
 from application import (
     JobService,
@@ -73,7 +75,7 @@ def test_event_bus_calls_subscribers():
 
     bus.subscribe(JobStatusChanged, handler)
 
-    evt = [JobStatusChanged(job_id=1, old_status=JobStatus.pending, new_status=JobStatus.success)]
+    evt = [JobStatusChanged(job_id=uuid4(), old_status=JobStatus.pending, new_status=JobStatus.success)]
     bus.publish_all(evt)
 
     assert called == evt
@@ -81,7 +83,7 @@ def test_event_bus_calls_subscribers():
 def test_event_bus_no_subscribers():
     bus = FakeSyncEventBus()
 
-    evt = JobStatusChanged(job_id=1, old_status=JobStatus.pending, new_status=JobStatus.success)
+    evt = JobStatusChanged(job_id=uuid4(), old_status=JobStatus.pending, new_status=JobStatus.success)
 
     # Should not raise
     bus.publish(evt)
@@ -91,7 +93,7 @@ def test_event_bus_publish_called_directly():
     handled = []
     bus.subscribe(JobStatusChanged, lambda evt: handled.append(evt))
 
-    evt = JobStatusChanged(job_id=1, old_status=JobStatus.pending, new_status=JobStatus.success)
+    evt = JobStatusChanged(job_id=uuid4(), old_status=JobStatus.pending, new_status=JobStatus.success)
     bus.publish(evt)
 
     assert evt in handled
@@ -158,7 +160,10 @@ def test_JobVerifyingOrchestrator_unit_test():
     bus.subscribe(TranscodeVerificationFailed, transcode_verified_handler)
 
     # Simulate JobMovedToVerifying event with existing file
-    event = JobMovedToVerifying(job_id=1, output_path=FileInfo("/path/to/existing_file.mp4"))
+    event = JobMovedToVerifying(job_id=uuid4(), output_path=FileInfo("/path/to/existing_file.mp4"))
+
+    fs.add(event.output_path) # Add file to fake FS
+
     orchestrator(event)
 
     assert any(isinstance(evt, TranscodeVerified) for evt in handled)
@@ -183,8 +188,10 @@ def test_JobVerifyingOrchestrator_integration():
     bus.subscribe(TranscodeVerificationFailed, transcode_verified_handler)
 
     job = svc.create_job("episode", "/input.mp4")
+
+    fs.add(job.output_path)
+
     svc.transition_job(job.id, JobStatus.processing)
     svc.transition_job(job.id, JobStatus.verifying)
 
-    print(handled)
     assert any(isinstance(evt, TranscodeVerified) for evt in handled)

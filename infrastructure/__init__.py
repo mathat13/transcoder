@@ -4,4 +4,5 @@ from .persistence.db.sqlite.session import get_db_session, SessionLocal
 from .persistence.Job.repositories.SQLiteJobRepository import SQLiteJobRepository
 from .persistence.Job.models.JobModel import JobModel
 from .persistence.Job.mappers.JobMapper import JobMapper
+from .filesystem.FileSystem import FileSystem
 from .events.SyncEventBus import SyncEventBus
