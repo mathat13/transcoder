@@ -14,8 +14,8 @@ class Job:
 
     # Non-Default
     job_type: str
-    source_path: FileInfo
-    output_path: FileInfo
+    source_file: FileInfo
+    transcode_file: FileInfo
     
     # Default
     id: UUID = field(default_factory=uuid4)
@@ -52,15 +52,15 @@ class Job:
         self._emit(event)
     
     @classmethod
-    def create(cls, job_type: str, source_path: str) -> "Job":
+    def create(cls, job_type: str, source_file: str) -> "Job":
         """Factory for creating a valid Job aggregate."""
-        path = FileInfo(source_path)
-        transcoded_path = path.transcoded_path
+        source_file = FileInfo(source_file)
+        transcode_file = source_file.transcode_file
 
         job = cls(
             job_type=job_type,
-            source_path=path,
-            output_path=transcoded_path,
+            source_file=source_file,
+            transcode_file=transcode_file,
             status=JobStatus.pending,
         )
         

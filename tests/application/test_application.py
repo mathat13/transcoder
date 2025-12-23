@@ -112,7 +112,7 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
     # repo
     saved = repo._get_job_by_id(job.id)
     assert saved.id == job.id
-    assert saved.source_path == job.source_path
+    assert saved.source_file == job.source_file
     assert saved.status == job.status
     assert saved.job_type == job.job_type
 
@@ -160,9 +160,9 @@ def test_JobVerifyingOrchestrator_unit_test():
     bus.subscribe(TranscodeVerificationFailed, transcode_verified_handler)
 
     # Simulate JobMovedToVerifying event with existing file
-    event = JobMovedToVerifying(job_id=uuid4(), output_path=FileInfo("/path/to/existing_file.mp4"))
+    event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
 
-    fs.add(event.output_path) # Add file to fake FS
+    fs.add(event.transcode_file) # Add file to fake FS
 
     orchestrator(event)
 
@@ -189,7 +189,7 @@ def test_JobVerifyingOrchestrator_integration():
 
     job = svc.create_job("episode", "/input.mp4")
 
-    fs.add(job.output_path)
+    fs.add(job.transcode_file)
 
     svc.transition_job(job.id, JobStatus.processing)
     svc.transition_job(job.id, JobStatus.verifying)

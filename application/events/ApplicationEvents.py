@@ -11,10 +11,10 @@ class ApplicationEvent(Event):
 @dataclass(kw_only=True)
 class TranscodeVerified(ApplicationEvent):
     job_id: UUID
-    file_path: FileInfo
+    transcode_file: FileInfo
 
 @dataclass(kw_only=True)
 class TranscodeVerificationFailed(ApplicationEvent):
     job_id: UUID
-    file_path: FileInfo
+    transcode_file: FileInfo
     reason: Optional[str] = None

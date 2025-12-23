@@ -38,24 +38,24 @@ def test_JobMapper():
     assert isinstance(job_record, JobModel)
     assert isinstance(job_record.id, str)
     assert isinstance(job_record.source_path, str)
-    assert isinstance(job_record.output_path, str)
+    assert isinstance(job_record.transcode_path, str)
     assert isinstance(job_record.status, str)
     assert isinstance(job_record.created_at, datetime)
     assert isinstance(job_record.updated_at, datetime)
-    assert job_record.source_path == job.source_path.path
-    assert job_record.output_path == job.output_path.path
+    assert job_record.source_path == job.source_file.path
+    assert job_record.transcode_path == job.transcode_file.path
 
     converted_job = JobMapper.to_Job(job_record)
 
     assert isinstance(converted_job, Job)
     assert isinstance(converted_job.id, UUID)
-    assert isinstance(converted_job.source_path, FileInfo)
-    assert isinstance(converted_job.output_path, FileInfo)
+    assert isinstance(converted_job.source_file, FileInfo)
+    assert isinstance(converted_job.transcode_file, FileInfo)
     assert isinstance(converted_job.status, JobStatus)
     assert isinstance(converted_job.created_at, datetime)
     assert isinstance(converted_job.updated_at, datetime)
-    assert job_record.source_path == converted_job.source_path.path
-    assert job_record.output_path == converted_job.output_path.path
+    assert job_record.source_path == converted_job.source_file.path
+    assert job_record.transcode_path == converted_job.transcode_file.path
 
 def test_JobRepository_save(db_session, job_repository):
     job = JobFactory()

@@ -12,10 +12,10 @@ class JobVerifyingOrchestrator:
         # Add further workflows as needed
         
     def _VerifyTranscodeCompleted(self, event):
-        if not self.filesystem.exists(event.output_path):
-            self.logger.publish_error(f"[Job {event.job_id}] Output missing: {event.output_path.path}")
-            self.bus.publish(TranscodeVerificationFailed(job_id=event.job_id,file_path=event.output_path.path))
+        if not self.filesystem.exists(event.transcode_file):
+            self.logger.publish_error(f"[Job {event.job_id}] Output missing: {event.transcode_file}")
+            self.bus.publish(TranscodeVerificationFailed(job_id=event.job_id,transcode_file=event.transcode_file))
             return
         
         self.logger.publish_message(f"[Job {event.job_id}] Output OK")
-        self.bus.publish(TranscodeVerified(job_id=event.job_id,file_path=event.output_path.path))
+        self.bus.publish(TranscodeVerified(job_id=event.job_id,transcode_file=event.transcode_file))

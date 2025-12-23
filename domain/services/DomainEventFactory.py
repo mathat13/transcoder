@@ -9,12 +9,12 @@ class DOMAIN_EVENT_FACTORY:
             case JobStatus.pending:
                 return JobCreated(
                     job_id=job.id,
-                    source_path=job.source_path
+                    source_file=job.source_file
                 )
             case JobStatus.verifying:
                 return JobMovedToVerifying(
                     job_id=job.id,
-                    output_path=job.output_path
+                    transcode_file=job.transcode_file
                 )
             case JobStatus.processing:
                 return JobMovedToProcessing(

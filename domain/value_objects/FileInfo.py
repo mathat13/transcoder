@@ -25,6 +25,6 @@ class FileInfo:
         return os.path.splitext(self.path)[1]
     
     @property
-    def transcoded_path(self) -> "FileInfo":
+    def transcode_file(self) -> "FileInfo":
         base, ext = os.path.splitext(self.path)
         return FileInfo(f"{base}_transcoded{ext}")

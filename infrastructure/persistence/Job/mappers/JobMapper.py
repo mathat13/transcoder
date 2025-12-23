@@ -15,8 +15,8 @@ class JobMapper:
         return JobModel(
             id = str(job.id),
             job_type = job.job_type,
-            source_path = job.source_path.path,
-            output_path = job.output_path.path,
+            source_path = job.source_file.path,
+            transcode_path = job.transcode_file.path,
             status = job.status.value,
             # datetime object conversion handled by sqlalchemy
             created_at = job.created_at,
@@ -28,8 +28,8 @@ class JobMapper:
         return Job(
             id = UUID(job_model.id),
             job_type = job_model.job_type,
-            source_path = FileInfo(job_model.source_path),
-            output_path = FileInfo(job_model.output_path),
+            source_file = FileInfo(job_model.source_path),
+            transcode_file = FileInfo(job_model.transcode_path),
             status = JobStatus(job_model.status),
             created_at = job_model.created_at,
             updated_at  = job_model.updated_at

@@ -19,7 +19,7 @@ class JobStatusChanged(DomainEvent):
 @dataclass(kw_only=True)
 class JobCreated(DomainEvent):
     job_id: UUID
-    source_path: FileInfo
+    source_file: FileInfo
 
 @dataclass(kw_only=True)
 class JobMovedToProcessing(DomainEvent):
@@ -28,7 +28,7 @@ class JobMovedToProcessing(DomainEvent):
 @dataclass(kw_only=True)
 class JobMovedToVerifying(DomainEvent):
     job_id: UUID
-    output_path: FileInfo
+    transcode_file: FileInfo
 
 @dataclass(kw_only=True)
 class JobCompleted(DomainEvent):

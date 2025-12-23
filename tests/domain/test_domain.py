@@ -20,7 +20,7 @@ def test_FileInfo_creation():
     assert file_info.path == path_str
     assert isinstance(file_info, FileInfo)
 
-    transcoded = file_info.transcoded_path
+    transcoded = file_info.transcode_file
 
     assert isinstance(transcoded, FileInfo)
     assert transcoded.path == "/media/source/video_transcoded.mkv"
@@ -40,14 +40,14 @@ def test_FileInfo_invalid_path_raises_value_error():
 
 
 def test_job_added():
-    job = Job.create(job_type="episode", source_path="/path/to/source.mkv")
+    job = Job.create(job_type="episode", source_file="/path/to/source.mkv")
 
     assert job.id is not None
     assert job.status == JobStatus.pending
-    assert isinstance(job.source_path, FileInfo)
-    assert job.source_path.path == "/path/to/source.mkv"
-    assert isinstance(job.output_path, FileInfo)
-    assert job.output_path.path == "/path/to/source_transcoded.mkv"
+    assert isinstance(job.source_file, FileInfo)
+    assert job.source_file.path == "/path/to/source.mkv"
+    assert isinstance(job.transcode_file, FileInfo)
+    assert job.transcode_file.path == "/path/to/source_transcoded.mkv"
     
     assert len(job.events) == 1
     event = job.events[0]
