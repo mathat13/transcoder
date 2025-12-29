@@ -5,4 +5,6 @@ from .persistence.Job.repositories.SQLiteJobRepository import SQLiteJobRepositor
 from .persistence.Job.models.JobModel import JobModel
 from .persistence.Job.mappers.JobMapper import JobMapper
 from .filesystem.FileSystem import FileSystem
+from .api_adapters.shared.HTTPClient import HTTPClient
+from .api_adapters.shared.HTTPResponse import HTTPResponse
 from .events.SyncEventBus import SyncEventBus

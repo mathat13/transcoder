@@ -1,14 +1,14 @@
 from typing import Protocol
 
 class HTTPClient(Protocol):
-    def get(self) -> None:
+    def get(self, url: str, headers: dict, data: dict) -> dict:
         ...
     
-    def post(self) -> None:
+    def post(self, url: str, headers: dict, data: dict) -> dict:
         ...
 
-    def patch(self) -> None:
+    def patch(self, url: str, headers: dict, data: dict) -> dict:
         ...
 
-    def delete(self) -> None:
+    def delete(self, url: str, headers: dict, data: dict) -> dict:
         ...

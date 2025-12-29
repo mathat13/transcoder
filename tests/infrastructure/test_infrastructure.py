@@ -11,7 +11,9 @@ from domain import (
 from infrastructure import (
     JobMapper,
     JobModel,
-    FileSystem
+    FileSystem,
+    HTTPClient,
+    HTTPResponse
 )
 
 from tests import (
@@ -135,6 +137,24 @@ def test_filesystem_exists_returns_false_for_non_existing_file(tmp_path):
     result = fs.exists(file_info)
 
     assert result is False
+
+def test_HTTPClient_get_method():
+    client = HTTPClient()
+    url = "https://api.restful-api.dev/objects"
+    headers = {
+        "content-type": "application/json"
+    }
+
+    query_params = {
+        "id": 3
+    }
+
+    response = client.get(url, headers, query_params)
+
+    assert response.status_code == 200
+    assert response.ok is True
+    assert isinstance(response, HTTPResponse)
+    assert isinstance(response.data, (list, dict))
 
 
 
