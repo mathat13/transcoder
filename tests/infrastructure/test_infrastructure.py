@@ -254,3 +254,9 @@ def test_httpclient_delete_with_requests_mock():
     assert response.status_code == 200
     assert response.data == {"message": "hello"}
     assert response.url.startswith(url)
+
+    def test_RadarrAPIAdapter_get_movie():
+        pass
+
+    def test_Radarr_rescan_movie():
+        pass

@@ -4,3 +4,4 @@ from .fakes.FakeFileSystem import *
 from .fakes.FakeSyncEventBus import *
 from .fakes.FakeJobRepository import *
 from .fakes.FakeLogger import *
+from .fakes.FakeHTTPClient import *
