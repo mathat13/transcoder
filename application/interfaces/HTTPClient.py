@@ -1,20 +1,26 @@
 from typing import Protocol
 
-from infrastructure import HTTPResponse
+from infrastructure import (
+    HTTPResponse,
+    HTTPRequest
+)
 
-class HTTPClient(Protocol):
-
-    def get(self, url: str, headers: dict, query_params: dict | None = None) -> HTTPResponse:
-       ...
-    
-    def post(self, url: str, headers: dict, query_params: dict | None = None, data: dict | None = None) -> HTTPResponse:
-        ...
-
-    def patch(self, url: str, headers: dict, query_params: dict | None = None, data: dict | None = None) -> HTTPResponse:
-        ...
-    
-    def put(self, url: str, headers: dict, query_params: dict | None = None, data: dict | None = None) -> HTTPResponse:
+class HTTPClient():
+    """
+    HTTP Client for making pre-defined HTTP requests.
+    Expects HTTPRequest object and returns HTTPResponse object.
+    """
+    def get(self, request: HTTPRequest) -> HTTPResponse:
         ...
     
-    def delete(self, url: str, headers: dict, query_params: dict | None = None) -> HTTPResponse:
+    def post(self, request: HTTPRequest) -> HTTPResponse:
+        ...
+
+    def patch(self, request: HTTPRequest) -> HTTPResponse:
+        ...
+    
+    def put(self, request: HTTPRequest) -> HTTPResponse:
+        ...
+
+    def delete(self, request: HTTPRequest) -> HTTPResponse:
         ...

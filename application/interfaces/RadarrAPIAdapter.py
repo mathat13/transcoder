@@ -1,10 +1,10 @@
 from typing import Protocol
 
 class RadarrAPIAdapter(Protocol):
-    def rescan_movie(self,) -> None:
+    def rescan_movie(self, movie_id: int) -> None:
         ...
 
-    def get_movie(self,) -> None:
+    def get_movie(self, movie_id: int) -> None:
         ...
 
     

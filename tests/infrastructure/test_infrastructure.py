@@ -15,7 +15,8 @@ from infrastructure import (
     JobModel,
     FileSystem,
     HTTPClient,
-    HTTPResponse
+    HTTPResponse,
+    HTTPRequest
 )
 
 from tests import (
@@ -152,11 +153,13 @@ def test_httpclient_get_with_requests_mock():
             headers={"Content-Type": "application/json"},
         )
 
-        response = client.get(
+        request = HTTPRequest(
             url=url,
             headers={"Authorization": "Bearer token"},
             query_params={"id": 3},
-        )
+            )
+        
+        response = client.get(request)
 
     assert response.ok is True
     assert response.status_code == 200
@@ -175,11 +178,13 @@ def test_httpclient_post_with_requests_mock():
             headers={"Content-Type": "application/json"},
         )
 
-        response = client.post(
+        request = HTTPRequest(
             url=url,
             headers={"Authorization": "Bearer token"},
             data={"key": "value"},
         )
+
+        response = client.post(request)
 
     assert response.ok is True
     assert response.status_code == 200
@@ -198,11 +203,13 @@ def test_httpclient_put_with_requests_mock():
             headers={"Content-Type": "application/json"},
         )
 
-        response = client.put(
+        request = HTTPRequest(
             url=url,
             headers={"Authorization": "Bearer token"},
             data={"key": "value"},
         )
+        
+        response = client.put(request)
 
     assert response.ok is True
     assert response.status_code == 200
@@ -221,11 +228,13 @@ def test_httpclient_patch_with_requests_mock():
             headers={"Content-Type": "application/json"},
         )
 
-        response = client.patch(
+        request = HTTPRequest(
             url=url,
             headers={"Authorization": "Bearer token"},
             data={"key": "value"},
         )
+
+        response = client.patch(request)
 
     assert response.ok is True
     assert response.status_code == 200
@@ -244,11 +253,13 @@ def test_httpclient_delete_with_requests_mock():
             headers={"Content-Type": "application/json"},
         )
 
-        response = client.delete(
+        request = HTTPRequest(
             url=url,
             headers={"Authorization": "Bearer token"},
             query_params={"id": 3},
         )
+        
+        response = client.delete(request)
 
     assert response.ok is True
     assert response.status_code == 200

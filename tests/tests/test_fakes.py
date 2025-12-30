@@ -13,7 +13,7 @@ from tests import (
 
 from infrastructure import (
     HTTPResponse,
-    
+    HTTPRequest
 )
 
 
@@ -54,10 +54,16 @@ def test_FakeFileSystem_exists_returns_false_with_non_existing_file():
     assert result is False
 
 def test_FakeHTTPClient_get_method():
-
     url = "https://example.com/api/resource"
     headers = {"Authorization": "Bearer token"}
     query_params = {"id": 3}
+
+    request = HTTPRequest(
+        url=url,
+        headers=headers,
+        query_params=query_params
+    )
+
     fake_response = HTTPResponse(
         ok=True,
         status_code=200,
@@ -67,7 +73,7 @@ def test_FakeHTTPClient_get_method():
     )
     client = FakeHTTPClient(response=fake_response)
 
-    response = client.get(url, headers, query_params)
+    response = client.get(request)
 
     assert response == fake_response
     assert response.ok is True
