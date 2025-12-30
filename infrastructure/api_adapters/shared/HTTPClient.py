@@ -4,6 +4,7 @@ from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 
 class HTTPClient():
     def __init__(self):
+        # Shared state here
         pass
 
     def get(self, url: str, headers: dict, query_params: dict = dict()) -> HTTPResponse:
@@ -18,6 +19,10 @@ class HTTPClient():
         response = requests.patch(url, headers=headers, params=query_params, json=data)
         return HTTPResponse.from_response(response)
     
-    def delete(self, url: str, headers: dict, query_params: dict = dict(), data: dict = dict()) -> HTTPResponse:
-        response = requests.delete(url, headers=headers, params=query_params, json=data)
+    def put(self, url: str, headers: dict, query_params: dict = dict(), data: dict = dict()) -> HTTPResponse:
+        response = requests.put(url, headers=headers, params=query_params, json=data)
+        return HTTPResponse.from_response(response)
+    
+    def delete(self, url: str, headers: dict, query_params: dict = dict()) -> HTTPResponse:
+        response = requests.delete(url, headers=headers, params=query_params)
         return HTTPResponse.from_response(response)

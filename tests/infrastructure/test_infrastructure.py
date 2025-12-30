@@ -1,4 +1,6 @@
 import pytest
+import requests_mock
+
 from uuid import UUID
 from datetime import datetime
 
@@ -138,28 +140,117 @@ def test_filesystem_exists_returns_false_for_non_existing_file(tmp_path):
 
     assert result is False
 
-def test_HTTPClient_get_method():
+def test_httpclient_get_with_requests_mock():
     client = HTTPClient()
-    url = "https://api.restful-api.dev/objects"
-    headers = {
-        "content-type": "application/json"
-    }
+    url = "https://example.com/api/resource"
 
-    query_params = {
-        "id": 3
-    }
+    with requests_mock.Mocker() as m:
+        m.get(
+            url,
+            json={"message": "hello"},
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
 
-    response = client.get(url, headers, query_params)
+        response = client.get(
+            url=url,
+            headers={"Authorization": "Bearer token"},
+            query_params={"id": 3},
+        )
 
-    assert response.status_code == 200
     assert response.ok is True
-    assert isinstance(response, HTTPResponse)
-    assert isinstance(response.data, (list, dict))
+    assert response.status_code == 200
+    assert response.data == {"message": "hello"}
+    assert response.url.startswith(url)
 
+def test_httpclient_post_with_requests_mock():
+    client = HTTPClient()
+    url = "https://example.com/api/resource"
 
+    with requests_mock.Mocker() as m:
+        m.post(
+            url,
+            json={"message": "hello"},
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
 
+        response = client.post(
+            url=url,
+            headers={"Authorization": "Bearer token"},
+            data={"key": "value"},
+        )
 
+    assert response.ok is True
+    assert response.status_code == 200
+    assert response.data == {"message": "hello"}
+    assert response.url.startswith(url)
 
+def test_httpclient_put_with_requests_mock():
+    client = HTTPClient()
+    url = "https://example.com/api/resource"
 
+    with requests_mock.Mocker() as m:
+        m.put(
+            url,
+            json={"message": "hello"},
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
 
+        response = client.put(
+            url=url,
+            headers={"Authorization": "Bearer token"},
+            data={"key": "value"},
+        )
 
+    assert response.ok is True
+    assert response.status_code == 200
+    assert response.data == {"message": "hello"}
+    assert response.url.startswith(url)
+
+def test_httpclient_patch_with_requests_mock():
+    client = HTTPClient()
+    url = "https://example.com/api/resource"
+
+    with requests_mock.Mocker() as m:
+        m.patch(
+            url,
+            json={"message": "hello"},
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+        response = client.patch(
+            url=url,
+            headers={"Authorization": "Bearer token"},
+            data={"key": "value"},
+        )
+
+    assert response.ok is True
+    assert response.status_code == 200
+    assert response.data == {"message": "hello"}
+    assert response.url.startswith(url)
+
+def test_httpclient_delete_with_requests_mock():
+    client = HTTPClient()
+    url = "https://example.com/api/resource"
+
+    with requests_mock.Mocker() as m:
+        m.delete(
+            url,
+            json={"message": "hello"},
+            status_code=200,
+            headers={"Content-Type": "application/json"},
+        )
+
+        response = client.delete(
+            url=url,
+            headers={"Authorization": "Bearer token"},
+            query_params={"id": 3},
+        )
+
+    assert response.ok is True
+    assert response.status_code == 200
+    assert response.data == {"message": "hello"}
+    assert response.url.startswith(url)
