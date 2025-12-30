@@ -1,8 +1,6 @@
-from typing import Protocol
-
 from infrastructure import HTTPResponse
 
-class HTTPClient(Protocol):
+class HTTPClient():
 
     def get(self, url: str, headers: dict, query_params: dict | None = None) -> HTTPResponse:
        ...
