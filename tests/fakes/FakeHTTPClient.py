@@ -2,8 +2,14 @@ from infrastructure import HTTPResponse
 
 class HTTPClient():
 
-    def get(self, url: str, headers: dict, query_params: dict | None = None) -> HTTPResponse:
-       ...
+    def get(self, url: str, headers: dict, query_params: dict | None = None) -> HTTPResponse:    
+       return HTTPResponse(
+            ok=True,
+            status_code=200,
+            headers=headers,
+            data={},
+            url=url
+        )
     
     def post(self, url: str, headers: dict, query_params: dict | None = None, data: dict | None = None) -> HTTPResponse:
         ...
@@ -16,3 +22,6 @@ class HTTPClient():
     
     def delete(self, url: str, headers: dict, query_params: dict | None = None) -> HTTPResponse:
         ...
+
+    def create_response(self) -> HTTPResponse:
+        
