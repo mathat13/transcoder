@@ -53,7 +53,7 @@ def test_FakeFileSystem_exists_returns_false_with_non_existing_file():
 
     assert result is False
 
-def test_FakeHTTPClient_get_method():
+def test_FakeHTTPClient_send_method():
     url = "https://example.com/api/resource"
     headers = {"Authorization": "Bearer token"}
     query_params = {"id": 3}
@@ -73,7 +73,7 @@ def test_FakeHTTPClient_get_method():
     )
     client = FakeHTTPClient(response=fake_response)
 
-    response = client.get(request)
+    response = client._send(request)
 
     assert response is fake_response
     
