@@ -75,11 +75,6 @@ def test_FakeHTTPClient_get_method():
 
     response = client.get(request)
 
-    assert response == fake_response
-    assert response.ok is True
-    assert response.status_code == 200
-    assert response.headers == headers
-    assert response.url == url
     assert response is fake_response
     
 

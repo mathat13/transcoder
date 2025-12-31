@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import requests.models
 
-@dataclass
+@dataclass(frozen=True)
 class HTTPResponse:
     ok: bool
     status_code: int
