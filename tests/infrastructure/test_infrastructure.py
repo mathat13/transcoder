@@ -4,6 +4,7 @@ import requests_mock
 from uuid import UUID
 from datetime import datetime
 from dataclasses import asdict
+from pydantic import ValidationError
 
 from domain import (
     Job,
@@ -294,6 +295,33 @@ def test_RadarrAPIAdapter_generates_valid_HTTPRequest():
 
     assert asdict(request) == asdict(required_request)
 
+def test_RadarrAPIAdapter_with_params_generates_valid_HTTPRequest():
+    url = "https://radarr.local/api/v3/movie/1/rescan"
+    headers = {"X-Api-Key": "fakeapikey"}
+    movie_id = 2
+
+    required_request = HTTPRequest(
+        url=url,
+        headers=headers,
+        query_params={"id": 1},
+        data={
+            "hello": "world",
+            "movie_id": movie_id
+        }
+    )
+    response = HTTPResponse(
+            ok=True,
+            status_code=200,
+            headers=headers,
+            data={"message": "hello"},
+            url=url,
+        )
+    client = FakeHTTPClient(response=response)
+    adapter = RadarrAPIAdapter(client)
+    request = adapter.generate_request_with_params(movie_id=movie_id)
+
+    assert asdict(request) == asdict(required_request)
+
 
 def test_RadarrAPIAdapter_retrieves_correct_HTTPResponse():
     url="https://radarr.local/api/v3/movie/1/rescan"
@@ -323,6 +351,33 @@ def test_RadarrAPIAdapter_retrieves_correct_HTTPResponse():
 
     assert asdict(response) == asdict(required_response)
     assert response is required_response
+
+def test_RadarrAPIAdapter_fails_on_incorrect_data_response():
+    url="https://radarr.local/api/v3/movie/1/rescan"
+    headers={"X-Api-Key": "fakeapikey"}
+
+    bad_data_response = HTTPResponse(
+            ok=True,
+            status_code=200,
+            headers=headers,
+            data={"message": 1},
+            url=url,
+        )
+    
+    client = FakeHTTPClient(response=bad_data_response)
+    adapter = RadarrAPIAdapter(client)
+
+    request = HTTPRequest(
+        url=url,
+        headers=headers,
+        query_params={"id": 1},
+        data={
+            "hello": "world"
+        }
+    )
+
+    pytest.raises(ValidationError, adapter.retrieve_response, request)
+
 
 def test_RadarrAPIAdapter_returns_True_on_successful_response():
     url="https://radarr.local/api/v3/movie/1/rescan"
@@ -362,6 +417,8 @@ def test_RadarrAPIAdapter_returns_False_on_unsuccessful_response():
 
     assert response is False
 
+def test_RadarrAPIAdapter_passes_back_return_values_correctly_when_there_are_multiple():
+    pass
 
 def test_Radarr_rescan_movie():
     pass

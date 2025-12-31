@@ -6,6 +6,7 @@ from .persistence.Job.models.JobModel import JobModel
 from .persistence.Job.mappers.JobMapper import JobMapper
 from .filesystem.FileSystem import FileSystem
 from .api_adapters.radarr.RadarrAPIAdapter import RadarrAPIAdapter
+from .api_adapters.radarr.data_models.test_data_model import *
 from .api_adapters.shared.HTTPClient import HTTPClient
 from .api_adapters.shared.HTTPResponse import HTTPResponse
 from .api_adapters.shared.HTTPRequest import HTTPRequest
