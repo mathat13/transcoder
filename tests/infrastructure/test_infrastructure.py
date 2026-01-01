@@ -272,75 +272,78 @@ def test_httpclient_delete_with_requests_mock():
 
 def test_RadarrAPIAdapter_generates_valid_HTTPRequest():
     url = "https://radarr.local/api/v3/movie/1/rescan"
-    headers = {"X-Api-Key": "fakeapikey"}
+    response_headers = {"X-Api-Key": "fakeapikey"}
+
+    response = HTTPResponse(
+            ok=True,
+            status_code=200,
+            headers=response_headers,
+            data={"message": "hello"},
+            url=url,
+        )
+    client = FakeHTTPClient(response=response)
+    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
 
     required_request = HTTPRequest(
         url=url,
-        headers=headers,
+        headers=adapter.headers,
         query_params={"id": 1},
         data={
             "hello": "world"
         }
     )
-    response = HTTPResponse(
-            ok=True,
-            status_code=200,
-            headers=headers,
-            data={"message": "hello"},
-            url=url,
-        )
-    client = FakeHTTPClient(response=response)
-    adapter = RadarrAPIAdapter(client)
+
     request = adapter.generate_request()
 
     assert asdict(request) == asdict(required_request)
 
 def test_RadarrAPIAdapter_with_params_generates_valid_HTTPRequest():
     url = "https://radarr.local/api/v3/movie/1/rescan"
-    headers = {"X-Api-Key": "fakeapikey"}
+    response_headers = {"X-Api-Key": "fakeapikey"}
     movie_id = 2
+
+    response = HTTPResponse(
+            ok=True,
+            status_code=200,
+            headers=response_headers,
+            data={"message": "hello"},
+            url=url,
+        )
+    client = FakeHTTPClient(response=response)
+    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
+    request = adapter.generate_request_with_params(movie_id=movie_id)
 
     required_request = HTTPRequest(
         url=url,
-        headers=headers,
+        headers=adapter.headers,
         query_params={"id": 1},
         data={
             "hello": "world",
             "movie_id": movie_id
         }
     )
-    response = HTTPResponse(
-            ok=True,
-            status_code=200,
-            headers=headers,
-            data={"message": "hello"},
-            url=url,
-        )
-    client = FakeHTTPClient(response=response)
-    adapter = RadarrAPIAdapter(client)
-    request = adapter.generate_request_with_params(movie_id=movie_id)
 
     assert asdict(request) == asdict(required_request)
 
 
 def test_RadarrAPIAdapter_retrieves_correct_HTTPResponse():
     url="https://radarr.local/api/v3/movie/1/rescan"
-    headers={"X-Api-Key": "fakeapikey"}
+    response_headers={"X-Api-Key": "fakeapikey"}
 
     required_response = HTTPResponse(
             ok=True,
             status_code=200,
-            headers=headers,
+            headers=response_headers,
             data={"message": "hello"},
             url=url,
         )
     
     client = FakeHTTPClient(response=required_response)
-    adapter = RadarrAPIAdapter(client)
+    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
 
     request = HTTPRequest(
         url=url,
-        headers=headers,
+        headers=adapter.headers,
         query_params={"id": 1},
         data={
             "hello": "world"
@@ -354,22 +357,22 @@ def test_RadarrAPIAdapter_retrieves_correct_HTTPResponse():
 
 def test_RadarrAPIAdapter_fails_on_incorrect_data_response():
     url="https://radarr.local/api/v3/movie/1/rescan"
-    headers={"X-Api-Key": "fakeapikey"}
+    response_headers={"X-Api-Key": "fakeapikey"}
 
     bad_data_response = HTTPResponse(
             ok=True,
             status_code=200,
-            headers=headers,
+            headers=response_headers,
             data={"message": 1},
             url=url,
         )
     
     client = FakeHTTPClient(response=bad_data_response)
-    adapter = RadarrAPIAdapter(client)
+    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
 
     request = HTTPRequest(
         url=url,
-        headers=headers,
+        headers=adapter.headers,
         query_params={"id": 1},
         data={
             "hello": "world"
@@ -381,18 +384,18 @@ def test_RadarrAPIAdapter_fails_on_incorrect_data_response():
 
 def test_RadarrAPIAdapter_returns_True_on_successful_response():
     url="https://radarr.local/api/v3/movie/1/rescan"
-    headers={"X-Api-Key": "fakeapikey"}
+    response_headers={"X-Api-Key": "fakeapikey"}
 
     success_response = HTTPResponse(
             ok=True,
             status_code=200,
-            headers=headers,
+            headers=response_headers,
             data={"message": "hello"},
             url=url,
         )
     
     client = FakeHTTPClient(response=success_response)
-    adapter = RadarrAPIAdapter(client)
+    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
 
     response = adapter.return_result()
 
@@ -400,18 +403,18 @@ def test_RadarrAPIAdapter_returns_True_on_successful_response():
 
 def test_RadarrAPIAdapter_returns_False_on_unsuccessful_response():
     url="https://radarr.local/api/v3/movie/1/rescan"
-    headers={"X-Api-Key": "fakeapikey"}
+    response_headers={"X-Api-Key": "fakeapikey"}
 
     fail_response = HTTPResponse(
             ok=False,
             status_code=404,
-            headers=headers,
+            headers=response_headers,
             data={"message": "hello"},
             url=url,
         )
     
     client = FakeHTTPClient(response=fail_response)
-    adapter = RadarrAPIAdapter(client)
+    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
 
     response = adapter.return_result()
 
