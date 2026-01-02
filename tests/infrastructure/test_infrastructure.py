@@ -271,159 +271,9 @@ def test_httpclient_delete_with_requests_mock():
     assert response.data == {"message": "hello"}
     assert response.url.startswith(url)
 
-def test_RadarrAPIAdapter_generates_valid_HTTPRequest():
-    url = "https://radarr.local/api/v3/movie/1/rescan"
-    response_headers = {"X-Api-Key": "fakeapikey"}
-
-    response = HTTPResponse(
-            ok=True,
-            status_code=200,
-            headers=response_headers,
-            data={"message": "hello"},
-            url=url,
-        )
-    client = FakeHTTPClient(response=response)
-    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
-
-    required_request = HTTPRequest(
-        url=url,
-        headers=adapter.headers,
-        query_params={"id": 1},
-        data={
-            "hello": "world"
-        }
-    )
-
-    request = adapter.generate_request()
-
-    assert asdict(request) == asdict(required_request)
-
-def test_RadarrAPIAdapter_with_params_generates_valid_HTTPRequest():
-    url = "https://radarr.local/api/v3/movie/1/rescan"
-    response_headers = {"X-Api-Key": "fakeapikey"}
-    movie_id = 2
-
-    response = HTTPResponse(
-            ok=True,
-            status_code=200,
-            headers=response_headers,
-            data={"message": "hello"},
-            url=url,
-        )
-    client = FakeHTTPClient(response=response)
-    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
-    request = adapter.generate_request_with_params(movie_id=movie_id)
-
-    required_request = HTTPRequest(
-        url=url,
-        headers=adapter.headers,
-        query_params={"id": 1},
-        data={
-            "hello": "world",
-            "movie_id": movie_id
-        }
-    )
-
-    assert asdict(request) == asdict(required_request)
-
-
-def test_RadarrAPIAdapter_retrieves_correct_HTTPResponse():
-    url="https://radarr.local/api/v3/movie/1/rescan"
-    response_headers={"X-Api-Key": "fakeapikey"}
-
-    required_response = HTTPResponse(
-            ok=True,
-            status_code=200,
-            headers=response_headers,
-            data={"message": "hello"},
-            url=url,
-        )
-    
-    client = FakeHTTPClient(response=required_response)
-    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
-
-    request = HTTPRequest(
-        url=url,
-        headers=adapter.headers,
-        query_params={"id": 1},
-        data={
-            "hello": "world"
-        }
-    )
-
-    response = adapter.retrieve_response(request)
-
-    assert asdict(response) == asdict(required_response)
-    assert response is required_response
-
-def test_RadarrAPIAdapter_fails_on_incorrect_data_response():
-    url="https://radarr.local/api/v3/movie/1/rescan"
-    response_headers={"X-Api-Key": "fakeapikey"}
-
-    bad_data_response = HTTPResponse(
-            ok=True,
-            status_code=200,
-            headers=response_headers,
-            data={"message": 1},
-            url=url,
-        )
-    
-    client = FakeHTTPClient(response=bad_data_response)
-    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
-
-    request = HTTPRequest(
-        url=url,
-        headers=adapter.headers,
-        query_params={"id": 1},
-        data={
-            "hello": "world"
-        }
-    )
-
-    pytest.raises(ValidationError, adapter.retrieve_response, request)
-
-
-def test_RadarrAPIAdapter_returns_True_on_successful_response():
-    url="https://radarr.local/api/v3/movie/1/rescan"
-    response_headers={"X-Api-Key": "fakeapikey"}
-
-    success_response = HTTPResponse(
-            ok=True,
-            status_code=200,
-            headers=response_headers,
-            data={"message": "hello"},
-            url=url,
-        )
-    
-    client = FakeHTTPClient(response=success_response)
-    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
-
-    response = adapter.return_result()
-
-    assert response is True
-
-def test_RadarrAPIAdapter_returns_False_on_unsuccessful_response():
-    url="https://radarr.local/api/v3/movie/1/rescan"
-    response_headers={"X-Api-Key": "fakeapikey"}
-
-    fail_response = HTTPResponse(
-            ok=False,
-            status_code=404,
-            headers=response_headers,
-            data={"message": "hello"},
-            url=url,
-        )
-    
-    client = FakeHTTPClient(response=fail_response)
-    adapter = RadarrAPIAdapter(client, api_key="fakeapikey")
-
-    response = adapter.return_result()
-
-    assert response is False
-
-def test_RadarrAPIAdapter_get_movie_with_fake():
+def test_RadarrAPIAdapter_get_movie_returns_true_on_success_with_fake():
     movie_id =105
-    url="http://192.168.1.50:7878/api/v3/moviefile"
+    url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
 
     success_response = HTTPResponse(
@@ -435,18 +285,49 @@ def test_RadarrAPIAdapter_get_movie_with_fake():
         )
     
     client = FakeHTTPClient(response=success_response)
-    adapter = RadarrAPIAdapter(client, api_key="fakeapikey", url=url)
+    adapter = RadarrAPIAdapter(client)
 
     response = adapter.get_moviefile(movie_id=movie_id)
 
     assert response is True
 
+def test_RadarrAPIAdapter_get_movie_returns_false_on_failure_with_fake():
+    movie_id =105
+    url="http://radarr.local/api/v3/moviefile"
+    response_headers={"X-Api-Key": "fakeapikey"}
+
+    fail_response = HTTPResponse(
+            ok=False,
+            status_code=404,
+            headers=response_headers,
+            data={"message": "failure"},
+            url=url,
+        )
+    
+    client = FakeHTTPClient(response=fail_response)
+    adapter = RadarrAPIAdapter(client)
+
+    response = adapter.get_moviefile(movie_id=movie_id)
+
+    assert response is False
+
+def test_RadarrAPIAdapter_attributes():
+    pass
+
+def test_RadarrAPIAdapter_generate_url():
+    client = HTTPClient()
+    adapter = RadarrAPIAdapter(client, host="192.168.1.50:7878")
+
+    assert adapter.base_url == "http://192.168.1.50:7878/api/v3"
+
+    url = adapter._generate_url(extension="/fart")
+    assert url == "http://192.168.1.50:7878/api/v3/fart"
+
 def test_RadarrAPIAdapter_get_movie():
     movie_id = 105
-    url="http://192.168.1.50:7878/api/v3/moviefile"
     
     client = HTTPClient()
-    adapter = RadarrAPIAdapter(client, api_key="xxx", url=url)
+    adapter = RadarrAPIAdapter(client, host="192.168.1.50:7878", api_key="35e01b162a9c4d06b85d2aadddfa79ff")
 
     response = adapter.get_moviefile(movie_id=movie_id)
 
