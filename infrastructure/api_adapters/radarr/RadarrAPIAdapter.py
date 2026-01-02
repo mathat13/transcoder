@@ -11,6 +11,9 @@ from infrastructure.api_adapters.radarr.data_models.test_data_model import (
 from infrastructure.api_adapters.radarr.data_models.get_moviefile import (
     GetMovieFileResponse
 )
+from infrastructure.api_adapters.radarr.data_models.rescan_movie import (
+    RescanMovieRequest
+)
 
 class RadarrAPIAdapter():
 
@@ -22,52 +25,6 @@ class RadarrAPIAdapter():
 
     def _generate_url(self, extension: str) -> str:
         return self.base_url + extension
-    
-    def generate_request(self) -> HTTPRequest:
-        query_params = {"id": 1}
-
-        # Instantiates and validates the data model
-        valid_data = DataModelRequest()
-
-        return HTTPRequest(
-            url=self.base_url,
-            headers=self.headers,
-            query_params=query_params,
-            data=valid_data.model_dump()
-        )
-    
-    def generate_request_with_params(self, movie_id: int) -> HTTPRequest:
-        query_params = {"id": 1}
-        valid_data = DataModelRequestWithParams(movie_id=movie_id)
-
-        return HTTPRequest(
-            url=self.base_url,
-            headers=self.headers,
-            query_params=query_params,
-            data=valid_data.model_dump()
-        )
-    
-    def retrieve_response(self, request: HTTPRequest) -> HTTPResponse:
-        response = self.client.get(request)
-        # Save to a variable to extract required fields if needed
-        DataModelResponse(**response.data) # Validates the response data model
-        return response
-    
-    def return_result(self) -> bool:
-        query_params = {"id": 1}
-        valid_data = DataModelRequest()
-
-        request =  HTTPRequest(
-            url=self.base_url,
-            headers=self.headers,
-            query_params=query_params,
-            data=valid_data.model_dump()
-        )
-
-        response = self.client.get(request)
-        DataModelResponse(**response.data)
-
-        return bool(response.ok)
 
     def get_moviefile(self, movie_id: int) -> bool:
         query_params = {"movieId": movie_id}
@@ -95,4 +52,15 @@ class RadarrAPIAdapter():
         return bool(response.ok)
 
     def rescan_movie(self, movie_id: int) -> None:
-        pass
+        url_extension = "/command"
+        url=self._generate_url(url_extension)
+
+        request =  HTTPRequest(
+            url=url,
+            headers=self.headers,
+            data=RescanMovieRequest(movieId=movie_id).model_dump()
+        )
+
+        response = self.client.post(request)
+        
+        return bool(response.ok)

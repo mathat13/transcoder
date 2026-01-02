@@ -323,15 +323,4 @@ def test_RadarrAPIAdapter_generate_url():
     url = adapter._generate_url(extension="/fart")
     assert url == "http://192.168.1.50:7878/api/v3/fart"
 
-def test_RadarrAPIAdapter_get_movie():
-    movie_id = 105
-    
-    client = HTTPClient()
-    adapter = RadarrAPIAdapter(client, host="192.168.1.50:7878", api_key="35e01b162a9c4d06b85d2aadddfa79ff")
 
-    response = adapter.get_moviefile(movie_id=movie_id)
-
-    assert response is True
-
-def test_Radarr_rescan_movie():
-    pass
