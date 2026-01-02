@@ -1,3 +1,5 @@
+from pydantic import TypeAdapter
+
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
 from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
@@ -6,12 +8,15 @@ from infrastructure.api_adapters.radarr.data_models.test_data_model import (
     DataModelRequest,
     DataModelResponse,
 )
+from infrastructure.api_adapters.radarr.data_models.get_moviefile import (
+    GetMovieFileResponse
+)
 
 class RadarrAPIAdapter():
 
-    def __init__(self, client, api_key: str):
-        self.url = "https://radarr.local/api/v3/movie/1/rescan"
-        self.headers = RadarrHeaders(X_Api_Key=api_key).model_dump()
+    def __init__(self, client, api_key: str, url: str = "https://radarr.local/api/v3/movie/1/rescan"):
+        self.url = url
+        self.headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
         self.client = client
 
     def generate_request(self) -> HTTPRequest:
@@ -59,8 +64,25 @@ class RadarrAPIAdapter():
 
         return bool(response.ok)
 
-    def rescan_movie(self, movie_id: int) -> None:
-        pass
+    def get_moviefile(self, movie_id: int) -> bool:
+        query_params = {"movieId": movie_id}
 
-    def get_movie(self, movie_id: int) -> None:
+        request =  HTTPRequest(
+            url=self.url,
+            headers=self.headers,
+            query_params=query_params,
+        )
+
+        response = self.client.get(request)
+        
+        #GetMovieFileResponse(**response.data)
+        
+        if response.ok:
+            TypeAdapter(list[GetMovieFileResponse]).validate_python(
+                response.data
+            )
+            
+        return bool(response.ok)
+
+    def rescan_movie(self, movie_id: int) -> None:
         pass

@@ -24,7 +24,8 @@ from infrastructure import (
 
 from tests import (
     JobFactory,
-    FakeHTTPClient
+    FakeHTTPClient,
+    GetMovieFileResponseFactory,
 )
 
 def test_job_model_factory(db_session, job_model_factory):
@@ -420,8 +421,36 @@ def test_RadarrAPIAdapter_returns_False_on_unsuccessful_response():
 
     assert response is False
 
-def test_RadarrAPIAdapter_passes_back_return_values_correctly_when_there_are_multiple():
-    pass
+def test_RadarrAPIAdapter_get_movie_with_fake():
+    movie_id =105
+    url="http://192.168.1.50:7878/api/v3/moviefile"
+    response_headers={"X-Api-Key": "fakeapikey"}
+
+    success_response = HTTPResponse(
+            ok=True,
+            status_code=200,
+            headers=response_headers,
+            data=[GetMovieFileResponseFactory().model_dump()],
+            url=url,
+        )
+    
+    client = FakeHTTPClient(response=success_response)
+    adapter = RadarrAPIAdapter(client, api_key="fakeapikey", url=url)
+
+    response = adapter.get_moviefile(movie_id=movie_id)
+
+    assert response is True
+
+def test_RadarrAPIAdapter_get_movie():
+    movie_id = 105
+    url="http://192.168.1.50:7878/api/v3/moviefile"
+    
+    client = HTTPClient()
+    adapter = RadarrAPIAdapter(client, api_key="xxx", url=url)
+
+    response = adapter.get_moviefile(movie_id=movie_id)
+
+    assert response is True
 
 def test_Radarr_rescan_movie():
     pass
