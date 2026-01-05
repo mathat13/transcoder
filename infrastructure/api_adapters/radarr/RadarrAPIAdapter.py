@@ -46,7 +46,7 @@ class RadarrAPIAdapter():
 
             # For list-wrapped responses
             TypeAdapter(list[GetMovieFileResponse]).validate_python(
-                response.data
+                response.json_data
             )
 
         return bool(response.ok)

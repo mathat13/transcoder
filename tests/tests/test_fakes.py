@@ -69,7 +69,7 @@ def test_FakeHTTPClient_send_method():
         status_code=200,
         headers=headers,
         url=url,
-        data={}
+        json_data={"message": "hello"}
     )
     client = FakeHTTPClient(response=fake_response)
 

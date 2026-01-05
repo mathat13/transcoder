@@ -3,7 +3,6 @@ import requests_mock
 
 from uuid import UUID
 from datetime import datetime
-from dataclasses import asdict
 from pydantic import ValidationError
 
 from domain import (
@@ -19,7 +18,8 @@ from infrastructure import (
     HTTPClient,
     HTTPResponse,
     HTTPRequest,
-    RadarrAPIAdapter
+    RadarrAPIAdapter,
+    JellyfinAPIAdapter
 )
 
 from tests import (
@@ -168,7 +168,7 @@ def test_httpclient_get_with_requests_mock():
 
     assert response.ok is True
     assert response.status_code == 200
-    assert response.data == {"message": "hello"}
+    assert response.json_data == {"message": "hello"}
     assert response.url.startswith(url)
 
 def test_httpclient_post_with_requests_mock():
@@ -193,7 +193,7 @@ def test_httpclient_post_with_requests_mock():
 
     assert response.ok is True
     assert response.status_code == 200
-    assert response.data == {"message": "hello"}
+    assert response.json_data == {"message": "hello"}
     assert response.url.startswith(url)
 
 def test_httpclient_put_with_requests_mock():
@@ -218,7 +218,7 @@ def test_httpclient_put_with_requests_mock():
 
     assert response.ok is True
     assert response.status_code == 200
-    assert response.data == {"message": "hello"}
+    assert response.json_data == {"message": "hello"}
     assert response.url.startswith(url)
 
 def test_httpclient_patch_with_requests_mock():
@@ -243,7 +243,7 @@ def test_httpclient_patch_with_requests_mock():
 
     assert response.ok is True
     assert response.status_code == 200
-    assert response.data == {"message": "hello"}
+    assert response.json_data == {"message": "hello"}
     assert response.url.startswith(url)
 
 def test_httpclient_delete_with_requests_mock():
@@ -268,7 +268,7 @@ def test_httpclient_delete_with_requests_mock():
 
     assert response.ok is True
     assert response.status_code == 200
-    assert response.data == {"message": "hello"}
+    assert response.json_data == {"message": "hello"}
     assert response.url.startswith(url)
 
 def test_RadarrAPIAdapter_get_movie_returns_true_on_success_with_fake():
@@ -280,7 +280,7 @@ def test_RadarrAPIAdapter_get_movie_returns_true_on_success_with_fake():
             ok=True,
             status_code=200,
             headers=response_headers,
-            data=[GetMovieFileResponseFactory().model_dump()],
+            json_data=[GetMovieFileResponseFactory().model_dump()],
             url=url,
         )
     
@@ -300,7 +300,7 @@ def test_RadarrAPIAdapter_get_movie_returns_false_on_failure_with_fake():
             ok=False,
             status_code=404,
             headers=response_headers,
-            data={"message": "failure"},
+            json_data={"message": "failure"},
             url=url,
         )
     
@@ -323,4 +323,22 @@ def test_RadarrAPIAdapter_generate_url():
     url = adapter._generate_url(extension="/fart")
     assert url == "http://192.168.1.50:7878/api/v3/fart"
 
+def test_JellyfinAPIAdapter_attributes_initialized_correctly():
 
+    url="http://radarr.local/api/v3/moviefile"
+    response_headers={"X-Api-Key": "fakeapikey"}
+
+    success_response = HTTPResponse(
+            ok=True,
+            status_code=200,
+            headers=response_headers,
+            json_data={"message": "hello"},
+            url=url,
+        )
+    
+    client = FakeHTTPClient(response=success_response)
+    adapter = JellyfinAPIAdapter(client)
+
+    assert adapter.base_url == "http://jellyfin.local"
+    assert adapter.host == "jellyfin.local"
+    assert "MediaBrowser Token=" in adapter.headers["Authorization"]

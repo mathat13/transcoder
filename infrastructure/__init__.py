@@ -10,6 +10,8 @@ from .api_adapters.radarr.data_models.test_data_model import *
 from .api_adapters.radarr.data_models.headers import RadarrHeaders
 from .api_adapters.radarr.data_models.get_moviefile import *
 from .api_adapters.radarr.data_models.rescan_movie import *
+from .api_adapters.jellyfin.JellyfinAPIAdapter import JellyfinAPIAdapter
+from .api_adapters.jellyfin.data_models.headers import JellyfinHeaders
 from .api_adapters.shared.HTTPClient import HTTPClient
 from .api_adapters.shared.HTTPResponse import HTTPResponse
 from .api_adapters.shared.HTTPRequest import HTTPRequest
