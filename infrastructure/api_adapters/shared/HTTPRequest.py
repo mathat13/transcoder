@@ -20,6 +20,7 @@ class HTTPRequest:
     headers: dict
     query_params: dict | None = None
     data: dict | None = None
+    timeout: float | None = None
 
     @property
     def normalized_query_params(self) -> dict:
