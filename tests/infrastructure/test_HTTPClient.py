@@ -177,6 +177,7 @@ def test_timeout_is_passed_to_requests():
         
         assert m.last_request.timeout == 6.0
 
+
 #def test_retry_then_success():
 #    # Create a mock that raises ReadTimeout twice, then returns success
 #    responses = [

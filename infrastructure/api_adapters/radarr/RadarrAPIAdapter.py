@@ -1,19 +1,12 @@
 from pydantic import TypeAdapter
 
+from application import APIServiceException
+
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
 from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
-from infrastructure.api_adapters.radarr.data_models.test_data_model import (
-    DataModelRequestWithParams,
-    DataModelRequest,
-    DataModelResponse,
-)
-from infrastructure.api_adapters.radarr.data_models.get_moviefile import (
-    GetMovieFileResponse
-)
-from infrastructure.api_adapters.radarr.data_models.rescan_movie import (
-    RescanMovieRequest
-)
+from infrastructure.api_adapters.radarr.data_models.get_moviefile import GetMovieFileResponse
+from infrastructure.api_adapters.radarr.data_models.rescan_movie import RescanMovieRequest
 
 class RadarrAPIAdapter():
 
@@ -22,6 +15,16 @@ class RadarrAPIAdapter():
         self.base_url = f"http://{host}/api/v3"
         self.headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
         self.client = client
+    
+    def _raise_for_error(self, response: HTTPResponse) -> None:
+        if response.ok:
+            return
+
+        raise APIServiceException(
+            service = "Radarr",
+            status_code=response.status_code,
+            detail=response.json_data or response.text_data
+            )
 
     def _generate_url(self, extension: str) -> str:
         return self.base_url + extension
@@ -39,6 +42,7 @@ class RadarrAPIAdapter():
         )
 
         response = self.client.get(request)
+        self._raise_for_error(response)
         
         if response.ok:
             # For non-list-wrapped responses
@@ -62,5 +66,6 @@ class RadarrAPIAdapter():
         )
 
         response = self.client.post(request)
+        self._raise_for_error(response)
         
         return bool(response.ok)

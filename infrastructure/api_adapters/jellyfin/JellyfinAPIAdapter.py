@@ -1,6 +1,7 @@
-from pydantic import TypeAdapter
+from application import APIServiceException
 
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
+from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.jellyfin.data_models.headers import JellyfinHeaders
 
 class JellyfinAPIAdapter():
@@ -10,6 +11,16 @@ class JellyfinAPIAdapter():
         self.base_url = f"http://{host}"
         self.headers = JellyfinHeaders(authorization=api_key).model_dump(by_alias=True)
         self.client = client
+
+    def _raise_for_error(self, response: HTTPResponse) -> None:
+        if response.ok:
+            return
+
+        raise APIServiceException(
+            service = "Jellyfin",
+            status_code=response.status_code,
+            detail=response.json_data or response.text_data
+            )
 
     def _generate_url(self, extension: str) -> str:
         return self.base_url + extension
@@ -24,5 +35,6 @@ class JellyfinAPIAdapter():
         )
 
         response = self.client.post(request)
+        self._raise_for_error(response)
 
         return bool(response.ok)
