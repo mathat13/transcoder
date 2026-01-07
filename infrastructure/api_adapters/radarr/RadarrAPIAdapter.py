@@ -20,8 +20,15 @@ class RadarrAPIAdapter():
         if response.ok:
             return
 
+        if response.is_server_error:
+            is_retryable=True
+
+        if response.is_client_error:
+            is_retryable=False
+
         raise APIServiceException(
             service = "Radarr",
+            retryable = is_retryable,
             status_code=response.status_code,
             detail=response.json_data or response.text_data
             )

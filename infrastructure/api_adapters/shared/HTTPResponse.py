@@ -12,6 +12,14 @@ class HTTPResponse:
     json_data: Optional[dict] = None
     text_data: Optional[str] = None
 
+    @property
+    def is_client_error(self) -> bool:
+        return 400 <= self.status_code < 500
+
+    @property
+    def is_server_error(self) -> bool:
+        return self.status_code >= 500
+
     @classmethod
     def from_response(cls, response: requests.models.Response) -> "HTTPResponse":
         json_data = None

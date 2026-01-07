@@ -16,12 +16,10 @@ from tests import (
 
 def test_RadarrAPIAdapter_generate_url():
     client = HTTPClient()
-    adapter = RadarrAPIAdapter(client, host="192.168.1.50:7878")
-
-    assert adapter.base_url == "http://192.168.1.50:7878/api/v3"
-
+    adapter = RadarrAPIAdapter(client, host="radarr.local")
     url = adapter._generate_url(extension="/fart")
-    assert url == "http://192.168.1.50:7878/api/v3/fart"
+    
+    assert url == "http://radarr.local/api/v3/fart"
 
 def test_RadarrAPIAdapter_attributes_initialized_correctly():
 
@@ -37,7 +35,7 @@ def test_RadarrAPIAdapter_attributes_initialized_correctly():
         )
     
     client = FakeHTTPClient(response=success_response)
-    adapter = RadarrAPIAdapter(client)
+    adapter = RadarrAPIAdapter(client, host="radarr.local")
 
     assert adapter.base_url == "http://radarr.local/api/v3"
     assert adapter.host == "radarr.local"
@@ -121,7 +119,7 @@ def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
 
 def test_JellyfinAPIAdapter_attributes_initialized_correctly():
 
-    url="http://jellyfin.local/api/v3/moviefile"
+    url="http://jellyfin.local"
     response_headers={"X-Api-Key": "fakeapikey"}
 
     success_response = HTTPResponse(
@@ -133,11 +131,45 @@ def test_JellyfinAPIAdapter_attributes_initialized_correctly():
         )
     
     client = FakeHTTPClient(response=success_response)
-    adapter = JellyfinAPIAdapter(client)
+    adapter = JellyfinAPIAdapter(client, host="jellyfin.local")
 
     assert adapter.base_url == "http://jellyfin.local"
     assert adapter.host == "jellyfin.local"
     assert "MediaBrowser Token=" in adapter.headers["Authorization"]
+
+def test_JellyfinAPIAdapter_raise_for_error_raises_correctly_on_fail_HTTP_return_code():
+    url="http://jellyfin.local"
+    response_headers={"X-Api-Key": "fakeapikey"}
+
+    bad_5xx_response = HTTPResponse(
+            ok=False,
+            status_code=500,
+            headers=response_headers,
+            json_data={"message": "failure"},
+            url=url,
+        )
+    
+    bad_4xx_response = HTTPResponse(
+            ok=False,
+            status_code=404,
+            headers=response_headers,
+            json_data={"message": "failure"},
+            url=url,
+        )
+    
+    client = FakeHTTPClient(response=bad_5xx_response)
+    adapter = JellyfinAPIAdapter(client)
+
+    try:
+        adapter._raise_for_error(bad_5xx_response)
+    except APIServiceException as e:
+        assert e.retryable == True
+
+    try:
+        adapter._raise_for_error(bad_4xx_response)
+    except APIServiceException as e:
+        assert e.retryable == False
+
 
 def test_JellyfinAPIAdapter_refresh_library_returns_true_on_success_with_fake():
     url="http://jellyfin.local"
