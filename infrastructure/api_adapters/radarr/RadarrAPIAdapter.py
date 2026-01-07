@@ -2,39 +2,20 @@ from pydantic import TypeAdapter
 
 from application import APIServiceException
 
+from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
 from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
 from infrastructure.api_adapters.radarr.data_models.get_moviefile import GetMovieFileResponse
 from infrastructure.api_adapters.radarr.data_models.rescan_movie import RescanMovieRequest
 
-class RadarrAPIAdapter():
+class RadarrAPIAdapter(BaseAPIAdapter):
+    service_name = "Radarr"
 
     def __init__(self, client, api_key: str = "fakeapikey", host: str = "radarr.local"): 
-        self.host = host
-        self.base_url = f"http://{host}/api/v3"
-        self.headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
-        self.client = client
-    
-    def _raise_for_error(self, response: HTTPResponse) -> None:
-        if response.ok:
-            return
-
-        if response.is_server_error:
-            is_retryable=True
-
-        if response.is_client_error:
-            is_retryable=False
-
-        raise APIServiceException(
-            service = "Radarr",
-            retryable = is_retryable,
-            status_code=response.status_code,
-            detail=response.json_data or response.text_data
-            )
-
-    def _generate_url(self, extension: str) -> str:
-        return self.base_url + extension
+        base_url = f"http://{host}/api/v3"
+        headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
+        super().__init__(client, base_url, headers)
 
     def get_moviefile(self, movie_id: int) -> bool:
         query_params = {"movieId": movie_id}

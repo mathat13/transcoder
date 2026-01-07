@@ -1,36 +1,14 @@
-from application import APIServiceException
-
+from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
-from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.jellyfin.data_models.headers import JellyfinHeaders
 
-class JellyfinAPIAdapter():
+class JellyfinAPIAdapter(BaseAPIAdapter):
+    service_name = "Jellyfin"
 
     def __init__(self, client, api_key: str = "fakeapikey", host: str = "jellyfin.local"): 
-        self.host = host
-        self.base_url = f"http://{host}"
-        self.headers = JellyfinHeaders(authorization=api_key).model_dump(by_alias=True)
-        self.client = client
-
-    def _raise_for_error(self, response: HTTPResponse) -> None:
-        if response.ok:
-            return
-
-        if response.is_server_error:
-            is_retryable=True
-
-        if response.is_client_error:
-            is_retryable=False
-
-        raise APIServiceException(
-            service = "Radarr",
-            retryable = is_retryable,
-            status_code=response.status_code,
-            detail=response.json_data or response.text_data
-            )
-
-    def _generate_url(self, extension: str) -> str:
-        return self.base_url + extension
+        base_url = f"http://{host}"
+        headers = JellyfinHeaders(authorization=api_key).model_dump(by_alias=True)
+        super().__init__(client, base_url, headers)
 
     def refresh_library(self) -> bool:
         url_extension = "/Library/Refresh"
