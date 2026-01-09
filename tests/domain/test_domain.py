@@ -8,7 +8,8 @@ from domain import (
     JobMovedToVerifying,
     JobCompleted,
     JobFailed,
-    FileInfo
+    FileInfo,
+    ExternalMediaIDs,
 )
 
 from tests import JobFactory
@@ -103,3 +104,11 @@ def test_invalid_transition_raises_value_error():
     with pytest.raises(ValueError) as excinfo:
         job.transition_to(JobStatus.success)
     assert "Invalid transition" in str(excinfo.value)
+
+def test_ExternalMediaIDs_generated_correctly():
+    radarr_id = 1
+    media_ids = ExternalMediaIDs.create(radarr_id=radarr_id)
+
+    assert media_ids.radarr_movie_id == radarr_id
+
+

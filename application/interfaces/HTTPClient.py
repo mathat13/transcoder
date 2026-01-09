@@ -5,7 +5,7 @@ from infrastructure import (
     HTTPRequest
 )
 
-class HTTPClient():
+class HTTPClient(Protocol):
     """
     HTTP Client for making pre-defined HTTP requests.
     Expects HTTPRequest object and returns HTTPResponse object.

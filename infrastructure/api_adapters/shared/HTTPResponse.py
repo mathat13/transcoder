@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
-import requests.models
+from requests.models import Response
 from json import JSONDecodeError
 
 @dataclass(frozen=True)
@@ -21,7 +21,7 @@ class HTTPResponse:
         return self.status_code >= 500
 
     @classmethod
-    def from_response(cls, response: requests.models.Response) -> "HTTPResponse":
+    def from_response(cls, response: Response) -> "HTTPResponse":
         json_data = None
         text_data = None
 
