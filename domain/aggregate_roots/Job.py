@@ -7,15 +7,16 @@ from uuid import uuid4, UUID
 from domain.services.JobStateMachine import JOB_STATE_MACHINE
 from domain.services.DomainEventFactory import DOMAIN_EVENT_FACTORY
 from domain.value_objects.JobStatus import JobStatus
+from domain.value_objects.ExternalMediaIDs import ExternalMediaIDs
 from domain.value_objects.FileInfo import FileInfo
 
 @dataclass
 class Job:
 
     # Non-Default
-    job_type: str
     source_file: FileInfo
     transcode_file: FileInfo
+    external_media_ids: ExternalMediaIDs
     
     # Default
     id: UUID = field(default_factory=uuid4)
@@ -52,15 +53,14 @@ class Job:
         self._emit(event)
     
     @classmethod
-    def create(cls, job_type: str, source_file: str) -> "Job":
+    def create(cls, source_file: FileInfo, media_ids: ExternalMediaIDs) -> "Job":
         """Factory for creating a valid Job aggregate."""
-        source_file = FileInfo(source_file)
         transcode_file = source_file.transcode_file
 
         job = cls(
-            job_type=job_type,
             source_file=source_file,
             transcode_file=transcode_file,
+            external_media_ids=media_ids,
             status=JobStatus.pending,
         )
         

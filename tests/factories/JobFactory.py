@@ -6,7 +6,8 @@ import uuid
 from domain import (
     Job,
     JobStatus,
-    FileInfo
+    FileInfo,
+    ExternalMediaIDs,
 )
 
 fake = Faker()
@@ -16,7 +17,7 @@ class JobFactory(factory.Factory):
         model = Job
 
     id = factory.LazyFunction(lambda: uuid.uuid4())
-    job_type = "episode"
+    external_media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
     source_file = factory.LazyFunction(lambda: FileInfo(f"/media/{fake.file_name(extension='mkv')}"))
     transcode_file = factory.LazyFunction(lambda: FileInfo(f"/media/{fake.file_name(extension='mkv')}"))
     status = JobStatus.pending

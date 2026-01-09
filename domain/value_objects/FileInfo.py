@@ -28,3 +28,9 @@ class FileInfo:
     def transcode_file(self) -> "FileInfo":
         base, ext = os.path.splitext(self.path)
         return FileInfo(f"{base}_transcoded{ext}")
+    
+    @classmethod
+    def create(cls, file_path: str) -> "FileInfo":
+        return cls(
+            path=file_path
+        )

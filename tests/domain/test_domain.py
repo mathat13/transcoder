@@ -1,4 +1,5 @@
 import pytest
+from uuid import UUID
 
 from domain import (
     Job,
@@ -26,6 +27,11 @@ def test_FileInfo_creation():
     assert isinstance(transcoded, FileInfo)
     assert transcoded.path == "/media/source/video_transcoded.mkv"
 
+def test_FileInfo_create_raises_value_error_with_invalid_path():
+    path = "abcderg"
+    with pytest.raises(ValueError) as excinfo:
+        FileInfo.create(path)
+
 def test_FileInfo_invalid_path_raises_value_error():
 
     # String without a slash
@@ -41,11 +47,14 @@ def test_FileInfo_invalid_path_raises_value_error():
 
 
 def test_job_added():
-    job = Job.create(job_type="episode", source_file="/path/to/source.mkv")
+    media_ids = ExternalMediaIDs.create(5)
+    source_file=FileInfo.create("/path/to/source.mkv")
+    job = Job.create(source_file=source_file, media_ids=media_ids)
 
-    assert job.id is not None
+    assert isinstance(job.id, UUID)
     assert job.status == JobStatus.pending
     assert isinstance(job.source_file, FileInfo)
+    assert isinstance(job.external_media_ids, ExternalMediaIDs)
     assert job.source_file.path == "/path/to/source.mkv"
     assert isinstance(job.transcode_file, FileInfo)
     assert job.transcode_file.path == "/path/to/source_transcoded.mkv"
