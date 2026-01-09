@@ -4,6 +4,9 @@ from dataclasses import dataclass
 class ExternalMediaIDs():
     radarr_movie_id: int
 
+    def __composite_values__(self):
+        return (self.radarr_movie_id,)
+    
     @classmethod
     def create(cls, radarr_id: int) -> "ExternalMediaIDs":
         return cls(

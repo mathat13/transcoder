@@ -10,7 +10,8 @@ from infrastructure import (
 from domain import (
     Job,
     FileInfo,
-    JobStatus
+    JobStatus,
+    ExternalMediaIDs,
 )
 from tests import (
     JobFactory
@@ -22,6 +23,7 @@ def test_JobMapper():
 
     assert isinstance(job_record, JobModel)
     assert isinstance(job_record.id, str)
+    assert isinstance(job_record.radarr_id, int)
     assert isinstance(job_record.source_path, str)
     assert isinstance(job_record.transcode_path, str)
     assert isinstance(job_record.status, str)
@@ -34,6 +36,7 @@ def test_JobMapper():
 
     assert isinstance(converted_job, Job)
     assert isinstance(converted_job.id, UUID)
+    assert isinstance(converted_job.external_media_ids, ExternalMediaIDs)
     assert isinstance(converted_job.source_file, FileInfo)
     assert isinstance(converted_job.transcode_file, FileInfo)
     assert isinstance(converted_job.status, JobStatus)

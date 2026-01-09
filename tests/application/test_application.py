@@ -45,7 +45,7 @@ def test_JobService_emits_correct_events_on_status_transition():
     bus.subscribe(JobCompleted, handler)
     bus.subscribe(JobFailed, handler)
 
-    job = svc.create_job("episode", "/input.mp4")
+    job = svc.create_job("/input.mp4", 5)
     assert isinstance(published_events[0], JobCreated)
 
     svc.transition_job(job.id, JobStatus.processing)
@@ -107,14 +107,14 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
 
     svc = JobService(repo, bus)
 
-    job = svc.create_job("episode", "/input.mp4")
+    job = svc.create_job("/input.mp4", 5)
 
     # repo
     saved = repo._get_job_by_id(job.id)
     assert saved.id == job.id
     assert saved.source_file == job.source_file
     assert saved.status == job.status
-    assert saved.job_type == job.job_type
+    assert saved.external_media_ids == job.external_media_ids
 
     # domain events
     assert len(job.events) == 0         # cleared after publish
@@ -187,7 +187,7 @@ def test_JobVerifyingOrchestrator_integration():
     bus.subscribe(TranscodeVerified, transcode_verified_handler)
     bus.subscribe(TranscodeVerificationFailed, transcode_verified_handler)
 
-    job = svc.create_job("episode", "/input.mp4")
+    job = svc.create_job("/input.mp4", 5)
 
     fs.add(job.transcode_file)
 
