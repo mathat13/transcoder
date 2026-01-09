@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from application import APIServiceException
 
 from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
@@ -9,6 +11,9 @@ class BaseAPIAdapter():
         self.client = client
         self.base_url = base_url
         self.headers = headers
+
+    def _generate_key(self):
+        return uuid4()
     
     def _raise_for_error(self, response: HTTPResponse) -> None:
         if response.ok:
@@ -20,7 +25,8 @@ class BaseAPIAdapter():
             service = self.service_name,
             retryable = is_retryable,
             status_code=response.status_code,
-            detail=response.json_data or response.text_data
+            detail=response.json_data or response.text_data,
+            operation_id=response.idempotency_key,
             )
 
     def _generate_url(self, extension: str) -> str:

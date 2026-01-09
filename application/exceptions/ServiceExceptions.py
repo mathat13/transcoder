@@ -1,10 +1,13 @@
+from uuid import UUID
+
 class ServiceException(Exception):
     """Base class for failures caused by external services."""
 
 class APIServiceException(ServiceException):
-    def __init__(self, service: str, status_code: int, retryable: bool, detail: str | dict | None):
+    def __init__(self, service: str, status_code: int, retryable: bool, detail: str | dict | None, operation_id: UUID):
         super().__init__(f"{service} API failed with status {status_code}")
         self.service = service
         self.retryable = retryable
         self.status_code = status_code
         self.detail = detail
+        self.operation_id = operation_id

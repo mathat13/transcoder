@@ -1,10 +1,8 @@
 from pydantic import TypeAdapter
-
-from application import APIServiceException
+from uuid import UUID
 
 from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
-from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
 from infrastructure.api_adapters.radarr.data_models.get_moviefile import GetMovieFileResponse
 from infrastructure.api_adapters.radarr.data_models.rescan_movie import RescanMovieRequest
@@ -17,7 +15,15 @@ class RadarrAPIAdapter(BaseAPIAdapter):
         headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
         super().__init__(client, base_url, headers)
 
-    def get_moviefile(self, movie_id: int) -> bool:
+    def get_moviefile(self, movie_id: int, idempotency_key: UUID = None) -> bool:
+        if idempotency_key:
+            key = idempotency_key
+        else:
+            key = self._generate_key()
+        key = str(key)
+
+        self.headers["idempotency_key"] = key
+        
         query_params = {"movieId": movie_id}
         url_extension = "/moviefile"
 
@@ -43,7 +49,14 @@ class RadarrAPIAdapter(BaseAPIAdapter):
 
         return bool(response.ok)
 
-    def rescan_movie(self, movie_id: int) -> None:
+    def rescan_movie(self, movie_id: int, idempotency_key: UUID = None) -> None:
+        if idempotency_key:
+            key = idempotency_key
+        else:
+            key = self._generate_key()
+        key = str(key)
+
+        self.headers["idempotency_key"] = key
         url_extension = "/command"
         url=self._generate_url(url_extension)
 

@@ -1,7 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 import requests.models
 from json import JSONDecodeError
+from uuid import UUID
 
 @dataclass(frozen=True)
 class HTTPResponse:
@@ -11,6 +12,7 @@ class HTTPResponse:
     url: str
     json_data: Optional[dict] = None
     text_data: Optional[str] = None
+    idempotency_key: UUID = None
 
     @property
     def is_client_error(self) -> bool:
@@ -22,6 +24,12 @@ class HTTPResponse:
 
     @classmethod
     def from_response(cls, response: requests.models.Response) -> "HTTPResponse":
+        # Cast str key back to UUID
+        key = response.request.headers.get("idempotency_key")
+
+        if key:
+            key = UUID(key.strip())
+
         json_data = None
         text_data = None
 
@@ -43,4 +51,5 @@ class HTTPResponse:
             json_data=json_data,
             text_data=text_data,
             url=response.url,
+            idempotency_key=key
         )

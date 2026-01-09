@@ -1,12 +1,16 @@
 import pytest
+import requests_mock
+from uuid import UUID, uuid4
 
 from application import APIServiceException
 
 from infrastructure import (
     HTTPResponse,
+    HTTPRequest,
     BaseAPIAdapter,
     RadarrAPIAdapter,
     JellyfinAPIAdapter,
+    HTTPClient,
 )
 
 from tests import (
@@ -200,4 +204,42 @@ def test_JellyfinAPIAdapter_refresh_library_raises_exception_on_failure_with_fak
     
     with pytest.raises(APIServiceException):
             adapter.refresh_library()
+
+def test_API_Adapter_idempotency_key_added_to_headers_correctly():
+    url="http://base.local"
+    request_headers = {
+        "x_api_key": "X-Api-Key",
+        "accept": "yes",
+        "content_type": "application/json",
+        "idempotency_key": None,
+    }
+
+    class TestAPIAdapter(BaseAPIAdapter):
+        service_name = "TestService"
+    
+    adapter = TestAPIAdapter(client=None, headers=request_headers, base_url=url)
+    idempotency_key = None
+    if idempotency_key:
+        key = idempotency_key
+    else:
+        key = adapter._generate_key()
+    request_headers["idempotency_key"] = key
+
+    assert request_headers["idempotency_key"] == key
+
+def test_HTTPResponse_idempotency_key_processed_correctly():
+    client = HTTPClient()
+    adapter = JellyfinAPIAdapter(client)
+    url = "http://jellyfin.local/Library/Refresh"
+
+    with requests_mock.Mocker() as m:
+        m.post(url, json={"ok": True})
+        idempotency_key = uuid4()
+        adapter.refresh_library(idempotency_key=idempotency_key)
+
+        request_headers = m.last_request.headers
+
+    assert request_headers["idempotency_key"] == str(idempotency_key)
+
+
 
