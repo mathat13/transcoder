@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
-class ExternalMediaIDs():
+class ExternalMediaIDs:
     radarr_movie_id: int
 
     # Required for storing composite of object in sqlalchemy

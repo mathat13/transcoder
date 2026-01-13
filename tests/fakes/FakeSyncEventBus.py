@@ -5,26 +5,26 @@ from typing import (
     Iterable,
 )
 
-from domain import Event
-
-E = TypeVar("E", bound=Event)
+from application import EventEnvelope
 
 class FakeSyncEventBus:
     def __init__(self):
         self.subscribers = {}
         self.published = []
 
-    def subscribe(self, event_type: Type[E], handler: Callable[[E], None]):
+    def subscribe(self, event_type, handler):
         self.subscribers.setdefault(event_type, []).append(handler)
 
-    def publish(self, event: Event):
+    def publish(self, envelope: EventEnvelope):
+        event = envelope.event
+
         if not self.subscribers:
             return
 
-        self.published.append(event)
+        self.published.append(envelope)
         for handler in self.subscribers[type(event)]:
-            handler(event)
+            handler(envelope)
 
-    def publish_all(self, events: Iterable[Event]):
-        for evt in events:
+    def publish_all(self, envelopes):
+        for evt in envelopes:
             self.publish(evt)
