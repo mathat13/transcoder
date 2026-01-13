@@ -14,12 +14,12 @@ from domain.value_objects.FileInfo import FileInfo
 class Job:
 
     # Non-Default
+    id: UUID
     source_file: FileInfo
     transcode_file: FileInfo
     external_media_ids: ExternalMediaIDs
     
     # Default
-    id: UUID = field(default_factory=uuid4)
     status: JobStatus = JobStatus.pending
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
@@ -58,6 +58,7 @@ class Job:
         transcode_file = source_file.transcode_file
 
         job = cls(
+            id=uuid4(),
             source_file=source_file,
             transcode_file=transcode_file,
             external_media_ids=media_ids,
