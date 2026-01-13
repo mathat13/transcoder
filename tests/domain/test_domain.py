@@ -11,6 +11,7 @@ from domain import (
     JobFailed,
     FileInfo,
     ExternalMediaIDs,
+    OperationContext,
 )
 
 from tests import JobFactory
@@ -44,7 +45,10 @@ def test_FileInfo_invalid_path_raises_value_error():
         FileInfo("")
     assert "Invalid file path format." in str(excinfo.value)
 
+def test_OperationContext_factory_create_method():
+    context = OperationContext.create()
 
+    assert isinstance(context.operation_id, UUID)
 
 def test_job_added():
     media_ids = ExternalMediaIDs.create(5)

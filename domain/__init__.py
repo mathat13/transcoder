@@ -1,6 +1,7 @@
 from .value_objects.JobStatus import *
 from .value_objects.FileInfo import *
 from .value_objects.ExternalMediaIDs import *
+from .value_objects.OperationContext import *
 from .services.JobStateMachine import *
 from .services.DomainEventFactory import *
 from .aggregate_roots.Job import *

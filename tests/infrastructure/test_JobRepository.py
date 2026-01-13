@@ -37,6 +37,7 @@ def test_JobMapper():
     assert isinstance(converted_job, Job)
     assert isinstance(converted_job.id, UUID)
     assert isinstance(converted_job.external_media_ids, ExternalMediaIDs)
+    assert isinstance(converted_job.external_media_ids.radarr_movie_id, int)
     assert isinstance(converted_job.source_file, FileInfo)
     assert isinstance(converted_job.transcode_file, FileInfo)
     assert isinstance(converted_job.status, JobStatus)
