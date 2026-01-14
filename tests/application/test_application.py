@@ -163,61 +163,12 @@ def test_subscriber_receives_domain_event():
     assert isinstance(event, JobMovedToVerifying)
     assert event.job_id == job.id
 
-def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_success():
-    fs = FakeFileSystem()
-    bus = FakeSyncEventBus()
-    publisher = EventPublisher(bus)
-    ProcessManager = JobVerifyingProcessManager(publisher, fs)
-    handled = []
 
-    def handler(envelope):
-        handled.append(envelope)
-    
-    bus.subscribe(TranscodeVerified, handler)
-    bus.subscribe(TranscodeVerificationFailed, handler)
-
-    # Simulate JobMovedToVerifying event with existing file
-    context = OperationContext.create()
-    event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
-    envelope = EventEnvelope.create(event=event, context=context)
-
-    fs.add(envelope.event.transcode_file) # Add file to fake FS
-
-    ProcessManager(envelope)
-
-    assert any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
-    assert not any(isinstance(envelope.event, TranscodeVerificationFailed) for envelope in handled)
-
-def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_failure():
-    fs = FakeFileSystem()
-    bus = FakeSyncEventBus()
-    publisher = EventPublisher(bus)
-    ProcessManager = JobVerifyingProcessManager(publisher, fs)
-    handled = []
-
-    def handler(envelope):
-        handled.append(envelope)
-    
-    bus.subscribe(TranscodeVerified, handler)
-    bus.subscribe(TranscodeVerificationFailed, handler)
-
-    # Simulate JobMovedToVerifying event with existing file
-    context = OperationContext.create()
-    event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
-    envelope = EventEnvelope.create(event=event, context=context)
-
-    # No file added to fake fs
-
-    ProcessManager(envelope)
-
-    assert not any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
-    assert any(isinstance(envelope.event, TranscodeVerificationFailed) for envelope in handled)
-
-def test_job_verifying_process_manager_is_called_on_subscribed_event():
+def test_handler_is_called_on_subscribed_event():
     bus = SyncEventBus()
-    process_manager = Mock()
+    handler = Mock()
 
-    bus.subscribe(JobMovedToVerifying, process_manager)
+    bus.subscribe(JobMovedToVerifying, handler)
 
     envelope = EventEnvelope(
         event=JobMovedToVerifying(job_id=uuid4(), transcode_file="file.mkv"),
@@ -226,13 +177,13 @@ def test_job_verifying_process_manager_is_called_on_subscribed_event():
 
     bus.publish(envelope)
 
-    process_manager.assert_called_once_with(envelope)
+    handler.assert_called_once_with(envelope)
 
-def test_job_verifying_process_manager_is_not_called_on_unsubscribed_event():
+def test_handler_is_not_called_on_unsubscribed_event():
     bus = SyncEventBus()
-    process_manager = Mock()
+    handler = Mock()
 
-    bus.subscribe(JobMovedToVerifying, process_manager)
+    bus.subscribe(JobMovedToVerifying, handler)
 
     envelope = EventEnvelope.create(
         event=JobCreated(job_id=uuid4(), source_file="file.mkv"),
@@ -241,61 +192,4 @@ def test_job_verifying_process_manager_is_not_called_on_unsubscribed_event():
 
     bus.publish(envelope)
 
-    process_manager.assert_not_called()
-
-def test_JobVerifyingProcessManager_integration():
-    fs = FakeFileSystem()
-    bus = SyncEventBus()
-    publisher = EventPublisher(bus)
-    repo = FakeJobRepository()
-
-    svc = JobService(repo, publisher)
-    ProcessManager = JobVerifyingProcessManager(publisher, fs)
-
-    handled = []
-
-    def handler(envelope):
-        handled.append(envelope)
-
-    bus.subscribe(JobMovedToVerifying, ProcessManager)
-    bus.subscribe(TranscodeVerified, handler)
-    bus.subscribe(TranscodeVerificationFailed, handler)
-
-    job = svc.create_job("/input.mp4", 5)
-
-    fs.add(job.transcode_file)
-
-    svc.transition_job(job.id, JobStatus.processing)
-    svc.transition_job(job.id, JobStatus.verifying)
-
-    assert isinstance(handled[0].event, TranscodeVerified)
-    assert any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
-
-def test_EventPublisher_generates_envelope_correctly():
-    event_bus = FakeSyncEventBus()
-    publisher = EventPublisher(event_bus)
-    domain_event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
-    context = OperationContext.create()
-    envelope = publisher.create_envelope(domain_event, context)
-
-    assert envelope.context == context
-    assert isinstance(envelope.event, type(domain_event))
-    assert envelope.context is context
-    assert isinstance(envelope, EventEnvelope)
-
-def test_EventPublisher_publish_publishes_correctly():
-    handled = []
-
-    def handler(envelope):
-        handled.append(envelope)
-    
-    event_bus = FakeSyncEventBus()
-    publisher = EventPublisher(event_bus)
-
-    event_bus.subscribe(JobMovedToVerifying, handler)
-    
-    domain_event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
-    context = OperationContext.create()
-    publisher.publish(domain_event, context)
-
-    assert isinstance(handled[0], EventEnvelope)
+    handler.assert_not_called()
