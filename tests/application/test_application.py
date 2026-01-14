@@ -1,10 +1,11 @@
 from uuid import uuid4
+from unittest.mock import Mock
 
 from infrastructure import SyncEventBus
 
 from application import (
     JobService,
-    JobVerifyingOrchestrator,
+    JobVerifyingProcessManager,
     TranscodeVerified,
     TranscodeVerificationFailed,
     EventPublisher,
@@ -25,9 +26,8 @@ from domain import (
 from tests import (
     FakeSyncEventBus,
     FakeJobRepository,
-    FakeLogger,
     FakeFileSystem,
-    JobFactory
+    JobFactory,
 )
 
 
@@ -163,11 +163,11 @@ def test_subscriber_receives_domain_event():
     assert isinstance(event, JobMovedToVerifying)
     assert event.job_id == job.id
 
-def test_JobVerifyingOrchestrator_unit_test():
+def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_success():
     fs = FakeFileSystem()
     bus = FakeSyncEventBus()
-    logger = FakeLogger()
-    orchestrator = JobVerifyingOrchestrator(bus, logger, fs)
+    publisher = EventPublisher(bus)
+    ProcessManager = JobVerifyingProcessManager(publisher, fs)
     handled = []
 
     def handler(envelope):
@@ -177,31 +177,87 @@ def test_JobVerifyingOrchestrator_unit_test():
     bus.subscribe(TranscodeVerificationFailed, handler)
 
     # Simulate JobMovedToVerifying event with existing file
+    context = OperationContext.create()
     event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
+    envelope = EventEnvelope.create(event=event, context=context)
 
-    fs.add(event.transcode_file) # Add file to fake FS
+    fs.add(envelope.event.transcode_file) # Add file to fake FS
 
-    orchestrator(event)
+    ProcessManager(envelope)
 
-    assert any(isinstance(evt, TranscodeVerified) for evt in handled)
-    assert not any(isinstance(evt, TranscodeVerificationFailed) for evt in handled)
+    assert any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
+    assert not any(isinstance(envelope.event, TranscodeVerificationFailed) for envelope in handled)
 
-def test_JobVerifyingOrchestrator_integration():
+def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_failure():
+    fs = FakeFileSystem()
+    bus = FakeSyncEventBus()
+    publisher = EventPublisher(bus)
+    ProcessManager = JobVerifyingProcessManager(publisher, fs)
+    handled = []
+
+    def handler(envelope):
+        handled.append(envelope)
+    
+    bus.subscribe(TranscodeVerified, handler)
+    bus.subscribe(TranscodeVerificationFailed, handler)
+
+    # Simulate JobMovedToVerifying event with existing file
+    context = OperationContext.create()
+    event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
+    envelope = EventEnvelope.create(event=event, context=context)
+
+    # No file added to fake fs
+
+    ProcessManager(envelope)
+
+    assert not any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
+    assert any(isinstance(envelope.event, TranscodeVerificationFailed) for envelope in handled)
+
+def test_job_verifying_process_manager_is_called_on_subscribed_event():
+    bus = SyncEventBus()
+    process_manager = Mock()
+
+    bus.subscribe(JobMovedToVerifying, process_manager)
+
+    envelope = EventEnvelope(
+        event=JobMovedToVerifying(job_id=uuid4(), transcode_file="file.mkv"),
+        context=OperationContext.create(),
+    )
+
+    bus.publish(envelope)
+
+    process_manager.assert_called_once_with(envelope)
+
+def test_job_verifying_process_manager_is_not_called_on_unsubscribed_event():
+    bus = SyncEventBus()
+    process_manager = Mock()
+
+    bus.subscribe(JobMovedToVerifying, process_manager)
+
+    envelope = EventEnvelope.create(
+        event=JobCreated(job_id=uuid4(), source_file="file.mkv"),
+        context=OperationContext.create(),
+    )
+
+    bus.publish(envelope)
+
+    process_manager.assert_not_called()
+
+def test_JobVerifyingProcessManager_integration():
     fs = FakeFileSystem()
     bus = SyncEventBus()
     publisher = EventPublisher(bus)
-    logger = FakeLogger()
     repo = FakeJobRepository()
 
-    svc = JobService(repo, bus)
-    orchestrator = JobVerifyingOrchestrator(bus, logger, fs)
+    svc = JobService(repo, publisher)
+    ProcessManager = JobVerifyingProcessManager(publisher, fs)
 
     handled = []
 
     def handler(envelope):
         handled.append(envelope)
 
-    bus.subscribe(JobMovedToVerifying, orchestrator)
+    bus.subscribe(JobMovedToVerifying, ProcessManager)
     bus.subscribe(TranscodeVerified, handler)
     bus.subscribe(TranscodeVerificationFailed, handler)
 
@@ -212,7 +268,8 @@ def test_JobVerifyingOrchestrator_integration():
     svc.transition_job(job.id, JobStatus.processing)
     svc.transition_job(job.id, JobStatus.verifying)
 
-    assert any(isinstance(evt, TranscodeVerified) for evt in handled)
+    assert isinstance(handled[0].event, TranscodeVerified)
+    assert any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
 
 def test_EventPublisher_generates_envelope_correctly():
     event_bus = FakeSyncEventBus()
@@ -221,9 +278,9 @@ def test_EventPublisher_generates_envelope_correctly():
     context = OperationContext.create()
     envelope = publisher.create_envelope(domain_event, context)
 
-    assert envelope.operation_id == context.operation_id
+    assert envelope.context == context
     assert isinstance(envelope.event, type(domain_event))
-    assert envelope.operation_id is context.operation_id
+    assert envelope.context is context
     assert isinstance(envelope, EventEnvelope)
 
 def test_EventPublisher_publish_publishes_correctly():

@@ -1,6 +1,5 @@
 
 from dataclasses import dataclass
-from uuid import UUID
 
 from domain import (
     Event,
@@ -10,11 +9,11 @@ from domain import (
 @dataclass(frozen=True)
 class EventEnvelope:
     event: Event
-    operation_id: UUID
+    context: OperationContext
 
     @classmethod
     def create(cls, event: Event, context: OperationContext) -> "EventEnvelope":
         return cls(
             event=event,
-            operation_id=context.operation_id,
+            context=context,
         )
