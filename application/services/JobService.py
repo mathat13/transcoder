@@ -4,16 +4,21 @@ from domain import (
     Job,
     ExternalMediaIDs,
     FileInfo,
+    OperationContext,
 )
 
+from application.events.EventPublisher import EventPublisher
+
 class JobService:
-    def __init__(self, repo, event_bus):
+    def __init__(self, repo, event_publisher):
         self.repo = repo
-        self.event_bus = event_bus
+        self.event_publisher = event_publisher
     
     def create_job(self, source: str, media_ids: int):
         # Move to presentation layer and change job_type and source to ubiquitous language
         # Once presentation layer implemented
+        operation_context = OperationContext.create()
+
         media_ids = ExternalMediaIDs.create(media_ids)
         source_file = FileInfo.create(source)
 
@@ -22,19 +27,21 @@ class JobService:
         self.repo.save(job)
 
         # Dispatch domain events
-        self.event_bus.publish_all(job.events)
+        self.event_publisher.publish_all(job.events, operation_context)
         job.events.clear()
 
         return job
 
     def transition_job(self, job_id: UUID, new_status: str):
+        operation_context = OperationContext.create()
+
         job = self.repo._get_job_by_id(job_id)
         job.transition_to(new_status)
 
         self.repo.save(job)
 
         # Dispatch domain events
-        self.event_bus.publish_all(job.events)
+        self.event_publisher.publish_all(job.events, operation_context)
         job.events.clear()
 
         return job

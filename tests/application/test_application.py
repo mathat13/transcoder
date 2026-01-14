@@ -35,8 +35,8 @@ from tests import (
 def test_JobService_emits_correct_events_on_status_transition():
     bus = SyncEventBus()
     repo = FakeJobRepository()
-
-    svc = JobService(repo, bus)
+    publisher = EventPublisher(bus)
+    svc = JobService(repo, publisher)
 
     handled = []
 
@@ -50,16 +50,16 @@ def test_JobService_emits_correct_events_on_status_transition():
     bus.subscribe(JobFailed, handler)
 
     job = svc.create_job("/input.mp4", 5)
-    assert isinstance(handled[0], JobCreated)
+    assert isinstance(handled[0].event, JobCreated)
 
     svc.transition_job(job.id, JobStatus.processing)
-    assert isinstance(handled[1], JobMovedToProcessing)
+    assert isinstance(handled[1].event, JobMovedToProcessing)
 
     svc.transition_job(job.id, JobStatus.verifying)
-    assert isinstance(handled[2], JobMovedToVerifying)
+    assert isinstance(handled[2].event, JobMovedToVerifying)
 
     svc.transition_job(job.id, JobStatus.success)
-    assert isinstance(handled[3], JobCompleted)
+    assert isinstance(handled[3].event, JobCompleted)
 
     # Save a new job to test failure transition 
     job2 = JobFactory(status=JobStatus.verifying)
@@ -67,7 +67,7 @@ def test_JobService_emits_correct_events_on_status_transition():
 
     # Test failure transition
     svc.transition_job(job2.id, JobStatus.error)
-    assert isinstance(handled[4], JobFailed)
+    assert isinstance(handled[4].event, JobFailed)
 
 
 def test_event_bus_calls_subscribers():
@@ -112,6 +112,8 @@ def test_event_bus_publish_called_directly():
 def test_creating_a_job_emits_event_and_saves_to_repo():
     repo = FakeJobRepository()
     bus = FakeSyncEventBus()
+    publisher = EventPublisher(bus)
+    svc = JobService(repo, publisher)
 
     handled = []
 
@@ -120,7 +122,6 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
 
     bus.subscribe(JobCreated, handler)
 
-    svc = JobService(repo, bus)
 
     job = svc.create_job("/input.mp4", 5)
 
@@ -133,7 +134,7 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
 
     # domain events
     assert len(job.events) == 0         # cleared after publish
-    assert isinstance(bus.published[0], JobCreated)
+    assert isinstance(bus.published[0].event, JobCreated)
 
     # subscriber
     assert len(handled) == 1
@@ -141,7 +142,8 @@ def test_creating_a_job_emits_event_and_saves_to_repo():
 def test_subscriber_receives_domain_event():
     repo = FakeJobRepository()
     bus = FakeSyncEventBus()
-    service = JobService(repo, bus)
+    publisher = EventPublisher(bus)
+    service = JobService(repo, publisher)
 
     handled = []
 
@@ -157,7 +159,7 @@ def test_subscriber_receives_domain_event():
     service.transition_job(job.id, JobStatus.verifying)
 
     assert len(handled) == 1
-    event = bus.published[0]
+    event = bus.published[0].event
     assert isinstance(event, JobMovedToVerifying)
     assert event.job_id == job.id
 
@@ -187,6 +189,7 @@ def test_JobVerifyingOrchestrator_unit_test():
 def test_JobVerifyingOrchestrator_integration():
     fs = FakeFileSystem()
     bus = SyncEventBus()
+    publisher = EventPublisher(bus)
     logger = FakeLogger()
     repo = FakeJobRepository()
 

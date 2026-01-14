@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from application.events.EventEnvelope import EventEnvelope
 
 from domain import (
@@ -15,3 +17,7 @@ class EventPublisher:
     def publish(self, event: Event, operation_context: OperationContext):
         envelope = self.create_envelope(event=event, operation_context=operation_context)
         self.event_bus.publish(envelope)
+
+    def publish_all(self, events: Iterable[Event], operation_context: OperationContext):
+        for event in events:
+            self.publish(event=event, operation_context=operation_context)

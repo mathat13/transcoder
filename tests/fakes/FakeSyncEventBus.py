@@ -25,6 +25,6 @@ class FakeSyncEventBus:
         for handler in self.subscribers[type(event)]:
             handler(envelope)
 
-    def publish_all(self, envelopes):
-        for evt in envelopes:
-            self.publish(evt)
+    def publish_all(self, envelopes: Iterable[EventEnvelope]):
+        for envelope in envelopes:
+            self.publish(envelope)
