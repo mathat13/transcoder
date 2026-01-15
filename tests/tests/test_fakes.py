@@ -1,7 +1,8 @@
 from domain import (
     JobStatus,
     Job,
-    FileInfo
+    FileInfo,
+    ExternalMediaIDs,
 )
 
 from tests import (
@@ -76,6 +77,24 @@ def test_FakeHTTPClient_send_method():
     response = client._send(request)
 
     assert response is fake_response
+
+def test_FakeJobRepository_saves_job_correctly():
+    repo = FakeJobRepository()
+
+    job = Job.create(
+        source_file=FileInfo("/input.mp4"),
+        media_ids=ExternalMediaIDs(1)
+    )
+
+    # Save job
+    repo.save(job)
+
+    # Load saved job
+    saved = repo._get_job_by_id(job.id)
+    assert saved.id == job.id
+    assert saved.source_file == job.source_file
+    assert saved.status == job.status
+    assert saved.external_media_ids == job.external_media_ids
     
 
 

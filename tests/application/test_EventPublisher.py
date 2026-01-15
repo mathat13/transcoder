@@ -11,12 +11,13 @@ from application import (
 )
 
 from tests import (
-    FakeSyncEventBus
+    FakeSyncEventBus,
 )
 
 def test_EventPublisher_generates_envelope_correctly():
     event_bus = FakeSyncEventBus()
     publisher = EventPublisher(event_bus)
+
     domain_event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
     context = OperationContext.create()
     envelope = publisher.create_envelope(domain_event, context)
