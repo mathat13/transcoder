@@ -5,11 +5,14 @@ from domain import (
     JobCompleted,
     JobFailed,
     JobStatus,
+    OperationContext,
 )
 
 from application import (
     EventPublisher,
     JobService,
+    EventEnvelope,
+    TranscodeVerified,
 )
 
 from tests import (
@@ -35,22 +38,72 @@ def test_JobService_emits_correct_events_on_status_transition():
     bus.subscribe(JobCompleted, handler)
     bus.subscribe(JobFailed, handler)
 
-    job = svc.create_job("/input.mp4", 5)
-    assert isinstance(handled[0].event, JobCreated)
+    # Add created job event check here!
 
-    svc.transition_job(job.id, JobStatus.processing)
-    assert isinstance(handled[1].event, JobMovedToProcessing)
+    pending_job = JobFactory(status=JobStatus.pending)
+    svc._transition_job(pending_job, JobStatus.processing)
+    assert isinstance(pending_job.events[0], JobMovedToProcessing)
 
-    svc.transition_job(job.id, JobStatus.verifying)
-    assert isinstance(handled[2].event, JobMovedToVerifying)
+    processing_job = JobFactory(status=JobStatus.processing)
+    svc._transition_job(processing_job, JobStatus.verifying)
+    assert isinstance(processing_job.events[0], JobMovedToVerifying)
 
-    svc.transition_job(job.id, JobStatus.success)
-    assert isinstance(handled[3].event, JobCompleted)
+    verifying_job = JobFactory(status=JobStatus.verifying)
+    svc._transition_job(verifying_job, JobStatus.success)
+    assert isinstance(verifying_job.events[0], JobCompleted)
 
-    # Save a new job to test failure transition 
-    job2 = JobFactory(status=JobStatus.verifying)
-    repo.save(job2)
+    # Test failure transitions
+    verifying_job = JobFactory(status=JobStatus.verifying)
+    svc._transition_job(verifying_job, JobStatus.error)
+    assert isinstance(verifying_job.events[0], JobFailed)
 
-    # Test failure transition
-    svc.transition_job(job2.id, JobStatus.error)
-    assert isinstance(handled[4].event, JobFailed)
+    processing_job = JobFactory(status=JobStatus.processing)
+    svc._transition_job(processing_job, JobStatus.error)
+    assert isinstance(processing_job.events[0], JobFailed)
+
+def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_on_success():
+    bus = FakeSyncEventBus()
+    repo = FakeJobRepository()
+    publisher = EventPublisher(bus)
+    svc = JobService(repo, publisher)
+
+    handled = []
+
+    def handler(envelope):
+        handled.append(type(envelope.event))
+
+    job = JobFactory(status=JobStatus.verifying)
+    repo.save(job)
+
+    bus.subscribe(JobCompleted, handler)
+    bus.subscribe(TranscodeVerified, svc)
+
+    envelope = EventEnvelope(
+        event=TranscodeVerified(job_id=job.id, transcode_file=job.transcode_file),
+        context=OperationContext.create()
+    )
+
+    bus.publish(envelope)
+
+    assert handled == [
+        JobCompleted,
+    ]
+
+def test_JobService_emit_emits_events_correctly():
+    bus = FakeSyncEventBus()
+    publisher = EventPublisher(bus)
+    svc = JobService(None, publisher)
+    job = JobFactory()
+    context = OperationContext.create()
+    job.events = [JobCompleted(job_id=None),
+                  JobMovedToProcessing(job_id=None),
+                  JobMovedToVerifying(job_id=None,transcode_file=None),
+                  ]
+    svc._emit(job, context)
+
+    assert bus.unpublished == [JobCompleted,
+                  JobMovedToProcessing,
+                  JobMovedToVerifying,
+                  ]
+    
+

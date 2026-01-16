@@ -11,6 +11,7 @@ class FakeSyncEventBus:
     def __init__(self):
         self.subscribers = {}
         self.published = []
+        self.unpublished = []
 
     def subscribe(self, event_type, handler):
         self.subscribers.setdefault(event_type, []).append(handler)
@@ -19,9 +20,10 @@ class FakeSyncEventBus:
         event = envelope.event
 
         if not self.subscribers:
+            self.unpublished.append(type(envelope.event))
             return
 
-        self.published.append(envelope)
+        self.published.append(type(envelope.event))
         for handler in self.subscribers[type(event)]:
             handler(envelope)
 

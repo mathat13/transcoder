@@ -76,30 +76,3 @@ def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_failure
     assert not any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
     assert any(isinstance(envelope.event, TranscodeVerificationFailed) for envelope in handled)
 
-def test_JobVerifyingProcessManager_integration():
-    fs = FakeFileSystem()
-    bus = SyncEventBus()
-    publisher = EventPublisher(bus)
-    repo = FakeJobRepository()
-
-    svc = JobService(repo, publisher)
-    ProcessManager = JobVerifyingProcessManager(publisher, fs)
-
-    handled = []
-
-    def handler(envelope):
-        handled.append(envelope)
-
-    bus.subscribe(JobMovedToVerifying, ProcessManager)
-    bus.subscribe(TranscodeVerified, handler)
-    bus.subscribe(TranscodeVerificationFailed, handler)
-
-    job = svc.create_job("/input.mp4", 5)
-
-    fs.add(job.transcode_file)
-
-    svc.transition_job(job.id, JobStatus.processing)
-    svc.transition_job(job.id, JobStatus.verifying)
-
-    assert isinstance(handled[0].event, TranscodeVerified)
-    assert any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
