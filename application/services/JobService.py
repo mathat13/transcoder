@@ -1,5 +1,4 @@
 from uuid import UUID
-from copy import deepcopy
 
 from domain import (
     Job,
@@ -20,7 +19,7 @@ class JobService:
     def __call__(self, envelope: EventEnvelope):
         event = envelope.event
 
-        if type(event) == TranscodeVerified:
+        if isinstance(event, TranscodeVerified):
             self._handle_transcode_verified(envelope=envelope)
 
     def _handle_transcode_verified(self, envelope: EventEnvelope):
@@ -31,17 +30,19 @@ class JobService:
                             new_status=JobStatus.success,
                             )
         
-        # Persist job and then emit domain events attached to job
+        # Persist job and then emit domain events attached to job if successful
         self.repo.save(job)
         self._emit(job, envelope.context)
 
+    # Placholder while event outbox is not implemented
+    # Not the nicest as it modifies an object that isn't itself, use with caution
+    # Decided to take a Job object as a parameter to be as explicit as possible
     def _emit(self, job: Job, context: OperationContext):
         """
         Takes a job and emits events, job.events has to be deepcopied to allow for clearing of job.events
         before event emission, otherwise event emission becomes untrusted.
         """
-        events=deepcopy(job.events)
-        job.events.clear()
+        events=job.pull_events()
         self.event_publisher.publish_all(events=events, operation_context=context)
 
     def _transition_job(self, job: Job, new_status: JobStatus):

@@ -70,3 +70,12 @@ class Job:
         job._emit(event)
 
         return job
+    
+    # ---------------------------
+    # Event helpers
+    # ---------------------------
+
+    def pull_events(self):
+        events = self.events[:]
+        self.events.clear()
+        return events

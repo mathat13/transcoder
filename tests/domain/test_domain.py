@@ -124,4 +124,17 @@ def test_ExternalMediaIDs_generated_correctly():
 
     assert media_ids.radarr_movie_id == radarr_id
 
+def test_job_pull_events_works_correctly():
+    media_ids = ExternalMediaIDs.create(5)
+    source_file=FileInfo.create("/path/to/source.mkv")
+    job = Job.create(source_file=source_file, media_ids=media_ids)
+
+    assert len(job.events) != 0
+
+    events = job.pull_events()
+
+    assert len(events) != 0
+    assert len(job.events) == 0
+
+
 
