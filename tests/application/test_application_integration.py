@@ -92,7 +92,7 @@ def test_job_verification_request_to_completion_happy_path():
     job = JobFactory(status=JobStatus.processing)
 
     repo.save(job)
-    fs.add(job.transcode_file)
+    fs.add(job.transcode_file.path)
 
     service.verify_job(job.id)
 

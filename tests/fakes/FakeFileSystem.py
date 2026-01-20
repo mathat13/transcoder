@@ -4,8 +4,8 @@ class FakeFileSystem:
     def __init__(self):
         self._files: set[str] = set()
 
-    def add(self, file: FileInfo) -> None:
-        self._files.add(file.path)
+    def add(self, file: str) -> None:
+        self._files.add(file)
 
-    def exists(self, file: FileInfo) -> bool:
-        return file.path in self._files
+    def exists(self, file: str) -> bool:
+        return file in self._files

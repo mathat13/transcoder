@@ -44,7 +44,7 @@ def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_success
     event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
     envelope = EventEnvelope.create(event=event, context=context)
 
-    fs.add(envelope.event.transcode_file) # Add file to fake FS
+    fs.add(envelope.event.transcode_file.path) # Add file to fake FS
 
     ProcessManager(envelope)
 

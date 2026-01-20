@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from domain.value_objects.FileInfo import FileInfo
+from domain.value_objects.ExternalMediaIDs import ExternalMediaIDs
 from domain.value_objects.JobStatus import JobStatus
 from domain.events.Base import Event
 
@@ -33,6 +34,7 @@ class JobMovedToVerifying(DomainEvent):
 @dataclass(kw_only=True)
 class JobCompleted(DomainEvent):
     job_id: UUID
+    media_ids: ExternalMediaIDs
 
 @dataclass(kw_only=True)
 class JobFailed(DomainEvent):

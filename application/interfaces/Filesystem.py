@@ -1,7 +1,11 @@
 from typing import Protocol
 
-from domain import FileInfo
-
 class Filesystem(Protocol):
-    def exists(self, file: FileInfo) -> bool:
+    def exists(self, file: str) -> bool:
+        ...
+
+    def hardlink(self, source_file: str, destination: str) -> None:
+        ...
+
+    def delete(self, file: str) -> None:
         ...

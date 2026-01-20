@@ -22,7 +22,9 @@ class DOMAIN_EVENT_FACTORY:
                 )
             case JobStatus.success:
                 return JobCompleted(
-                    job_id=job.id
+                    job_id=job.id,
+                    media_ids=job.external_media_ids,
+
                 )
             case JobStatus.error:
                 return JobFailed(

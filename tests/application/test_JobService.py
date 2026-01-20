@@ -95,7 +95,7 @@ def test_JobService_emit_emits_events_correctly():
     svc = JobService(None, publisher)
     job = JobFactory()
     context = OperationContext.create()
-    job.events = [JobCompleted(job_id=None),
+    job.events = [JobCompleted(job_id=None,media_ids=None),
                   JobMovedToProcessing(job_id=None),
                   JobMovedToVerifying(job_id=None,transcode_file=None),
                   ]

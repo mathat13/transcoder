@@ -9,9 +9,7 @@ def test_filesystem_exists_returns_true_for_existing_file(tmp_path):
     file_path = tmp_path / "output.mp4"
     file_path.write_text("fake data")
 
-    file_info = FileInfo(str(file_path))
-
-    result = fs.exists(file_info)
+    result = fs.exists(file_path)
 
     # Assert
     assert result is True
@@ -23,8 +21,6 @@ def test_filesystem_exists_returns_false_for_non_existing_file(tmp_path):
 
     # Don't actually write file
 
-    file_info = FileInfo(str(file_path))
-
-    result = fs.exists(file_info)
+    result = fs.exists(file_path)
 
     assert result is False
