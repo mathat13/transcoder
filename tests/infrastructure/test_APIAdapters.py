@@ -1,4 +1,7 @@
 import pytest
+from uuid import uuid4
+
+from domain import ExternalMediaIDs
 
 from application import APIServiceException
 
@@ -81,7 +84,8 @@ def test_RadarrAPIAdapter_attributes_initialized_correctly():
     assert "fakeapikey" in adapter.headers["X-Api-Key"]
 
 def test_RadarrAPIAdapter_get_moviefile_returns_true_on_success_with_fake():
-    movie_id =105
+    movie_id = ExternalMediaIDs(105)
+    idempotency_key = uuid4()
     url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -96,12 +100,13 @@ def test_RadarrAPIAdapter_get_moviefile_returns_true_on_success_with_fake():
     client = FakeHTTPClient(response=success_response)
     adapter = RadarrAPIAdapter(client)
 
-    response = adapter.get_moviefile(movie_id=movie_id)
+    response = adapter.get_moviefile(movie_id=movie_id, idempotency_key=idempotency_key)
 
     assert response is True
 
 def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
-    movie_id =105
+    movie_id = ExternalMediaIDs(105)
+    idempotency_key = uuid4()
     url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -116,10 +121,11 @@ def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
     with pytest.raises(APIServiceException):
-        adapter.get_moviefile(movie_id=movie_id)
+        adapter.get_moviefile(movie_id=movie_id, idempotency_key=idempotency_key)
 
 def test_RadarrAPIAdapter_rescan_movie_returns_true_on_success_with_fake():
-    movie_id =105
+    movie_id = ExternalMediaIDs(105)
+    idempotency_key = uuid4()
     url="http://radarr.local/api/v3"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -134,12 +140,13 @@ def test_RadarrAPIAdapter_rescan_movie_returns_true_on_success_with_fake():
     client = FakeHTTPClient(response=success_response)
     adapter = RadarrAPIAdapter(client)
 
-    response = adapter.rescan_movie(movie_id=movie_id)
+    response = adapter.rescan_movie(movie_id=movie_id, idempotency_key=idempotency_key)
 
     assert response is True
 
 def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
-    movie_id =105
+    movie_id = ExternalMediaIDs(105)
+    idempotency_key = uuid4()
     url="http://radarr.local/api/v3"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -154,7 +161,7 @@ def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
     with pytest.raises(APIServiceException):
-        adapter.rescan_movie(movie_id=movie_id)
+        adapter.rescan_movie(movie_id=movie_id, idempotency_key=idempotency_key)
 
 def test_JellyfinAPIAdapter_attributes_initialized_correctly():
 
@@ -165,6 +172,7 @@ def test_JellyfinAPIAdapter_attributes_initialized_correctly():
     assert "MediaBrowser Token=" in adapter.headers["Authorization"]
 
 def test_JellyfinAPIAdapter_refresh_library_returns_true_on_success_with_fake():
+    idempotency_key = uuid4()
     url="http://jellyfin.local"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -179,11 +187,12 @@ def test_JellyfinAPIAdapter_refresh_library_returns_true_on_success_with_fake():
     client = FakeHTTPClient(response=success_response)
     adapter = JellyfinAPIAdapter(client)
 
-    response = adapter.refresh_library()
+    response = adapter.refresh_library(idempotency_key=idempotency_key)
 
     assert response is True
 
 def test_JellyfinAPIAdapter_refresh_library_raises_exception_on_failure_with_fake():
+    idempotency_key = uuid4()
     url="http://jellyfin.local"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -199,5 +208,5 @@ def test_JellyfinAPIAdapter_refresh_library_raises_exception_on_failure_with_fak
     adapter = JellyfinAPIAdapter(client)
     
     with pytest.raises(APIServiceException):
-            adapter.refresh_library()
+            adapter.refresh_library(idempotency_key=idempotency_key)
 

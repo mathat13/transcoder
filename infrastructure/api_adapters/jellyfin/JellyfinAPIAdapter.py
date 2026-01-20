@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
 from infrastructure.api_adapters.jellyfin.data_models.headers import JellyfinHeaders
@@ -10,7 +12,7 @@ class JellyfinAPIAdapter(BaseAPIAdapter):
         headers = JellyfinHeaders(authorization=api_key).model_dump(by_alias=True)
         super().__init__(client, base_url, headers)
 
-    def refresh_library(self) -> bool:
+    def refresh_library(self, idempotency_key: UUID) -> bool:
         url_extension = "/Library/Refresh"
         url=self._generate_url(url_extension)
 

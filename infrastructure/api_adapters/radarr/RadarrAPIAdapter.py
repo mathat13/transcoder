@@ -1,6 +1,5 @@
 from pydantic import TypeAdapter
-
-from application import APIServiceException
+from uuid import UUID
 
 from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
@@ -8,6 +7,8 @@ from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
 from infrastructure.api_adapters.radarr.data_models.get_moviefile import GetMovieFileResponse
 from infrastructure.api_adapters.radarr.data_models.rescan_movie import RescanMovieRequest
+
+from domain import ExternalMediaIDs
 
 class RadarrAPIAdapter(BaseAPIAdapter):
     service_name = "Radarr"
@@ -17,8 +18,9 @@ class RadarrAPIAdapter(BaseAPIAdapter):
         headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
         super().__init__(client, base_url, headers)
 
-    def get_moviefile(self, movie_id: int) -> bool:
-        query_params = {"movieId": movie_id}
+    def get_moviefile(self, movie_id: ExternalMediaIDs, idempotency_key: UUID) -> bool:
+        id = movie_id.radarr_movie_id
+        query_params = {"movieId": id}
         url_extension = "/moviefile"
 
         url=self._generate_url(url_extension)
@@ -43,14 +45,15 @@ class RadarrAPIAdapter(BaseAPIAdapter):
 
         return bool(response.ok)
 
-    def rescan_movie(self, movie_id: int) -> None:
+    def rescan_movie(self, movie_id: ExternalMediaIDs, idempotency_key: UUID) -> None:
+        id = movie_id.radarr_movie_id
         url_extension = "/command"
         url=self._generate_url(url_extension)
 
         request =  HTTPRequest(
             url=url,
             headers=self.headers,
-            data=RescanMovieRequest(movieId=movie_id).model_dump()
+            data=RescanMovieRequest(movieId=id).model_dump(),
         )
 
         response = self.client.post(request)
