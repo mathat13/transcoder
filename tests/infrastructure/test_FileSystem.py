@@ -1,7 +1,6 @@
 import pytest
 
 from infrastructure import FileSystem
-from domain import FileInfo
 
 def test_filesystem_exists_returns_true_for_existing_file(tmp_path):
     fs = FileSystem()

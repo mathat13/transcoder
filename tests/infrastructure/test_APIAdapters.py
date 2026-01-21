@@ -84,7 +84,7 @@ def test_RadarrAPIAdapter_attributes_initialized_correctly():
     assert "fakeapikey" in adapter.headers["X-Api-Key"]
 
 def test_RadarrAPIAdapter_get_moviefile_returns_true_on_success_with_fake():
-    movie_id = ExternalMediaIDs(105)
+    media_identifier = ExternalMediaIDs(105)
     idempotency_key = uuid4()
     url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
@@ -100,12 +100,12 @@ def test_RadarrAPIAdapter_get_moviefile_returns_true_on_success_with_fake():
     client = FakeHTTPClient(response=success_response)
     adapter = RadarrAPIAdapter(client)
 
-    response = adapter.get_moviefile(movie_id=movie_id, idempotency_key=idempotency_key)
+    response = adapter.get_moviefile(media_identifier=media_identifier, idempotency_key=idempotency_key)
 
     assert response is True
 
 def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
-    movie_id = ExternalMediaIDs(105)
+    media_identifier = ExternalMediaIDs(105)
     idempotency_key = uuid4()
     url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
@@ -121,10 +121,10 @@ def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
     with pytest.raises(APIServiceException):
-        adapter.get_moviefile(movie_id=movie_id, idempotency_key=idempotency_key)
+        adapter.get_moviefile(media_identifier=media_identifier, idempotency_key=idempotency_key)
 
 def test_RadarrAPIAdapter_rescan_movie_returns_true_on_success_with_fake():
-    movie_id = ExternalMediaIDs(105)
+    media_identifier = ExternalMediaIDs(105)
     idempotency_key = uuid4()
     url="http://radarr.local/api/v3"
     response_headers={"X-Api-Key": "fakeapikey"}
@@ -140,12 +140,12 @@ def test_RadarrAPIAdapter_rescan_movie_returns_true_on_success_with_fake():
     client = FakeHTTPClient(response=success_response)
     adapter = RadarrAPIAdapter(client)
 
-    response = adapter.rescan_movie(movie_id=movie_id, idempotency_key=idempotency_key)
+    response = adapter.rescan_movie(media_identifier=media_identifier, idempotency_key=idempotency_key)
 
     assert response is True
 
 def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
-    movie_id = ExternalMediaIDs(105)
+    media_identifier = ExternalMediaIDs(105)
     idempotency_key = uuid4()
     url="http://radarr.local/api/v3"
     response_headers={"X-Api-Key": "fakeapikey"}
@@ -161,7 +161,7 @@ def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
     with pytest.raises(APIServiceException):
-        adapter.rescan_movie(movie_id=movie_id, idempotency_key=idempotency_key)
+        adapter.rescan_movie(media_identifier=media_identifier, idempotency_key=idempotency_key)
 
 def test_JellyfinAPIAdapter_attributes_initialized_correctly():
 
@@ -210,3 +210,15 @@ def test_JellyfinAPIAdapter_refresh_library_raises_exception_on_failure_with_fak
     with pytest.raises(APIServiceException):
             adapter.refresh_library(idempotency_key=idempotency_key)
 
+def test_idempotency_key_added_to_headers_correctly():
+
+    class TestAPIAdapter(BaseAPIAdapter):
+        service_name = "TestService"
+
+    client = FakeHTTPClient(response=None)
+    adapter = TestAPIAdapter(client, base_url=None, headers={"Idempotency-Key": None})
+    idempotency_key = uuid4()
+
+    headers = adapter._headers_with_idempotency(idempotency_key=idempotency_key)
+
+    assert headers["Idempotency-Key"] == str(idempotency_key)

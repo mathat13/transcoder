@@ -14,11 +14,10 @@ class JellyfinAPIAdapter(BaseAPIAdapter):
 
     def refresh_library(self, idempotency_key: UUID) -> bool:
         url_extension = "/Library/Refresh"
-        url=self._generate_url(url_extension)
 
         request =  HTTPRequest(
-            url=url,
-            headers=self.headers,
+            url=self._generate_url(url_extension),
+            headers=self._headers_with_idempotency(idempotency_key=idempotency_key),
         )
 
         response = self.client.post(request)

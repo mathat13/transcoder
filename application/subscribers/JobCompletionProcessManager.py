@@ -14,7 +14,7 @@ class JobVerifyingProcessManager:
         
     def handle(self, envelope: EventEnvelope):
         idempotency_key = envelope.context.operation_id
-        radarr_movie_id = envelope.event.media_ids.radarr_id
+        media_ids = envelope.event.media_ids
         source_file = envelope.event.source_file
         transcode_file = envelope.event.transcode_file
 
@@ -22,14 +22,14 @@ class JobVerifyingProcessManager:
         self.filesystem.hardlink(source_file=transcode_file.path, destination=source_file.parent)
 
         # Ask radarr to update file
-        self.radarr_api.rescan_movie(movie_id=radarr_movie_id, idempotency_key=idempotency_key)
+        self.radarr_api.rescan_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
 
         # Check file is updated
-        response = self.radarr_api.get_movie(radarr_movie_id, idempotency_key=idempotency_key)
+        response = self.radarr_api.get_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
 
         if response.movie_path != transcode_file.path:
-            self.radarr_api.rescan_movie(movie_id=radarr_movie_id, idempotency_key=idempotency_key)
-            response = self.radarr_api.get_movie(radarr_movie_id, idempotency_key=idempotency_key)
+            self.radarr_api.rescan_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
+            response = self.radarr_api.get_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
 
         # Update jellyfin library
         self.jellyfin_api.refresh_library(idempotency_key=idempotency_key)

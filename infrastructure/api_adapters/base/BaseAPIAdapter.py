@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from application import APIServiceException
 
 from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
@@ -23,5 +25,16 @@ class BaseAPIAdapter():
             detail=response.json_data or response.text_data
             )
 
+    def _headers_with_idempotency(self, idempotency_key: UUID | None = None) -> dict[str, str]:
+        """
+        Used so that class header templates are not modified per operation
+        """
+        headers = dict(self.headers)
+
+        if idempotency_key is not None:
+            headers["Idempotency-Key"] = str(idempotency_key)
+
+        return headers
+    
     def _generate_url(self, extension: str) -> str:
         return self.base_url + extension
