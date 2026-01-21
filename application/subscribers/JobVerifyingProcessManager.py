@@ -11,7 +11,7 @@ class JobVerifyingProcessManager:
         
     def handle(self, envelope: EventEnvelope):
         event = envelope.event
-        if not self.filesystem.exists(event.transcode_file.path):
+        if not self.filesystem.is_file(event.transcode_file.path):
             self.publisher.publish(TranscodeVerificationFailed(job_id=event.job_id,
                                                                transcode_file=event.transcode_file
                                                                ),

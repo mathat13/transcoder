@@ -32,25 +32,25 @@ def test_FakeJobRepository_get_next_pending_job_gets_next_pending_job():
     assert isinstance(retrieved_job, Job)
     assert retrieved_job.status == JobStatus.pending
 
-def test_FakeFileSystem_exists_returns_true_with_existing_file():
+def test_FakeFileSystem_is_file_returns_true_with_existing_file():
     fs = FakeFileSystem()
 
     file = FileInfo("/fake/file.mp4")
 
     fs.add(file)
 
-    result = fs.exists(file)
+    result = fs.is_file(file)
 
     assert result is True
 
-def test_FakeFileSystem_exists_returns_false_with_non_existing_file():
+def test_FakeFileSystem_is_file_returns_false_with_non_existing_file():
     fs = FakeFileSystem()
 
     file = FileInfo("/fake/file.mp4")
 
     # Don't add to fake filesystem
 
-    result = fs.exists(file)
+    result = fs.is_file(file)
 
     assert result is False
 

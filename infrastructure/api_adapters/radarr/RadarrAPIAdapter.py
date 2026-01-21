@@ -35,14 +35,17 @@ class RadarrAPIAdapter(BaseAPIAdapter):
         self._raise_for_error(response)
         
         # For non-list-wrapped responses
-        #GetMovieFileResponse(**response.data)
+        #data = GetMovieFileResponse(**response.data)
 
         # For list-wrapped responses
-        TypeAdapter(list[GetMovieFileResponse]).validate_python(
+        # Define model to validate against
+        model = TypeAdapter(list[GetMovieFileResponse])
+        # Validate, while stripping list and assigning to a value for extracting return values
+        data = model.validate_python(
             response.json_data
-        )
+        )[0]
 
-        return FileInfo(response.data.path)
+        return FileInfo(data.path)
 
         
 
