@@ -1,7 +1,10 @@
 import pytest
 from uuid import uuid4
 
-from domain import ExternalMediaIDs
+from domain import (
+    ExternalMediaIDs,
+    FileInfo,
+)
 
 from application import APIServiceException
 
@@ -83,17 +86,18 @@ def test_RadarrAPIAdapter_attributes_initialized_correctly():
     assert adapter.base_url == "http://radarr.local/api/v3"
     assert "fakeapikey" in adapter.headers["X-Api-Key"]
 
-def test_RadarrAPIAdapter_get_moviefile_returns_true_on_success_with_fake():
+def test_RadarrAPIAdapter_get_moviefile_returns_correctly_on_success_with_fake():
     media_identifier = ExternalMediaIDs(105)
     idempotency_key = uuid4()
     url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
+    movie_path="/input.mp4"
 
     success_response = HTTPResponse(
             ok=True,
             status_code=200,
             headers=response_headers,
-            json_data=[GetMovieFileResponseFactory().model_dump()],
+            json_data=[GetMovieFileResponseFactory(path=movie_path).model_dump()],
             url=url,
         )
     
@@ -102,7 +106,8 @@ def test_RadarrAPIAdapter_get_moviefile_returns_true_on_success_with_fake():
 
     response = adapter.get_moviefile(media_identifier=media_identifier, idempotency_key=idempotency_key)
 
-    assert response is True
+    assert isinstance(response, FileInfo)
+    assert response.path == movie_path
 
 def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
     media_identifier = ExternalMediaIDs(105)

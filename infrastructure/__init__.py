@@ -7,7 +7,6 @@ from .persistence.Job.mappers.JobMapper import JobMapper
 from .filesystem.FileSystem import FileSystem
 from .api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from .api_adapters.radarr.RadarrAPIAdapter import RadarrAPIAdapter
-from .api_adapters.radarr.data_models.test_data_model import *
 from .api_adapters.radarr.data_models.headers import RadarrHeaders
 from .api_adapters.radarr.data_models.get_moviefile import *
 from .api_adapters.radarr.data_models.rescan_movie import *

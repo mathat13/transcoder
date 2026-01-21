@@ -8,7 +8,9 @@ from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
 from infrastructure.api_adapters.radarr.data_models.get_moviefile import GetMovieFileResponse
 from infrastructure.api_adapters.radarr.data_models.rescan_movie import RescanMovieRequest
 
-from domain import ExternalMediaIDs
+from domain import (ExternalMediaIDs,
+                    FileInfo,
+)
 
 class RadarrAPIAdapter(BaseAPIAdapter):
     service_name = "Radarr"
@@ -18,7 +20,7 @@ class RadarrAPIAdapter(BaseAPIAdapter):
         headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
         super().__init__(client, base_url, headers)
 
-    def get_moviefile(self, media_identifier: ExternalMediaIDs, idempotency_key: UUID) -> bool:
+    def get_moviefile(self, media_identifier: ExternalMediaIDs, idempotency_key: UUID) -> FileInfo | None:
         movie_id = media_identifier.radarr_movie_id
         query_params = {"movieId": movie_id}
         url_extension = "/moviefile"
@@ -32,16 +34,17 @@ class RadarrAPIAdapter(BaseAPIAdapter):
         response = self.client.get(request)
         self._raise_for_error(response)
         
-        if response.ok:
-            # For non-list-wrapped responses
-            #GetMovieFileResponse(**response.data)
+        # For non-list-wrapped responses
+        #GetMovieFileResponse(**response.data)
 
-            # For list-wrapped responses
-            TypeAdapter(list[GetMovieFileResponse]).validate_python(
-                response.json_data
-            )
+        # For list-wrapped responses
+        TypeAdapter(list[GetMovieFileResponse]).validate_python(
+            response.json_data
+        )
 
-        return bool(response.ok)
+        return FileInfo(response.data.path)
+
+        
 
     def rescan_movie(self, media_identifier: ExternalMediaIDs, idempotency_key: UUID) -> None:
         movie_id = media_identifier.radarr_movie_id

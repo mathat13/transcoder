@@ -13,10 +13,11 @@ class JobVerifyingProcessManager:
         self.handle(envelope)
         
     def handle(self, envelope: EventEnvelope):
+        event = envelope.event
+        media_ids = event.media_ids
+        source_file = event.source_file
+        transcode_file = event.transcode_file
         idempotency_key = envelope.context.operation_id
-        media_ids = envelope.event.media_ids
-        source_file = envelope.event.source_file
-        transcode_file = envelope.event.transcode_file
 
         # Hardlink file
         self.filesystem.hardlink(source_file=transcode_file.path, destination=source_file.parent)
@@ -27,7 +28,7 @@ class JobVerifyingProcessManager:
         # Check file is updated
         response = self.radarr_api.get_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
 
-        if response.movie_path != transcode_file.path:
+        if response.name != transcode_file.name:
             self.radarr_api.rescan_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
             response = self.radarr_api.get_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
 
