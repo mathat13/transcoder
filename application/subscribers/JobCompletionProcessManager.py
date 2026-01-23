@@ -1,7 +1,7 @@
 from application.events.EventEnvelope import EventEnvelope
-from application.events.ApplicationEvents import TranscodeSuccessful
+#from application.events.ApplicationEvents import TranscodeSuccessful
 
-class JobVerifyingProcessManager:
+class JobCompletionProcessManager:
     def __init__(self, event_publisher, radarr_api, jellyfin_api, filesystem):
         self.publisher = event_publisher
         self.filesystem = filesystem
@@ -38,7 +38,7 @@ class JobVerifyingProcessManager:
         # Delete old file from filesystem on success
         self.filesystem.delete(file=source_file.path)
 
-        self.publisher.publish(event=TranscodeSuccessful(), operation_context=envelope.context)
+        #self.publisher.publish(event=TranscodeSuccessful(), operation_context=envelope.context)
 
 
 
