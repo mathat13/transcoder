@@ -34,6 +34,8 @@ class JobMovedToVerifying(DomainEvent):
 @dataclass(kw_only=True)
 class JobCompleted(DomainEvent):
     job_id: UUID
+    source_file: FileInfo
+    transcode_file: FileInfo
     media_ids: ExternalMediaIDs
 
 @dataclass(kw_only=True)

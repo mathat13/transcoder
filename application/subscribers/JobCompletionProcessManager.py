@@ -1,5 +1,5 @@
 from application.events.EventEnvelope import EventEnvelope
-#from application.events.ApplicationEvents import TranscodeSuccessful
+from application.events.ApplicationEvents import TranscodeSuccess
 
 class JobCompletionProcessManager:
     def __init__(self, event_publisher, radarr_api, jellyfin_api, filesystem):
@@ -17,28 +17,29 @@ class JobCompletionProcessManager:
         media_ids = event.media_ids
         source_file = event.source_file
         transcode_file = event.transcode_file
-        idempotency_key = envelope.context.operation_id
+        context = envelope.context
 
         # Hardlink file
         self.filesystem.hardlink(source_file=transcode_file.path, destination=source_file.parent)
 
         # Ask radarr to update file
-        self.radarr_api.rescan_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
+        self.radarr_api.rescan_movie(media_identifiers=media_ids, context=context)
 
-        # Check file is updated
-        response = self.radarr_api.get_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
+        # Get info for movie
+        self.radarr_api.get_moviefile(media_identifiers=media_ids, context=context)
 
-        if response.name != transcode_file.name:
-            self.radarr_api.rescan_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
-            response = self.radarr_api.get_movie(media_identifiers=media_ids, idempotency_key=idempotency_key)
+        # Add logic for checking if file is correctly updated
 
-        # Update jellyfin library
-        self.jellyfin_api.refresh_library(idempotency_key=idempotency_key)
+        # On failure
 
-        # Delete old file from filesystem on success
+        # On success:
+        # Delete file from filesystem
         self.filesystem.delete(file=source_file.path)
 
-        #self.publisher.publish(event=TranscodeSuccessful(), operation_context=envelope.context)
+        # Update jellyfin library on success
+        self.jellyfin_api.refresh_library(context=context)
+
+        self.publisher.publish(event=TranscodeSuccess(job_id=event.job_id), operation_context=envelope.context)
 
 
 

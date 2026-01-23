@@ -11,7 +11,7 @@ class EventPublisher:
     def __init__(self, event_bus):
         self.event_bus = event_bus
 
-    def create_envelope(self, event: Event, operation_context: OperationContext):
+    def create_envelope(self, event: Event, operation_context: OperationContext) -> EventEnvelope:
         return EventEnvelope.create(event=event, context=operation_context)
 
     def publish(self, event: Event, operation_context: OperationContext):

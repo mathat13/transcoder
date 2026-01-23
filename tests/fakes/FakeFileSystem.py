@@ -28,6 +28,9 @@ class FakeFileSystem:
         raise FileNotFoundError(path)
     
     def add(self, path: str, is_dir: bool = False) -> None:
+        """
+        Helper for instantiating filesystem.
+        """
         if self._exists(path):
             raise FileExistsError(path)
 
@@ -41,30 +44,30 @@ class FakeFileSystem:
 
         self._link_count[inode] += 1
 
-    def hardlink(self, source: str, dest: str) -> None:
-        inode, is_dir = self._inode_for(source)
+    def hardlink(self, source_file: str, destination: str) -> None:
+        inode, is_dir = self._inode_for(source_file)
 
         if is_dir:
-            raise IsADirectoryError(source)
+            raise IsADirectoryError(source_file)
         
-        if self._is_dir(dest):
-            raise NotImplementedError(dest)
+        if self._is_dir(destination):
+            raise NotImplementedError(destination)
 
-        if self._exists(dest):
-            raise FileExistsError(dest)
+        if self._exists(destination):
+            raise FileExistsError(destination)
 
-        self._files[dest] = inode
+        self._files[destination] = inode
         self._link_count[inode] += 1
 
-    def delete(self, path: str) -> None:
-        inode, is_dir = self._inode_for(path)
+    def delete(self, file: str) -> None:
+        inode, is_dir = self._inode_for(file)
 
         if is_dir:
-            del self._dirs[path]
-        elif self.is_file(path):
-            del self._files[path]
+            del self._dirs[file]
+        elif self.is_file(file):
+            del self._files[file]
         else:
-            raise FileNotFoundError(path)
+            raise FileNotFoundError(file)
 
         self._link_count[inode] -= 1
         if self._link_count[inode] == 0:

@@ -49,20 +49,20 @@ def test_FakeRadarrAPIAdapter_rescan_movie():
 
     assert adapter.rescan_called_with[0] == media_identifiers.radarr_movie_id
 
-def test_FakeJellyfinAPIAdapter_rescan_library():
+def test_FakeJellyfinAPIAdapter_refresh_library():
     adapter = FakeJellyfinAPIAdapter()
 
     context = OperationContext.create()
 
-    adapter.rescan_library(context)
+    adapter.refresh_library(context)
 
-    assert adapter.rescan_library_call_count == 1
+    assert adapter.refresh_library_call_count == 1
 
-    adapter.rescan_library(context)
+    adapter.refresh_library(context)
 
-    assert adapter.rescan_library_call_count == 2
+    assert adapter.refresh_library_call_count == 2
 
     for i in range(0, 9):
-        adapter.rescan_library(context)
+        adapter.refresh_library(context)
 
-    assert adapter.rescan_library_call_count == 11
+    assert adapter.refresh_library_call_count == 11

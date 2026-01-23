@@ -18,3 +18,7 @@ class TranscodeVerificationFailed(ApplicationEvent):
     job_id: UUID
     transcode_file: FileInfo
     reason: Optional[str] = None
+
+@dataclass(kw_only=True)
+class TranscodeSuccess(ApplicationEvent):
+    job_id: UUID

@@ -23,6 +23,8 @@ class DOMAIN_EVENT_FACTORY:
             case JobStatus.success:
                 return JobCompleted(
                     job_id=job.id,
+                    source_file=job.source_file,
+                    transcode_file=job.transcode_file,
                     media_ids=job.external_media_ids,
 
                 )

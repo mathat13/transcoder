@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from domain import (
     JobCreated,
     JobMovedToProcessing,
@@ -6,6 +8,8 @@ from domain import (
     JobFailed,
     JobStatus,
     OperationContext,
+    FileInfo,
+    ExternalMediaIDs,
 )
 
 from application import (
@@ -95,7 +99,11 @@ def test_JobService_emit_emits_events_correctly():
     svc = JobService(None, publisher)
     job = JobFactory()
     context = OperationContext.create()
-    job.events = [JobCompleted(job_id=None,media_ids=None),
+    job.events = [JobCompleted(job_id=uuid4(),
+                                source_file=FileInfo("/input.mp4"),
+                                transcode_file=FileInfo("/transcode.mp4"),
+                                media_ids=ExternalMediaIDs.create(6),
+                                ),
                   JobMovedToProcessing(job_id=None),
                   JobMovedToVerifying(job_id=None,transcode_file=None),
                   ]

@@ -3,27 +3,26 @@ from uuid import uuid4
 from domain import (
     FileInfo,
     OperationContext,
-    JobStatus,
     JobMovedToVerifying,
+    JobCompleted,
+    ExternalMediaIDs,
 )
 
 from application import (
     EventPublisher,
     JobVerifyingProcessManager,
+    JobCompletionProcessManager,
     TranscodeVerified,
     TranscodeVerificationFailed,
-    JobService,
+    TranscodeSuccess,
     EventEnvelope,
-)
-
-from infrastructure import (
-    SyncEventBus,
 )
 
 from tests import (
     FakeFileSystem,
     FakeSyncEventBus,
-    FakeJobRepository,
+    FakeRadarrAPIAdapter,
+    FakeJellyfinAPIAdapter,
 )
 
 def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_success():
@@ -76,3 +75,44 @@ def test_JobVerifyingProcessManager_generates_correct_event_on_transcode_failure
     assert not any(isinstance(envelope.event, TranscodeVerified) for envelope in handled)
     assert any(isinstance(envelope.event, TranscodeVerificationFailed) for envelope in handled)
 
+def test_JobCompletionProcessManager_emits_TranscodeSuccess_on_success():
+    fs = FakeFileSystem()
+    bus = FakeSyncEventBus()
+    publisher = EventPublisher(bus)
+    radarr_api = FakeRadarrAPIAdapter()
+    jellyfin_api = FakeJellyfinAPIAdapter()
+
+    transcode_file=FileInfo("/transcode.mp4")
+    source_file=FileInfo("/input.mp4")
+    media_ids=ExternalMediaIDs.create(6)
+    context=OperationContext.create()
+
+    process_manager = JobCompletionProcessManager(event_publisher=publisher,
+                                                  radarr_api= radarr_api,
+                                                  jellyfin_api=jellyfin_api,
+                                                  filesystem=fs)
+    
+    trigger_event = JobCompleted(job_id=uuid4(),
+                                 source_file=source_file,
+                                 transcode_file=transcode_file,
+                                 media_ids=media_ids,
+                                 )
+    
+    context = OperationContext.create()
+    envelope = EventEnvelope.create(event=trigger_event, context=context)
+
+    emitted = []
+
+    def capture(envelope):
+        emitted.append(type(envelope.event))
+
+    bus.subscribe(TranscodeSuccess, capture)
+
+    fs.add(source_file.path)
+    fs.add(transcode_file.path)
+    radarr_api._add_movie(media_identifiers=media_ids, file=source_file, context=context)
+    process_manager(envelope)
+
+    assert emitted == [
+        TranscodeSuccess,
+    ]
