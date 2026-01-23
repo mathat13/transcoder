@@ -6,3 +6,5 @@ from .fakes.FakeSyncEventBus import *
 from .fakes.FakeJobRepository import *
 from .fakes.FakeLogger import *
 from .fakes.FakeHTTPClient import *
+from .fakes.FakeRadarrAPIAdapter import *
+from .fakes.FakeJellyfinAPIAdapter import *
