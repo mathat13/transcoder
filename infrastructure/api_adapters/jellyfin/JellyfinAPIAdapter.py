@@ -1,4 +1,5 @@
 from uuid import UUID
+from domain import (OperationContext)
 
 from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
@@ -12,15 +13,13 @@ class JellyfinAPIAdapter(BaseAPIAdapter):
         headers = JellyfinHeaders(authorization=api_key).model_dump(by_alias=True)
         super().__init__(client, base_url, headers)
 
-    def refresh_library(self, idempotency_key: UUID) -> bool:
+    def refresh_library(self, context: OperationContext) -> None:
         url_extension = "/Library/Refresh"
 
         request =  HTTPRequest(
             url=self._generate_url(url_extension),
-            headers=self._headers_with_idempotency(idempotency_key=idempotency_key),
+            headers=self._headers_with_idempotency(context=context),
         )
 
         response = self.client.post(request)
         self._raise_for_error(response)
-
-        return bool(response.ok)

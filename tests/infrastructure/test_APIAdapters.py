@@ -4,6 +4,7 @@ from uuid import uuid4
 from domain import (
     ExternalMediaIDs,
     FileInfo,
+    OperationContext,
 )
 
 from application import APIServiceException
@@ -78,6 +79,19 @@ def test_BaseAPIAdapter_generate_url():
     
     assert url == "http://base.local/fart"
 
+def test_BaseAPIAdapter_idempotency_key_added_to_headers_correctly():
+
+    class TestAPIAdapter(BaseAPIAdapter):
+        service_name = "TestService"
+
+    client = FakeHTTPClient(response=None)
+    adapter = TestAPIAdapter(client, base_url=None, headers={"Idempotency-Key": None})
+    context = OperationContext.create()
+
+    headers = adapter._headers_with_idempotency(context=context)
+
+    assert headers["Idempotency-Key"] == str(context.operation_id)
+
 def test_RadarrAPIAdapter_attributes_initialized_correctly():
     
     client = FakeHTTPClient(response=None)
@@ -87,8 +101,8 @@ def test_RadarrAPIAdapter_attributes_initialized_correctly():
     assert "fakeapikey" in adapter.headers["X-Api-Key"]
 
 def test_RadarrAPIAdapter_get_moviefile_returns_correctly_on_success_with_fake():
-    media_identifier = ExternalMediaIDs(105)
-    idempotency_key = uuid4()
+    media_identifiers = ExternalMediaIDs(105)
+    context = OperationContext.create()
     url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
     movie_path="/input.mp4"
@@ -104,14 +118,14 @@ def test_RadarrAPIAdapter_get_moviefile_returns_correctly_on_success_with_fake()
     client = FakeHTTPClient(response=success_response)
     adapter = RadarrAPIAdapter(client)
 
-    response = adapter.get_moviefile(media_identifier=media_identifier, idempotency_key=idempotency_key)
+    response = adapter.get_moviefile(media_identifiers=media_identifiers, context=context)
 
     assert isinstance(response, FileInfo)
     assert response.path == movie_path
 
 def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
-    media_identifier = ExternalMediaIDs(105)
-    idempotency_key = uuid4()
+    media_identifiers = ExternalMediaIDs(105)
+    context = OperationContext.create()
     url="http://radarr.local/api/v3/moviefile"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -126,11 +140,11 @@ def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
     with pytest.raises(APIServiceException):
-        adapter.get_moviefile(media_identifier=media_identifier, idempotency_key=idempotency_key)
+        adapter.get_moviefile(media_identifiers=media_identifiers, context=context)
 
 def test_RadarrAPIAdapter_rescan_movie_returns_true_on_success_with_fake():
-    media_identifier = ExternalMediaIDs(105)
-    idempotency_key = uuid4()
+    media_identifiers = ExternalMediaIDs(105)
+    context = OperationContext.create()
     url="http://radarr.local/api/v3"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -145,13 +159,12 @@ def test_RadarrAPIAdapter_rescan_movie_returns_true_on_success_with_fake():
     client = FakeHTTPClient(response=success_response)
     adapter = RadarrAPIAdapter(client)
 
-    response = adapter.rescan_movie(media_identifier=media_identifier, idempotency_key=idempotency_key)
-
-    assert response is True
+    # Will raise exception if not working correctly
+    adapter.rescan_movie(media_identifiers=media_identifiers, context=context)
 
 def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
-    media_identifier = ExternalMediaIDs(105)
-    idempotency_key = uuid4()
+    media_identifiers = ExternalMediaIDs(105)
+    context = OperationContext.create()
     url="http://radarr.local/api/v3"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -166,7 +179,7 @@ def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
     with pytest.raises(APIServiceException):
-        adapter.rescan_movie(media_identifier=media_identifier, idempotency_key=idempotency_key)
+        adapter.rescan_movie(media_identifiers=media_identifiers, context=context)
 
 def test_JellyfinAPIAdapter_attributes_initialized_correctly():
 
@@ -177,7 +190,7 @@ def test_JellyfinAPIAdapter_attributes_initialized_correctly():
     assert "MediaBrowser Token=" in adapter.headers["Authorization"]
 
 def test_JellyfinAPIAdapter_refresh_library_returns_true_on_success_with_fake():
-    idempotency_key = uuid4()
+    context = OperationContext.create()
     url="http://jellyfin.local"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -192,12 +205,10 @@ def test_JellyfinAPIAdapter_refresh_library_returns_true_on_success_with_fake():
     client = FakeHTTPClient(response=success_response)
     adapter = JellyfinAPIAdapter(client)
 
-    response = adapter.refresh_library(idempotency_key=idempotency_key)
-
-    assert response is True
+    adapter.refresh_library(context=context)
 
 def test_JellyfinAPIAdapter_refresh_library_raises_exception_on_failure_with_fake():
-    idempotency_key = uuid4()
+    context = OperationContext.create()
     url="http://jellyfin.local"
     response_headers={"X-Api-Key": "fakeapikey"}
 
@@ -213,17 +224,4 @@ def test_JellyfinAPIAdapter_refresh_library_raises_exception_on_failure_with_fak
     adapter = JellyfinAPIAdapter(client)
     
     with pytest.raises(APIServiceException):
-            adapter.refresh_library(idempotency_key=idempotency_key)
-
-def test_idempotency_key_added_to_headers_correctly():
-
-    class TestAPIAdapter(BaseAPIAdapter):
-        service_name = "TestService"
-
-    client = FakeHTTPClient(response=None)
-    adapter = TestAPIAdapter(client, base_url=None, headers={"Idempotency-Key": None})
-    idempotency_key = uuid4()
-
-    headers = adapter._headers_with_idempotency(idempotency_key=idempotency_key)
-
-    assert headers["Idempotency-Key"] == str(idempotency_key)
+            adapter.refresh_library(context=context)

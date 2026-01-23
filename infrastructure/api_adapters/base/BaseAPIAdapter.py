@@ -1,4 +1,4 @@
-from uuid import UUID
+from domain import OperationContext
 
 from application import APIServiceException
 
@@ -25,10 +25,11 @@ class BaseAPIAdapter():
             detail=response.json_data or response.text_data
             )
 
-    def _headers_with_idempotency(self, idempotency_key: UUID | None = None) -> dict[str, str]:
+    def _headers_with_idempotency(self, context: OperationContext) -> dict[str, str]:
         """
         Used so that class header templates are not modified per operation
         """
+        idempotency_key = context.operation_id
         headers = dict(self.headers)
 
         if idempotency_key is not None:

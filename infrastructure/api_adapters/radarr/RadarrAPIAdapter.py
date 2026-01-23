@@ -3,13 +3,13 @@ from uuid import UUID
 
 from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
-from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
 from infrastructure.api_adapters.radarr.data_models.get_moviefile import GetMovieFileResponse
 from infrastructure.api_adapters.radarr.data_models.rescan_movie import RescanMovieRequest
 
 from domain import (ExternalMediaIDs,
                     FileInfo,
+                    OperationContext,
 )
 
 class RadarrAPIAdapter(BaseAPIAdapter):
@@ -20,14 +20,14 @@ class RadarrAPIAdapter(BaseAPIAdapter):
         headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
         super().__init__(client, base_url, headers)
 
-    def get_moviefile(self, media_identifier: ExternalMediaIDs, idempotency_key: UUID) -> FileInfo | None:
-        movie_id = media_identifier.radarr_movie_id
+    def get_moviefile(self, media_identifiers: ExternalMediaIDs, context: UUID) -> FileInfo | None:
+        movie_id = media_identifiers.radarr_movie_id
         query_params = {"movieId": movie_id}
         url_extension = "/moviefile"
 
         request =  HTTPRequest(
             url=self._generate_url(url_extension),
-            headers=self._headers_with_idempotency(idempotency_key=idempotency_key),
+            headers=self._headers_with_idempotency(context=context),
             query_params=query_params,
         )
 
@@ -49,17 +49,15 @@ class RadarrAPIAdapter(BaseAPIAdapter):
 
         
 
-    def rescan_movie(self, media_identifier: ExternalMediaIDs, idempotency_key: UUID) -> None:
-        movie_id = media_identifier.radarr_movie_id
+    def rescan_movie(self, media_identifiers: ExternalMediaIDs, context: OperationContext) -> None:
+        movie_id = media_identifiers.radarr_movie_id
         url_extension = "/command"
 
         request =  HTTPRequest(
             url=self._generate_url(url_extension),
-            headers=self._headers_with_idempotency(idempotency_key=idempotency_key),
+            headers=self._headers_with_idempotency(context=context),
             data=RescanMovieRequest(movieId=movie_id).model_dump(),
         )
 
         response = self.client.post(request)
         self._raise_for_error(response)
-        
-        return bool(response.ok)

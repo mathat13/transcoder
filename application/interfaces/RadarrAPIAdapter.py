@@ -1,13 +1,16 @@
 from typing import Protocol
-from uuid import UUID
 
-from domain import ExternalMediaIDs
+from domain import (
+    ExternalMediaIDs,
+    OperationContext,
+    FileInfo,
+)
 
 class RadarrAPIAdapter(Protocol):
-    def rescan_movie(self, movie_id: ExternalMediaIDs, idempotency_key: UUID) -> None:
+    def rescan_movie(self, media_identifiers: ExternalMediaIDs, context: OperationContext) -> None:
         ...
 
-    def get_moviefile(self, movie_id: ExternalMediaIDs, idempotency_key: UUID) -> None:
+    def get_moviefile(self, media_identifiers: ExternalMediaIDs, context: OperationContext) -> FileInfo:
         ...
 
     
