@@ -17,14 +17,14 @@ class FakeFileSystem:
         return path in self._dirs
     
     def _inode(self, path: str) -> int:
-        inode, _ = self._inode_for(path)
+        inode = self._inode_for(path)
         return inode
     
-    def _inode_for(self, path: str) -> tuple[int, bool]:
+    def _inode_for(self, path: str) -> int:
         if self.is_file(path):
-            return self._files[path], False
+            return self._files[path]
         if self._is_dir(path):
-            return self._dirs[path], True
+            return self._dirs[path]
         raise FileNotFoundError(path)
     
     def add(self, path: str, is_dir: bool = False) -> None:
@@ -45,9 +45,9 @@ class FakeFileSystem:
         self._link_count[inode] += 1
 
     def hardlink(self, source_file: str, destination: str) -> None:
-        inode, is_dir = self._inode_for(source_file)
+        inode = self._inode_for(source_file)
 
-        if is_dir:
+        if self._is_dir(source_file):
             raise IsADirectoryError(source_file)
         
         if self._is_dir(destination):
@@ -60,9 +60,9 @@ class FakeFileSystem:
         self._link_count[inode] += 1
 
     def delete(self, file: str) -> None:
-        inode, is_dir = self._inode_for(file)
+        inode = self._inode_for(file)
 
-        if is_dir:
+        if self._is_dir(file):
             del self._dirs[file]
         elif self.is_file(file):
             del self._files[file]

@@ -79,8 +79,8 @@ def test_FakeFileSystem_inode_for():
     fs.add(existing_file)
     fs.add(existing_dir, is_dir=True)
 
-    assert fs._inode_for(existing_file) == (fs._files[existing_file], False)
-    assert fs._inode_for(existing_dir) == (fs._dirs[existing_dir], True)
+    assert fs._inode_for(existing_file) == fs._files[existing_file]
+    assert fs._inode_for(existing_dir) == fs._dirs[existing_dir]
 
     # Check errors raised correctly
     with pytest.raises(FileNotFoundError):
