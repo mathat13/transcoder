@@ -1,6 +1,7 @@
 from typing import Protocol
-from uuid import UUID
+
+from domain import OperationContext
 
 class JellyfinAPIAdapter(Protocol):
-    def refresh_library(self, idempotency_key: UUID) -> None:
+    def refresh_library(self, context: OperationContext) -> None:
         ...
