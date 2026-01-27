@@ -20,7 +20,12 @@ class RadarrAPIAdapter(BaseAPIAdapter):
         headers = RadarrHeaders(x_api_key=api_key).model_dump(by_alias=True)
         super().__init__(client, base_url, headers)
 
-    def get_moviefile(self, media_identifiers: ExternalMediaIDs, context: UUID) -> FileInfo | None:
+    def get_moviefile(self, media_identifiers: ExternalMediaIDs, context: OperationContext) -> FileInfo | None:
+        """
+        requires: query_params, movie_id, url_extension
+        returns: JSON
+        """
+        
         movie_id = media_identifiers.radarr_movie_id
         query_params = {"movieId": movie_id}
         url_extension = "/moviefile"
@@ -33,9 +38,13 @@ class RadarrAPIAdapter(BaseAPIAdapter):
 
         response = self.client.get(request)
         self._raise_for_error(response)
+
+        # Empty response
+        if not response.json_data:
+            return None
         
         # For non-list-wrapped responses
-        #data = GetMovieFileResponse(**response.data)
+        #data = GetMovieFileResponse(**response.json_data)
 
         # For list-wrapped responses
         # Define model to validate against
@@ -45,11 +54,16 @@ class RadarrAPIAdapter(BaseAPIAdapter):
             response.json_data
         )[0]
 
+        # Convert to ubiquitous language and pass back to application
         return FileInfo(data.path)
 
         
 
     def rescan_movie(self, media_identifiers: ExternalMediaIDs, context: OperationContext) -> None:
+        """
+        Requires: movie_id, url_extension
+        Returns: JSON
+        """
         movie_id = media_identifiers.radarr_movie_id
         url_extension = "/command"
 

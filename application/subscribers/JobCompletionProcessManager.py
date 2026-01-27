@@ -11,7 +11,7 @@ class JobCompletionProcessManager:
     # Takes a JobCompleted Event
     def __call__(self, envelope: EventEnvelope):
         self.handle(envelope)
-        
+
     def handle(self, envelope: EventEnvelope):
         event = envelope.event
         media_ids = event.media_ids
@@ -40,9 +40,4 @@ class JobCompletionProcessManager:
         self.jellyfin_api.refresh_library(context=context)
 
         self.publisher.publish(event=TranscodeSuccess(job_id=event.job_id), operation_context=envelope.context)
-
-
-
-        
-        
         
