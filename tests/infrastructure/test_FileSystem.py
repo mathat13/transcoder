@@ -1,6 +1,12 @@
 import pytest
 from pathlib import Path
 
+from application import (
+    DestinationExistsButDifferentFile,
+    SourceFileIsDirectory,
+    SourceFileMissing,
+    FileSystemIOError,
+)
 from infrastructure import FileSystem
 
 def test_filesystem_is_file_returns_true_for_existing_file(tmp_path):
@@ -37,7 +43,7 @@ def test_FileSystem_delete_removes_existing_file(tmp_path):
 
     assert result is False
 
-def test_FileSystem_delete_silently_removes_non_existing_file(tmp_path):
+def test_FileSystem_delete_returns_None_on_non_existing_file(tmp_path):
     fs = FileSystem()
 
     file_path = tmp_path / "output.mp4"
@@ -48,7 +54,7 @@ def test_FileSystem_delete_silently_removes_non_existing_file(tmp_path):
 
     assert result is False
 
-def test_Filesystem_delete_does_not_delete_directory(tmp_path):
+def test_FileSystem_delete_raises_SourceFileIsDirectory_correctly(tmp_path):
     fs = FileSystem()
 
     dir_path = tmp_path / "temp_dir"
@@ -56,9 +62,11 @@ def test_Filesystem_delete_does_not_delete_directory(tmp_path):
 
     fs.delete(dir_path)
 
-    result = fs.is_file(dir_path)
+    with pytest.raises(SourceFileIsDirectory):
+        fs.is_file(dir_path)
 
-    assert result is False
+def test_FileSystem_delete_raises_FileSystemIOError_on_OSError(tmp_path):
+    pass
 
 def test_FileSystem_hardlink_creates_hardlink(tmp_path):
     fs = FileSystem()
@@ -91,7 +99,13 @@ def test_FileSystem_hardlink_appends_source_file_name_to_dest_if_dest_is_existin
     assert fs.is_file(output_file)
     assert Path(output_file).stat().st_ino == Path(source_file).stat().st_ino
 
-def test_FileSystem_returns_error_when_source_file_does_not_exist(tmp_path):
+def test_FileSystem_hardlink_raises_SourceFileIsDirectory_correctly(tmp_path):
+    pass
+
+def test_FileSystem_hardlink_raises_DestinationExistsButDifferentFile_correctly(tmp_path):
+    pass
+
+def test_FileSystem_hardlink_raises_SourceFileMissing_correctly(tmp_path):
     fs = FileSystem()
 
     src_file_name = "original.txt"
@@ -100,8 +114,14 @@ def test_FileSystem_returns_error_when_source_file_does_not_exist(tmp_path):
 
     dest = tmp_path / "subdir"
 
-    with pytest.raises(ValueError):
+    with pytest.raises(SourceFileMissing):
         fs.hardlink(source_file, dest)
+
+def test_FileSystem_hardlink_raises_FileSystemIOError_on_OSError_with_failed_inode_comparison(tmp_path):
+    pass
+
+def test_FileSystem_hardlink_raises_FileSystemIOError_on_OSError_with_failed_hardlink_attempt(tmp_path):
+    pass
 
 
 

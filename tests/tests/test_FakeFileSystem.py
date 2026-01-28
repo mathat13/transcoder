@@ -1,5 +1,10 @@
 import pytest
 
+from application import (
+    DestinationExistsButDifferentFile,
+    SourceFileIsDirectory,
+    SourceFileMissing,
+)
 from tests import FakeFileSystem
 
 def test_FakeFileSystem_helpers():
@@ -50,10 +55,12 @@ def test_FakeFileSystem_add():
     assert fs._dirs[existing_dir] == inode
     assert fs._link_count[inode] == 1
 
-    # Test adding already existing file/ dir raises error correctly
+    # Test adding already existing file/ dir returns correctly
     with pytest.raises(FileExistsError):
         fs.add(existing_file)
+    with pytest.raises(FileExistsError):
         fs.add(existing_dir, is_dir=True)
+
 
 def test_FakeFileSystem_inode():
     fs = FakeFileSystem()
@@ -82,10 +89,11 @@ def test_FakeFileSystem_inode_for():
     assert fs._inode_for(existing_file) == fs._files[existing_file]
     assert fs._inode_for(existing_dir) == fs._dirs[existing_dir]
 
-    # Check errors raised correctly
-    with pytest.raises(FileNotFoundError):
-        fs._inode_for(non_existing_file)
-        fs._inode_for(non_existing_dir)
+    # Check returns correctly on no inode found
+    inode_for_1 = fs._inode_for(non_existing_file)
+    inode_for_2 = fs._inode_for(non_existing_dir)
+
+    assert inode_for_1 == inode_for_2 == None
 
 def test_FakeFileSystem_hardlink():
     fs = FakeFileSystem()
@@ -104,16 +112,35 @@ def test_FakeFileSystem_hardlink():
     assert fs._link_count[inode] == 2
 
     # Test source is a directory error
-    with pytest.raises(IsADirectoryError):
+    with pytest.raises(SourceFileIsDirectory):
         fs.hardlink(existing_dir, non_existing_file)
 
     # Test destination is a directory error
     with pytest.raises(NotImplementedError):
         fs.hardlink(existing_file, existing_dir)
 
-    # Test destination already exists error
-    with pytest.raises(FileExistsError):
-        fs.hardlink(existing_file, existing_file)
+
+def test_FakeFileSystem_hardlink_when_destination_already_exists_behaviour():
+    fs = FakeFileSystem()
+
+    existing_file = "/fake/file.mp4"
+    other_existing_file = "/fake/file2.mp4"
+    destination_hardlink = "/fake/file3.mp4"
+    existing_dir = "/fake/dir"
+
+    fs.add(existing_file)
+    fs.add(other_existing_file)
+    fs.add(existing_dir, is_dir=True)
+    fs.hardlink(existing_file, destination_hardlink)
+
+    # Test hardlinking when destination exists with same inode number
+    hardlink = fs.hardlink(existing_file, destination_hardlink)
+
+    assert hardlink == None
+
+    # Test hardlinking when destination exists but inodes are different
+    with pytest.raises(DestinationExistsButDifferentFile):
+        fs.hardlink(existing_file, other_existing_file)
 
 def test_FakeFileSystem_delete():
     fs = FakeFileSystem()
@@ -130,15 +157,15 @@ def test_FakeFileSystem_delete():
     fs.delete(existing_file)
     assert existing_file not in fs._files
 
-    # Test dir deletion works correctly
+    # Test dir deletion raises correctly
 
-    fs.delete(existing_dir)
-    assert existing_dir not in fs._dirs
+    with pytest.raises(SourceFileIsDirectory):
+        fs.delete(existing_dir)
 
-    # Test failure conditions
-    with pytest.raises(FileNotFoundError):
-        fs.delete(non_existing_file)
-        fs.delete(non_existing_dir)
+    # Test idempotency when file not found
+    
+    delete_non_existing_file = fs.delete(non_existing_file)
+    assert delete_non_existing_file == None
 
 def test_FakeFilsystem_delete_with_hardlinked_file():
     fs = FakeFileSystem()
