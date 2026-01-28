@@ -21,7 +21,7 @@ class FileSystem:
             return # Idempotent success
 
         if input_file.is_dir():
-            raise SourceFileIsDirectory(input_file.as_posix())
+            raise SourceFileIsDirectory("delete", input_file.as_posix())
 
         try:
             input_file.unlink()
@@ -41,11 +41,11 @@ class FileSystem:
         src = Path(source_file)
         dest = Path(destination)
 
+        if src.is_dir():
+            raise SourceFileIsDirectory("hardlink", src.as_posix())
+        
         if not src.is_file():
             raise SourceFileMissing(src.as_posix())
-        
-        if src.is_dir():
-            raise SourceFileIsDirectory(src.as_posix())
         
         if dest.is_dir():
             dest = dest / src.name

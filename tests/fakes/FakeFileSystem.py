@@ -53,7 +53,7 @@ class FakeFileSystem:
         inode = self._inode_for(source_file)
         if inode:
             if self._is_dir(source_file):
-                raise SourceFileIsDirectory(source_file)
+                raise SourceFileIsDirectory("hardlink", source_file)
             
             if self._is_dir(destination):
                 raise NotImplementedError(destination)
@@ -75,7 +75,7 @@ class FakeFileSystem:
         inode = self._inode_for(file)
 
         if self._is_dir(file):
-            raise SourceFileIsDirectory(file)
+            raise SourceFileIsDirectory("delete", file)
         elif self.is_file(file):
             del self._files[file]
         else:

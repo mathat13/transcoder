@@ -24,7 +24,7 @@ class SourceFileMissing(FileSystemException):
         self.retryable = False
 
 class SourceFileIsDirectory(FileSystemException):
-    def __init__(self, file: str, operation: str):
+    def __init__(self, operation: str, file: str):
         super().__init__(f"Source file is a directory, cannot proceed with operation: {operation} -> {file}")
         self.operation = operation
         self.file = FileInfo(file)
