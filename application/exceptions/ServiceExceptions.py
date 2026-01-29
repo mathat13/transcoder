@@ -2,7 +2,8 @@ from domain import FileInfo
 
 class ServiceException(Exception):
     """Base class for failures caused by external services."""
-
+    retryable: bool
+    
 class APICallException(ServiceException):
     """Base class for API call-related failures."""
 
@@ -11,8 +12,8 @@ class APIServiceException(APICallException):
         super().__init__(f"{service} API failed with status {status_code}")
         self.service = service
         self.status_code = status_code
-        self.detail = detail
         self.retryable = retryable
+        self.detail = detail
 
 class FileSystemException(ServiceException):
     """Base class for filesystem-related failures."""

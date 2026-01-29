@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from application.interfaces.workflow_engine.FailureReason import FailureReason
+from application.workflow_engine.FailureReason import FailureReason
 
 @dataclass(frozen=True)
 class FailureInfo:

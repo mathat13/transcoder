@@ -5,3 +5,7 @@ from .exceptions.ServiceExceptions import *
 from .events.ApplicationEvents import *
 from .events.EventPublisher import *
 from .events.EventEnvelope import *
+from .workflow_engine.FailureReason import *
+from .workflow_engine.FailureClassifier import *
+from .workflow_engine.FailureInfo import *
+from .workflow_engine.ProcessStatus import *

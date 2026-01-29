@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from application.interfaces.workflow_engine.FailureInfo import FailureInfo
+from application.workflow_engine.FailureInfo import FailureInfo
 
 class FailureClassifier(ABC):
     @abstractmethod
