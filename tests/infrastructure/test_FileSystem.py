@@ -17,7 +17,6 @@ def test_filesystem_is_file_returns_true_for_existing_file(tmp_path):
 
     result = fs.is_file(file_path)
 
-    # Assert
     assert result is True
 
 def test_filesystem_is_file_returns_false_for_non_existing_file(tmp_path):
