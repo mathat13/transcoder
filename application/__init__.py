@@ -9,3 +9,4 @@ from .workflow_engine.FailureReason import *
 from .workflow_engine.FailureClassifier import *
 from .workflow_engine.FailureInfo import *
 from .workflow_engine.ProcessStatus import *
+from .workflow_engine.ProcessRunnerResult import *

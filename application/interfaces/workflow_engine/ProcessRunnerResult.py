@@ -1,25 +1,19 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from  typing import Optional
 
-from application.interfaces.workflow_engine.FailureReason import FailureReason
+from application.workflow_engine.FailureInfo import FailureInfo
+from application.workflow_engine.ProcessStatus import ProcessStatus
 
 class ProcessRunnerResult(ABC):
-    @property
+    status: ProcessStatus
+    failure: Optional[FailureInfo] = None
+
+    @classmethod
     @abstractmethod
-    def success(self) -> bool:
+    def success(self) -> "ProcessRunnerResult":
         ...
 
-    @property
+    @classmethod
     @abstractmethod
-    def failure_reason(self) -> Optional["FailureReason"]:
-        ...
-
-    @property
-    @abstractmethod
-    def failed_step(self) -> Optional[str]:
-        ...
-
-    @property
-    @abstractmethod
-    def exception(self) -> Optional[Exception]:
+    def failure(self, exc: Exception) -> "ProcessRunnerResult":
         ...
