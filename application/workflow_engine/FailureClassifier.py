@@ -2,7 +2,7 @@ from application.workflow_engine.FailureInfo import FailureInfo
 from application.workflow_engine.FailureReason import FailureReason
 from application.exceptions.ServiceExceptions import *
 
-class FailureClassifier():
+class FailureClassifier:
     def classify(self, exc: Exception) -> "FailureInfo":
         if isinstance(exc, FileSystemIOError):
             return FailureInfo(
