@@ -1,11 +1,15 @@
-from uuid import UUID
 from domain import (OperationContext)
 
 from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
 from infrastructure.api_adapters.jellyfin.data_models.headers import JellyfinHeaders
 
-class JellyfinAPIAdapter(BaseAPIAdapter):
+from application import (
+    JellyfinLibraryRefreshCapable,
+)
+
+class JellyfinAPIAdapter(BaseAPIAdapter,
+                         JellyfinLibraryRefreshCapable,):
     service_name = "Jellyfin"
 
     def __init__(self, client, api_key: str = "fakeapikey", host: str = "jellyfin.local"): 

@@ -5,9 +5,16 @@ from application import (
     SourceFileMissing,
     SourceFileIsDirectory,
     FileSystemIOError,
+    HardlinkCapable,
+    FileDeletionCapable,
+    FileExistenceCheckCapable
 )
 
-class FileSystem:
+class FileSystem (
+    HardlinkCapable,
+    FileDeletionCapable,
+    FileExistenceCheckCapable,
+):
     def is_file(self, file: str) -> bool:
         return Path(file).is_file()
     

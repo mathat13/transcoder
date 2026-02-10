@@ -1,5 +1,4 @@
 from pydantic import TypeAdapter
-from uuid import UUID
 
 from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
 from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
@@ -12,7 +11,10 @@ from domain import (ExternalMediaIDs,
                     OperationContext,
 )
 
-class RadarrAPIAdapter(BaseAPIAdapter):
+from application import (RadarrUpdateMovieFileCapable)
+
+class RadarrAPIAdapter(BaseAPIAdapter,
+                       RadarrUpdateMovieFileCapable):
     service_name = "Radarr"
 
     def __init__(self, client, api_key: str = "fakeapikey", host: str = "radarr.local"): 
