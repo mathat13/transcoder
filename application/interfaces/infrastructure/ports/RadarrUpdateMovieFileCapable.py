@@ -6,7 +6,7 @@ from domain import (
     FileInfo,
 )
 
-class UpdateMovieFileCapable(Protocol):
+class RadarrUpdateMovieFileCapable(Protocol):
     def get_moviefile(self, media_identifiers: ExternalMediaIDs, context: OperationContext) -> FileInfo:
         ...
 

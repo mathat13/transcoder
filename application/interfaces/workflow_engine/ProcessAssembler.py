@@ -4,5 +4,5 @@ from application.events.EventEnvelope import EventEnvelope
 
 class ProcessAssembler(ABC):
     @abstractmethod
-    def create(self, envelope: EventEnvelope):
+    def assemble(self, envelope: EventEnvelope):
         ...
