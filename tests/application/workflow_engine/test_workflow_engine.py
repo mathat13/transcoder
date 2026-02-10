@@ -1,5 +1,7 @@
 import pytest
 
+from domain import OperationContext
+
 from application import (
     FailureClassifier,
     FailureInfo,
@@ -9,6 +11,12 @@ from application import (
     SourceFileMissing,
     FileSystemIOError,
     APIServiceException,
+    ProcessContext,
+    EventEnvelope,
+)
+
+from tests import (
+    JobCompletedEventFactory,
 )
 
 @pytest.mark.parametrize(

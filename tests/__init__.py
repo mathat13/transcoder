@@ -1,6 +1,7 @@
 from .factories.JobFactory import *
 from .factories.JobModelFactory import *
 from .factories.pydantic_factories.radarr_get_moviefile_factory import *
+from .factories.EventFactories import *
 from .fakes.FakeFileSystem import *
 from .fakes.FakeSyncEventBus import *
 from .fakes.FakeJobRepository import *

@@ -4,9 +4,16 @@ from application import (
     DestinationExistsButDifferentFile,
     SourceFileIsDirectory,
     SourceFileMissing,
+    HardlinkCapable,
+    FileDeletionCapable,
+    FileExistenceCheckCapable,
 )
 
-class FakeFileSystem:
+class FakeFileSystem(
+    HardlinkCapable,
+    FileDeletionCapable,
+    FileExistenceCheckCapable,
+):
     def __init__(self):
         self._files: dict[str, int] = {}
         self._dirs: dict[str, int] = {}

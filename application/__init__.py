@@ -7,12 +7,16 @@ from .events.ApplicationEvents import *
 from .events.EventPublisher import *
 from .events.EventEnvelope import *
 from .interfaces.workflow_engine.ProcessAssembler import *
-from .interfaces.infrastructure.ports.DeleteFileCapable import *
+from .interfaces.infrastructure.ports.FileDeletionCapable import *
 from .interfaces.infrastructure.ports.FileExistenceCheckCapable import *
 from .interfaces.infrastructure.ports.HardlinkCapable import *
 from .interfaces.infrastructure.ports.JellyfinLibraryRefreshCapable import *
 from .interfaces.infrastructure.ports.RadarrUpdateMovieFileCapable import *
 from .interfaces.infrastructure.ports.SonarrUpdateEpisodeCapable import *
+from .workflow_engine.process_steps.DeleteSourceFile import *
+from .workflow_engine.process_steps.HardlinkFile import *
+from .workflow_engine.process_steps.RefreshJellyfinLibrary import *
+from .workflow_engine.process_steps.UpdateRadarrMovieFile import *
 from .workflow_engine.FailureReason import *
 from .workflow_engine.FailureClassifier import *
 from .workflow_engine.FailureInfo import *
@@ -24,7 +28,3 @@ from .workflow_engine.process_contexts.ProcessContext import *
 from .workflow_engine.process_contexts.JobCompletionContext import *
 from .workflow_engine.process_contexts.FileContext import *
 from .workflow_engine.process_contexts.MediaContext import *
-from .workflow_engine.process_steps.DeleteSourceFile import *
-from .workflow_engine.process_steps.HardlinkFile import *
-from .workflow_engine.process_steps.RefreshJellyfinLibrary import *
-from .workflow_engine.process_steps.UpdateRadarrMovieFile import *

@@ -1,6 +1,8 @@
 from domain import OperationContext
 
-class FakeJellyfinAPIAdapter:
+from application import JellyfinLibraryRefreshCapable
+
+class FakeJellyfinAPIAdapter(JellyfinLibraryRefreshCapable):
     def __init__(self):
         self.refresh_library_call_count = 0
 

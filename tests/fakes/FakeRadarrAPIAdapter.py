@@ -4,7 +4,9 @@ from domain import (
     OperationContext,
 )
 
-class FakeRadarrAPIAdapter:
+from application import RadarrUpdateMovieFileCapable
+
+class FakeRadarrAPIAdapter(RadarrUpdateMovieFileCapable):
     def __init__(self):
         self.moviefiles: dict[int, str] = {}
         self.rescan_called_with: list[int] = []
