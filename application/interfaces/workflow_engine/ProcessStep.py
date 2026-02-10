@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from application.interfaces.workflow_engine.ProcessContext import ProcessContext
+from application.workflow_engine.process_contexts.ProcessContext import ProcessContext
 
 class ProcessStep(ABC):
     @property

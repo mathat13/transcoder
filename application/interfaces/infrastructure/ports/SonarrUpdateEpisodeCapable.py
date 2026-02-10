@@ -3,7 +3,7 @@ from uuid import UUID
 
 from domain import ExternalMediaIDs
 
-class SonarrAPIAdapter(Protocol):
+class UpdateEpisodeCapable(Protocol):
     def rescan_episode(self, episode_id: ExternalMediaIDs, idempotency_key: UUID) -> None:
         ...
 
