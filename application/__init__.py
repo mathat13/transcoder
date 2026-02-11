@@ -21,6 +21,7 @@ from .workflow_engine.FailureReason import *
 from .workflow_engine.FailureClassifier import *
 from .workflow_engine.FailureInfo import *
 from .workflow_engine.ProcessStatus import *
+from .workflow_engine.ProcessRunner import *
 from .workflow_engine.ProcessRunnerResult import *
 from .workflow_engine.ProcessRunnerInput import *
 from .workflow_engine.JobCompletionProcessAssembler import *
