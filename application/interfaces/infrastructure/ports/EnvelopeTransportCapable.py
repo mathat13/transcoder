@@ -5,9 +5,9 @@ from typing import (
     Iterable,
 )
 
-from domain import Event
+from application.events.EventEnvelope import EventEnvelope
 
-from application import EventEnvelope
+from domain import Event
 
 class EnvelopeTransportCapable(Protocol):
     def subscribe(self, event_type: Type[Event], handler: Callable[[EventEnvelope], None]) -> None:

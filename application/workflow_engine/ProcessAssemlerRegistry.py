@@ -1,3 +1,6 @@
+from application.events.EventEnvelope import EventEnvelope
+from application.workflow_engine.ProcessRunnerInput import ProcessRunnerInput
+
 class ProcessAssemblerRegistry:
     def __init__(self):
         self._by_event = {}
@@ -5,7 +8,7 @@ class ProcessAssemblerRegistry:
     def register(self, event_type, assembler):
         self._by_event[event_type] = assembler
 
-    def assemble(self, envelope):
+    def assemble(self, envelope: EventEnvelope) -> ProcessRunnerInput:
         event_type = type(envelope.event)
         try:
             assembler = self._by_event[event_type]

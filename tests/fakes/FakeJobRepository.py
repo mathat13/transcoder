@@ -9,7 +9,7 @@ class FakeJobRepository:
     def __init__(self):
         self._store = {}
 
-    def _get_job_by_id(self, job_id: UUID) -> Job | None:
+    def get_job_by_id(self, job_id: UUID) -> Job | None:
         return self._store.get(job_id)
 
     def save(self, job: Job) -> None:

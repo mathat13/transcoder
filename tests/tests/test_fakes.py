@@ -67,7 +67,7 @@ def test_FakeJobRepository_saves_job_correctly():
     repo.save(job)
 
     # Load saved job
-    saved = repo._get_job_by_id(job.id)
+    saved = repo.get_job_by_id(job.id)
     assert saved.id == job.id
     assert saved.source_file == job.source_file
     assert saved.status == job.status

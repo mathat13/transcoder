@@ -1,6 +1,6 @@
 from uuid import UUID
-
 from typing import Protocol
+
 from domain import Job
 
 class JobPersistenceCapable(Protocol):

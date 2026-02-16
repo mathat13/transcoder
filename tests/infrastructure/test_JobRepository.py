@@ -65,7 +65,7 @@ def test_JobRepository_get_job_by_id(db_session, job_repository):
     db_session.commit()
     db_session.refresh(job_model)
 
-    retrieved_job = job_repository._get_job_by_id(job.id)
+    retrieved_job = job_repository.get_job_by_id(job.id)
 
     assert isinstance(retrieved_job, Job)
     assert str(retrieved_job.id) == job_model.id
