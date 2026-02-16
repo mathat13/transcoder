@@ -3,15 +3,19 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from infrastructure import Base
-
 from tests.factories.JobModelFactory import JobModelFactory
 from tests.bootstrap.bootstrap_test_system import bootstrap_test_system
+from tests.bootstrap.TestSystem import TestSystem
+
+from infrastructure import (
+    Base,
+    SQLiteJobRepository,
+)
 
 TEST_DATABASE_URL = "sqlite://"
 
 @pytest.fixture()
-def test_system():
+def test_system() -> TestSystem:
     return bootstrap_test_system()
 
 @pytest.fixture()
@@ -41,11 +45,10 @@ def db_session():
     session.close()
 
 @pytest.fixture()
-def job_repository(db_session):
-    from infrastructure import SQLiteJobRepository
+def job_repository(db_session) -> SQLiteJobRepository:
     return SQLiteJobRepository(db_session)
 
 @pytest.fixture()
-def job_model_factory(db_session):
+def job_model_factory(db_session) -> JobModelFactory:
     JobModelFactory._meta.sqlalchemy_session = db_session
     return JobModelFactory

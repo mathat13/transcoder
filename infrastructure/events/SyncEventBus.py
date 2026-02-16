@@ -12,11 +12,12 @@ from domain import (
 
 from application import (
     EventEnvelope,
+    EnvelopeTransportCapable,
 )
 
 E = TypeVar("E", bound=Event)
 
-class SyncEventBus:
+class SyncEventBus(EnvelopeTransportCapable):
     def __init__(self):
         self._subscribers = defaultdict(list)
 

@@ -1,11 +1,12 @@
 import pytest
 
+from tests.bootstrap.TestSystem import TestSystem
+
 from domain import (
     OperationContext,
 )
 
-from application import (EventEnvelope,
-                         ProcessRunnerInput,
+from application import (ProcessRunnerInput,
                          JobCompletionContext,
                          ProcessDefinition,
                          HardlinkFile,
@@ -20,7 +21,7 @@ from application import (EventEnvelope,
 
 from tests.factories.EventFactories import JobCompletedEventFactory
 
-def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system):
+def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system: TestSystem):
     registry = ProcessAssemblerRegistry()
     event = JobCompletedEventFactory()
     envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
@@ -30,10 +31,9 @@ def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system):
     with pytest.raises(KeyError):
         registry.assemble(envelope=envelope)
 
-def test_JobCompletionProcessAssembler_assembles_correct_object(test_system):
+def test_JobCompletionProcessAssembler_assembles_correct_object(test_system: TestSystem):
     event = JobCompletedEventFactory()
     envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
-
 
     process_input = test_system.assembler_registry.assemble(envelope=envelope)
 

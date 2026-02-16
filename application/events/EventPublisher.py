@@ -1,6 +1,7 @@
 from typing import Iterable
 
 from application.events.EventEnvelope import EventEnvelope
+from application.interfaces.infrastructure.ports.EnvelopeTransportCapable import EnvelopeTransportCapable
 
 from domain import (
     OperationContext,
@@ -8,7 +9,7 @@ from domain import (
 )
 
 class EventPublisher:
-    def __init__(self, event_bus):
+    def __init__(self, event_bus: EnvelopeTransportCapable):
         self.event_bus = event_bus
 
     def create_envelope(self, event: Event, operation_context: OperationContext) -> EventEnvelope:
