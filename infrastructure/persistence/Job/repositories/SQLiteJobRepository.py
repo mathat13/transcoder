@@ -1,14 +1,17 @@
 from uuid import UUID
 
-from domain import Job
 from infrastructure.persistence.Job.models.JobModel import JobModel
 from infrastructure.persistence.Job.mappers.JobMapper import JobMapper
 
-class SQLiteJobRepository:
+from domain import Job
+
+from application import JobPersistenceCapable
+
+class SQLiteJobRepository(JobPersistenceCapable):
     def __init__(self, session):
         self.session = session
 
-    def _get_job_by_id(self, job_id: UUID) -> Job | None:
+    def get_job_by_id(self, job_id: UUID) -> Job | None:
         retrieved_job_record = (
             self.session.query(JobModel)
             .filter(JobModel.id == str(job_id))

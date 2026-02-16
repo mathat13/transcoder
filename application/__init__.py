@@ -14,6 +14,7 @@ from .interfaces.infrastructure.ports.JellyfinLibraryRefreshCapable import *
 from .interfaces.infrastructure.ports.RadarrUpdateMovieFileCapable import *
 from .interfaces.infrastructure.ports.SonarrUpdateEpisodeCapable import *
 from .interfaces.infrastructure.ports.EnvelopeTransportCapable import *
+from .interfaces.infrastructure.ports.JobPersistenceCapable import *
 from .workflow_engine.FailureReason import *
 from .workflow_engine.FailureClassifier import *
 from .workflow_engine.FailureInfo import *
