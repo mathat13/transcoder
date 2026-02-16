@@ -5,9 +5,14 @@ from sqlalchemy.pool import StaticPool
 
 from infrastructure import Base
 
-from tests import JobModelFactory
+from tests.factories.JobModelFactory import JobModelFactory
+from tests.bootstrap.bootstrap_test_system import bootstrap_test_system
 
 TEST_DATABASE_URL = "sqlite://"
+
+@pytest.fixture()
+def test_system():
+    return bootstrap_test_system()
 
 @pytest.fixture()
 def db_session():

@@ -1,9 +1,10 @@
+import pytest
+
 from domain import (
     OperationContext,
 )
 
-from application import (JobCompletionProcessAssembler,
-                         EventEnvelope,
+from application import (EventEnvelope,
                          ProcessRunnerInput,
                          JobCompletionContext,
                          ProcessDefinition,
@@ -13,26 +14,28 @@ from application import (JobCompletionProcessAssembler,
                          RefreshJellyfinLibrary,
                          FileContext,
                          MediaContext,
+                         ProcessAssemblerRegistry,
                          )
 
 
-from tests import (FakeFileSystem,
-                   FakeJellyfinAPIAdapter,
-                   FakeRadarrAPIAdapter,
-                   JobCompletedEventFactory,
-                   )
+from tests.factories.EventFactories import JobCompletedEventFactory
 
-
-def test_JobCompletionProcessAssembler_assembles_correct_object():
-    fs = FakeFileSystem()
-    jellyfin = FakeJellyfinAPIAdapter()
-    radarr = FakeRadarrAPIAdapter()
-    assembler = JobCompletionProcessAssembler(filesystem=fs, radarr=radarr, jellyfin=jellyfin)
-
+def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system):
+    registry = ProcessAssemblerRegistry()
     event = JobCompletedEventFactory()
-    envelope = EventEnvelope.create(event=event, context=OperationContext.create())
+    envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
 
-    process_input = assembler.assemble(envelope=envelope)
+    # No assembler added to registry
+
+    with pytest.raises(KeyError):
+        registry.assemble(envelope=envelope)
+
+def test_JobCompletionProcessAssembler_assembles_correct_object(test_system):
+    event = JobCompletedEventFactory()
+    envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
+
+
+    process_input = test_system.assembler_registry.assemble(envelope=envelope)
 
     assert isinstance(process_input, ProcessRunnerInput)
     
