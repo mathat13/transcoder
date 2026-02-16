@@ -1,7 +1,6 @@
 from typing import (
     Protocol,
     Callable,
-    TypeVar,
     Type,
     Iterable,
 )
@@ -10,14 +9,12 @@ from domain import Event
 
 from application import EventEnvelope
 
-E = TypeVar("E", bound=Event)
-
 class EnvelopeTransportCapable(Protocol):
-    def subscribe(self, event_type: Type[E], handler: Callable[[E], None]) -> None:
+    def subscribe(self, event_type: Type[Event], handler: Callable[[EventEnvelope], None]) -> None:
         ...
 
-    def publish(self, event: EventEnvelope) -> None:
+    def publish(self, envelope: EventEnvelope) -> None:
         ...
 
-    def publish_all(self, events: Iterable[EventEnvelope]) -> None:
+    def publish_all(self, envelopes: Iterable[EventEnvelope]) -> None:
         ...

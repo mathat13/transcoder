@@ -1,9 +1,10 @@
 from collections import defaultdict
 from typing import (
     Callable,
-    TypeVar,
     Type,
     Iterable,
+    List,
+    DefaultDict,
 )
 
 from domain import (
@@ -15,13 +16,10 @@ from application import (
     EnvelopeTransportCapable,
 )
 
-E = TypeVar("E", bound=Event)
-
 class SyncEventBus(EnvelopeTransportCapable):
-    def __init__(self):
-        self._subscribers = defaultdict(list)
+    _subscribers: DefaultDict[Type[Event], List[Callable[[EventEnvelope], None]]] = defaultdict(list)
 
-    def subscribe(self, event_type: Type[E], handler: Callable[[E], None]):
+    def subscribe(self, event_type: Type[Event], handler: Callable[[EventEnvelope], None]):
         self._subscribers[event_type].append(handler)
 
     def publish(self, envelope: EventEnvelope):
