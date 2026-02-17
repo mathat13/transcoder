@@ -37,13 +37,25 @@ class ProcessManager:
         # Decide on reaction
         if result.status == ProcessStatus.SUCCESS:
             # Generate success envelope
-            pass
+            self.publisher.publish(
+                event=outcome.on_success(envelope=envelope,
+                                   result=result),
+                operation_context=envelope.context
+            )
         elif result.status == ProcessStatus.FAILURE:
             if result.failure_info.retryable:
                 # Generate retry envelope
-                pass
+                self.publisher.publish(
+                event=outcome.on_retry(envelope=envelope,
+                                   result=result),
+                operation_context=envelope.context
+            )
             else:
                 # Generate terminal failure envelope
-                pass
+                self.publisher.publish(
+                event=outcome.on_failure(envelope=envelope,
+                                   result=result),
+                operation_context=envelope.context
+            )
             
             

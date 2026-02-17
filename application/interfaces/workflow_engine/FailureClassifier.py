@@ -4,5 +4,5 @@ from application.workflow_engine.FailureInfo import FailureInfo
 
 class FailureClassifier(ABC):
     @abstractmethod
-    def classify(self, exc: Exception) -> "FailureInfo":
+    def classify(self, exc: Exception) -> FailureInfo:
         ...

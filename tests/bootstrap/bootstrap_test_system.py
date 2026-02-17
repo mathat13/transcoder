@@ -61,7 +61,7 @@ def bootstrap_test_system(
         publisher=publisher,
         scheduler=scheduler,
         assemblers=assembler_registry,
-        outcomes=completion_outcome_handler,
+        outcomes=outcome_registry,
     )
 
     return TestSystem(

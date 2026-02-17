@@ -1,6 +1,9 @@
 from dataclasses import dataclass
 from typing import Optional
 from uuid import UUID
+#from datetime import datetime
+
+from application.workflow_engine.FailureReason import FailureReason
 
 from domain import Event, FileInfo
 
@@ -22,3 +25,20 @@ class TranscodeVerificationFailed(ApplicationEvent):
 @dataclass(kw_only=True)
 class TranscodeSuccess(ApplicationEvent):
     job_id: UUID
+
+@dataclass(kw_only=True)
+class JobCompletionSuccess(ApplicationEvent):
+    job_id:UUID
+
+@dataclass(kw_only=True)
+class JobCompletionFailure(ApplicationEvent):
+    job_id: UUID
+    reason: Optional[FailureReason]
+
+@dataclass(kw_only=True)
+class RetryScheduled(ApplicationEvent):
+    original_event: Event
+    #attempt: int
+    #max_attempts: int
+    #scheduled_for: datetime
+    #reason: str
