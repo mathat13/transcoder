@@ -22,9 +22,6 @@ class JobCompletionProcessAssembler(ProcessAssembler):
         self.radarr = radarr
         self.jellyfin = jellyfin
 
-    #def supports(self, envelope: EventEnvelope) -> bool:
-    #    return isinstance(envelope.event, JobCompleted)
-
     def assemble(self, envelope: EventEnvelope) -> ProcessRunnerInput:
         event = envelope.event
 

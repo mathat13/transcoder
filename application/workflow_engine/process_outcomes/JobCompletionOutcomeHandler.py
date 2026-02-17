@@ -1,7 +1,8 @@
 from application.events.EventEnvelope import EventEnvelope
 from application.workflow_engine.ProcessRunnerResult import ProcessRunnerResult
+from application.interfaces.workflow_engine.ProcessOutcomeHandler import ProcessOutcomeHandler
 
-class JobCompletionOutcomeHandler:
+class JobCompletionOutcomeHandler(ProcessOutcomeHandler):
     def on_success(
         self,
         envelope: EventEnvelope,
