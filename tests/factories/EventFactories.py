@@ -7,6 +7,12 @@ from domain import (
     JobCompleted,
     FileInfo,
     ExternalMediaIDs,
+    OperationContext,
+    Event,
+)
+
+from application import (
+    EventEnvelope,
 )
 
 fake = Faker()
@@ -19,4 +25,12 @@ class JobCompletedEventFactory(factory.Factory):
     source_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
     transcode_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
     media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
+
+class EventEnvelopeFactory(factory.Factory):
+    class Meta:
+        model = EventEnvelope
+
+    # Requires event for instantiation
+    event: Event
+    context = factory.LazyFunction(lambda: OperationContext.create())
 

@@ -19,12 +19,14 @@ from application import (ProcessRunnerInput,
                          )
 
 
-from tests.factories.EventFactories import JobCompletedEventFactory
+from tests.factories.EventFactories import (
+    JobCompletedEventFactory,
+    EventEnvelopeFactory,
+)
 
 def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system: TestSystem):
     registry = ProcessAssemblerRegistry()
-    event = JobCompletedEventFactory()
-    envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
+    envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
 
     # No assembler added to registry
 
@@ -32,8 +34,7 @@ def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system: T
         registry.assemble(envelope=envelope)
 
 def test_JobCompletionProcessAssembler_assembles_correct_object(test_system: TestSystem):
-    event = JobCompletedEventFactory()
-    envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
+    envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
 
     process_input = test_system.assembler_registry.assemble(envelope=envelope)
 

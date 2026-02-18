@@ -1,9 +1,9 @@
 import pytest
 
 from tests.bootstrap.TestSystem import TestSystem
-
-from domain import (
-    OperationContext,
+from tests.factories.EventFactories import (
+    JobCompletedEventFactory,
+    EventEnvelopeFactory,
 )
 
 from application import (OutcomeHandlerRegistry,
@@ -13,13 +13,9 @@ from application import (OutcomeHandlerRegistry,
                          RetryScheduled,
                          )
 
-
-from tests.factories.EventFactories import JobCompletedEventFactory
-
 def test_OutcomeHandlerRegistry_raises_KeyError_on_no_assembler(test_system: TestSystem):
     registry = OutcomeHandlerRegistry()
-    event = JobCompletedEventFactory()
-    envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
+    envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
 
         # No assembler added to registry
 
@@ -32,7 +28,7 @@ def test_JobCompletionOutcomeHandler_returns_correct_events(test_system: TestSys
         return ProcessRunnerResult.failure(exc=exc)
     
     event = JobCompletedEventFactory()
-    envelope = test_system.publisher.create_envelope(event=event, operation_context=OperationContext.create())
+    envelope = EventEnvelopeFactory(event=event)
 
     failure_result = generate_FailedProcessRunnerResult()
     success_result = ProcessRunnerResult.success()
