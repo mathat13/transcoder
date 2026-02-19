@@ -27,6 +27,7 @@ class JobCompletedEventFactory(factory.Factory):
     media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
 
 class EventEnvelopeFactory(factory.Factory):
+
     class Meta:
         model = EventEnvelope
 
