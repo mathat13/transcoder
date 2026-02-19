@@ -16,7 +16,8 @@ TEST_DATABASE_URL = "sqlite://"
 
 @pytest.fixture()
 def test_system() -> TestSystem:
-    return bootstrap_test_system()
+    system = bootstrap_test_system()
+    return system
 
 @pytest.fixture()
 def db_session():

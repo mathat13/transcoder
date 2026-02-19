@@ -10,5 +10,6 @@ from .fakes.FakeLogger import *
 from .fakes.FakeHTTPClient import *
 from .fakes.FakeRadarrAPIAdapter import *
 from .fakes.FakeJellyfinAPIAdapter import *
+from .fakes.FakeProcessRunner import *
 from .bootstrap.bootstrap_test_system import *
 from .bootstrap.TestSystem import *

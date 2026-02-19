@@ -1,7 +1,9 @@
+from application.interfaces.workflow_engine.ProcessRunner import ProcessRunner
 from application.workflow_engine.ProcessRunnerInput import ProcessRunnerInput
 from application.workflow_engine.ProcessRunnerResult import ProcessRunnerResult
 
-class ProcessRunner:
+class DefaultProcessRunner(ProcessRunner):
+
     def run(
         self,
         payload: ProcessRunnerInput,

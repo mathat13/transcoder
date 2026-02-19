@@ -5,11 +5,11 @@ from tests.fakes.FakeRadarrAPIAdapter import FakeRadarrAPIAdapter
 from tests.fakes.FakeJellyfinAPIAdapter import FakeJellyfinAPIAdapter
 
 from application import (
-    ProcessRunner,
     ProcessAssemblerRegistry,
     OutcomeHandlerRegistry,
     EventPublisher,
     ProcessManager,
+    ProcessRunner,
     TaskScheduler,
 )
 

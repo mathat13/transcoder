@@ -2,13 +2,14 @@ from tests.bootstrap.TestSystem import TestSystem
 from tests.fakes.FakeFileSystem import FakeFileSystem
 from tests.fakes.FakeRadarrAPIAdapter import FakeRadarrAPIAdapter
 from tests.fakes.FakeJellyfinAPIAdapter import FakeJellyfinAPIAdapter
+from tests.fakes.FakeProcessRunner import FakeProcessRunner
+from tests.fakes.FakeSyncEventBus import FakeSyncEventBus
 
 from domain import (
     JobCompleted,
 
 )
 from application import (
-    ProcessRunner,
     JobCompletionProcessAssembler,
     ProcessAssemblerRegistry,
     JobCompletionOutcomeHandler,
@@ -16,9 +17,9 @@ from application import (
     EventPublisher,
     ProcessManager,
     TaskScheduler,
+    ProcessRunner,
+    ProcessRunnerResult,
 )
-
-from infrastructure import SyncEventBus
 
 def bootstrap_test_system(
     *,
@@ -49,10 +50,10 @@ def bootstrap_test_system(
     outcome_registry.register(JobCompleted, completion_outcome_handler)
 
     # --- execution ---
-    runner = runner or ProcessRunner()
+    runner = runner or FakeProcessRunner(result=ProcessRunnerResult.success())
 
     # --- side effects ---
-    publisher = EventPublisher(event_bus=SyncEventBus())
+    publisher = EventPublisher(event_bus=FakeSyncEventBus())
     scheduler = TaskScheduler()
 
     # --- orchestration ---
