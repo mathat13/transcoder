@@ -8,11 +8,12 @@ from application.workflow_engine.FailureClassifier import FailureClassifier
 @dataclass(frozen=True)
 class ProcessRunnerResult():
     status: ProcessStatus
-    failure_info: Optional[FailureInfo] = None
+    failure_info: Optional[FailureInfo]
 
     @classmethod
     def success(cls) -> "ProcessRunnerResult":
-        return cls(status=ProcessStatus.SUCCESS)
+        return cls(status=ProcessStatus.SUCCESS,
+                   failure_info=None)
 
     @classmethod
     def failure(cls,

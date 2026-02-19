@@ -25,6 +25,7 @@ class FailureClassifier:
                 detail=str(exc),
             )
         
+        # No matches
         return FailureInfo(
             reason=FailureReason.UNKNOWN,
             retryable=getattr(exc, "retryable", False),

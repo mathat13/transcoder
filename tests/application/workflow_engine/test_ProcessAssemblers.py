@@ -2,10 +2,6 @@ import pytest
 
 from tests.bootstrap.TestSystem import TestSystem
 
-from domain import (
-    OperationContext,
-)
-
 from application import (ProcessRunnerInput,
                          JobCompletionContext,
                          ProcessDefinition,

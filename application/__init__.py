@@ -1,6 +1,7 @@
 from .services.JobService import *
 from .subscribers.JobVerifyingProcessManager import *
 from .subscribers.JobCompletionProcessManager import *
+from .exceptions.RootException import *
 from .exceptions.ServiceExceptions import *
 from .exceptions.ApplicationExceptions import *
 from .events.ApplicationEvents import *

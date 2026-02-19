@@ -1,8 +1,9 @@
+from application.exceptions.RootException import RootException
+
 from domain import FileInfo
 
-class ServiceException(Exception):
+class ServiceException(RootException):
     """Base class for failures caused by external services."""
-    retryable: bool
     
 class APICallException(ServiceException):
     """Base class for API call-related failures."""
