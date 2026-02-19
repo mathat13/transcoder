@@ -6,7 +6,7 @@ from application.workflow_engine.ProcessStatus import ProcessStatus
 from application.workflow_engine.FailureClassifier import FailureClassifier
 
 @dataclass(frozen=True)
-class ProcessRunnerResult():
+class ProcessRunnerResult:
     status: ProcessStatus
     failure_info: Optional[FailureInfo]
 
