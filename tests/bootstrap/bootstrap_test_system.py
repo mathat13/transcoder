@@ -23,15 +23,12 @@ from application import (
 
 def bootstrap_test_system(
     *,
-    filesystem: FakeFileSystem | None = None,
-    radarr: FakeRadarrAPIAdapter | None = None,
-    jellyfin: FakeJellyfinAPIAdapter | None = None,
     runner: ProcessRunner | None = None,
 ) -> TestSystem:
     # --- infrastructure fakes ---
-    filesystem = filesystem or FakeFileSystem()
-    radarr = radarr or FakeRadarrAPIAdapter()
-    jellyfin = jellyfin or FakeJellyfinAPIAdapter()
+    filesystem = FakeFileSystem()
+    radarr = FakeRadarrAPIAdapter()
+    jellyfin = FakeJellyfinAPIAdapter()
 
     # --- assemblers ---
     job_completion_assembler = JobCompletionProcessAssembler(

@@ -1,20 +1,27 @@
 from typing import (
-    Callable,
-    TypeVar,
-    Type,
     Iterable,
+    Callable,
+    Type,
+    DefaultDict,
+    List,
 )
 
-from application import EventEnvelope
+from application import (
+    EnvelopeTransportCapable,
+    EventEnvelope,
+    Event,
+)
 
-class FakeSyncEventBus:
+from collections import defaultdict
+
+class FakeSyncEventBus(EnvelopeTransportCapable):
     def __init__(self):
-        self.subscribers = {}
-        self.published = []
-        self.unpublished = []
+        self.subscribers: DefaultDict[Type[Event], List[Callable[[EventEnvelope], None]]] = defaultdict(list)
+        self.published: List[Type[Event]] = []
+        self.unpublished: List[Type[Event]] = []
 
-    def subscribe(self, event_type, handler):
-        self.subscribers.setdefault(event_type, []).append(handler)
+    def subscribe(self, event_type: Type[Event], handler: Callable[[EventEnvelope], None]):
+        self.subscribers[event_type].append(handler)
 
     def publish(self, envelope: EventEnvelope):
         event = envelope.event
