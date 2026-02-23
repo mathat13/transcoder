@@ -3,19 +3,16 @@ import factory
 from faker import Faker
 
 from application import (
-    RootException,
+    RetryableException,
+    TerminalException,
 )
 
 class RetryableExceptionFactory(factory.Factory):
     class Meta:
-        model = RootException
-    
-    retryable = True
+        model = RetryableException
 
 class TerminalExceptionFactory(factory.Factory):
     class Meta:
-        model = RootException
-
-    retryable = False
+        model = TerminalException
 
 

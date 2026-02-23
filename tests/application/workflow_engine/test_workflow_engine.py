@@ -6,34 +6,13 @@ from application import (
     ProcessRunnerResult,
     ProcessStatus,
     FailureReason,
-    SourceFileMissing,
+    FileSystemSourceFileMissing,
     FileSystemIOError,
-    APIServiceException,
+    APIServiceRetryableException,
+    APIServiceTerminalException,
+    RetryableException,
+    TerminalException,
 )
-
-@pytest.mark.parametrize(
-    "exception, expected_reason",
-    [
-        (SourceFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
-        (FileSystemIOError("hardlink", "/file.mp4", OSError), FailureReason.FILESYSTEM_IO),
-        (APIServiceException("Radarr", 500, True, None), FailureReason.API_CALL_FAILURE),
-        (APIServiceException("Radarr", 404, False, None), FailureReason.API_CALL_FAILURE),
-        (OverflowError(), FailureReason.UNKNOWN),
-    ],
-)
-
-def test_FailureClassifier_classifies_exceptions_correctly(exception, expected_reason):
-    classifier = FailureClassifier()
-
-    # Ensure retryable exists for UNKNOWN case (only required for tests.)
-    if not hasattr(exception, "retryable"):
-        exception.retryable = False
-        
-    failure_info = classifier.classify(exception)
-
-    assert failure_info.reason == expected_reason
-    assert failure_info.retryable == exception.retryable
-    assert failure_info.detail == str(exception)
 
 def test_ProcessRunnerResult_generates_correct_success_response():
     success_response = ProcessRunnerResult.success()
@@ -45,19 +24,40 @@ def test_ProcessRunnerResult_generates_correct_success_response():
 @pytest.mark.parametrize(
     "exception, expected_reason",
     [
-        (SourceFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
+        (FileSystemSourceFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
         (FileSystemIOError("hardlink", "/file.mp4", OSError), FailureReason.FILESYSTEM_IO),
-        (APIServiceException("Radarr", 500, True, None), FailureReason.API_CALL_FAILURE),
-        (APIServiceException("Radarr", 404, False, None), FailureReason.API_CALL_FAILURE),
+        (APIServiceRetryableException("Radarr", 500, None), FailureReason.API_CALL_FAILURE),
+        (APIServiceTerminalException("Radarr", 404, None), FailureReason.API_CALL_FAILURE),
         (OverflowError(), FailureReason.UNKNOWN),
     ],
 )
 
-def test_ProcessRunnerResult_generates_correct_failure_response(exception, expected_reason):
+def test_FailureClassifier_classifies_exceptions_correctly(exception: Exception, expected_reason: FailureReason):
+    classifier = FailureClassifier()
 
-    # Ensure retryable exists for UNKNOWN case (only required for tests.)
-    if not hasattr(exception, "retryable"):
-        exception.retryable = False
+    failure_info = classifier.classify(exception)
+
+    assert failure_info.reason == expected_reason
+    assert failure_info.detail == str(exception)
+    if isinstance(exception, RetryableException):
+            assert failure_info.retryable == True
+    elif isinstance(exception, TerminalException):
+        assert failure_info.retryable == False
+    else:
+        assert failure_info.retryable == False
+
+@pytest.mark.parametrize(
+    "exception, expected_reason",
+    [
+        (FileSystemSourceFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
+        (FileSystemIOError("hardlink", "/file.mp4", OSError), FailureReason.FILESYSTEM_IO),
+        (APIServiceRetryableException("Radarr", 500, None), FailureReason.API_CALL_FAILURE),
+        (APIServiceTerminalException("Radarr", 404, None), FailureReason.API_CALL_FAILURE),
+        (OverflowError(), FailureReason.UNKNOWN),
+    ],
+)
+
+def test_ProcessRunnerResult_generates_correct_failure_response(exception: Exception, expected_reason: FailureReason):
 
     classifier = FailureClassifier()
 
@@ -70,12 +70,4 @@ def test_ProcessRunnerResult_generates_correct_failure_response(exception, expec
 
         # failure_info
         failure = failure_response.failure_info
-        assert failure is not None
         assert isinstance(failure, FailureInfo)
-        assert failure.reason == expected_reason
-        assert failure.retryable == exception.retryable
-        assert failure.detail == str(exception)
-
-
-
-

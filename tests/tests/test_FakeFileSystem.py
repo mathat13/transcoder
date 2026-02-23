@@ -1,9 +1,8 @@
 import pytest
 
 from application import (
-    DestinationExistsButDifferentFile,
-    SourceFileIsDirectory,
-    SourceFileMissing,
+    FileSystemDestinationExistsButDifferentFile,
+    FileSystemSourceFileIsDirectory,
 )
 from tests import FakeFileSystem
 
@@ -112,7 +111,7 @@ def test_FakeFileSystem_hardlink():
     assert fs._link_count[inode] == 2
 
     # Test source is a directory error
-    with pytest.raises(SourceFileIsDirectory):
+    with pytest.raises(FileSystemSourceFileIsDirectory):
         fs.hardlink(existing_dir, non_existing_file)
 
     # Test destination is a directory error
@@ -139,7 +138,7 @@ def test_FakeFileSystem_hardlink_when_destination_already_exists_behaviour():
     assert hardlink == None
 
     # Test hardlinking when destination exists but inodes are different
-    with pytest.raises(DestinationExistsButDifferentFile):
+    with pytest.raises(FileSystemDestinationExistsButDifferentFile):
         fs.hardlink(existing_file, other_existing_file)
 
 def test_FakeFileSystem_delete():
@@ -159,7 +158,7 @@ def test_FakeFileSystem_delete():
 
     # Test dir deletion raises correctly
 
-    with pytest.raises(SourceFileIsDirectory):
+    with pytest.raises(FileSystemSourceFileIsDirectory):
         fs.delete(existing_dir)
 
     # Test idempotency when file not found

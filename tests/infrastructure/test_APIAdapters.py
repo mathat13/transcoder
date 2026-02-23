@@ -7,7 +7,10 @@ from domain import (
     OperationContext,
 )
 
-from application import APIServiceException
+from application import (
+    APIServiceRetryableException,
+    APIServiceTerminalException,
+)
 
 from infrastructure import (
     HTTPResponse,
@@ -46,22 +49,22 @@ def test_BaseAPIAdapter_raise_for_error_raises_correctly():
 
     adapter = TestAPIAdapter(client=None, base_url=None, headers=None)
 
-    with pytest.raises(APIServiceException) as exc:
+    with pytest.raises(APIServiceRetryableException) as exc:
         adapter._raise_for_error(bad_5xx_response)
 
     error = exc.value
 
-    assert error.retryable == True
+    assert isinstance(error, APIServiceRetryableException)
     assert error.service == "TestService"
     assert error.detail == {"message": "failure"}
     assert error.status_code == 500
 
-    with pytest.raises(APIServiceException) as exc:
+    with pytest.raises(APIServiceTerminalException) as exc:
         adapter._raise_for_error(bad_4xx_response)
     
     error = exc.value
     
-    assert error.retryable == False
+    assert isinstance(error, APIServiceTerminalException)
     assert error.service == "TestService"
     assert error.detail == {"message": "failure"}
     assert error.status_code == 404
@@ -161,7 +164,7 @@ def test_RadarrAPIAdapter_get_moviefile_raises_exception_on_failure_with_fake():
     
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
-    with pytest.raises(APIServiceException):
+    with pytest.raises(APIServiceTerminalException):
         adapter.get_moviefile(media_identifiers=media_identifiers, context=context)
 
 def test_RadarrAPIAdapter_rescan_movie_returns_true_on_success_with_fake():
@@ -200,7 +203,7 @@ def test_RadarrAPIAdapter_rescan_movie_raises_exception_on_failure_with_fake():
     
     client = FakeHTTPClient(response=fail_response)
     adapter = RadarrAPIAdapter(client)
-    with pytest.raises(APIServiceException):
+    with pytest.raises(APIServiceTerminalException):
         adapter.rescan_movie(media_identifiers=media_identifiers, context=context)
 
 def test_JellyfinAPIAdapter_attributes_initialized_correctly():
@@ -245,5 +248,5 @@ def test_JellyfinAPIAdapter_refresh_library_raises_exception_on_failure_with_fak
     client = FakeHTTPClient(response=bad_response)
     adapter = JellyfinAPIAdapter(client)
     
-    with pytest.raises(APIServiceException):
+    with pytest.raises(APIServiceTerminalException):
             adapter.refresh_library(context=context)

@@ -1,9 +1,9 @@
 from collections import Counter
 
 from application import (
-    DestinationExistsButDifferentFile,
-    SourceFileIsDirectory,
-    SourceFileMissing,
+    FileSystemDestinationExistsButDifferentFile,
+    FileSystemSourceFileIsDirectory,
+    FileSystemSourceFileMissing,
     HardlinkCapable,
     FileDeletionCapable,
     FileExistenceCheckCapable,
@@ -60,7 +60,7 @@ class FakeFileSystem(
         inode = self._inode_for(source_file)
         if inode:
             if self._is_dir(source_file):
-                raise SourceFileIsDirectory("hardlink", source_file)
+                raise FileSystemSourceFileIsDirectory("hardlink", source_file)
             
             if self._is_dir(destination):
                 raise NotImplementedError(destination)
@@ -70,19 +70,19 @@ class FakeFileSystem(
                 if self._inode(destination) == self._inode(source_file):
                     return
                 else:
-                    raise DestinationExistsButDifferentFile(destination)
+                    raise FileSystemDestinationExistsButDifferentFile(destination)
         
 
             self._files[destination] = inode
             self._link_count[inode] += 1
         else:
-            raise SourceFileMissing(source_file)
+            raise FileSystemSourceFileMissing(source_file)
 
     def delete(self, file: str) -> None:
         inode = self._inode_for(file)
 
         if self._is_dir(file):
-            raise SourceFileIsDirectory("delete", file)
+            raise FileSystemSourceFileIsDirectory("delete", file)
         elif self.is_file(file):
             del self._files[file]
         else:

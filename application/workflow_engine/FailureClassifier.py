@@ -1,33 +1,21 @@
 from application.workflow_engine.FailureInfo import FailureInfo
 from application.workflow_engine.FailureReason import FailureReason
-from application.exceptions.ServiceExceptions import *
+from application.workflow_engine.EXCEPTION_REASON_MAP import EXCEPTION_REASON_MAP
+from application.exceptions.RootExceptions import RetryableException
 
 class FailureClassifier:
     def classify(self, exc: Exception) -> FailureInfo:
-        if isinstance(exc, FileSystemIOError):
-            return FailureInfo(
-                reason=FailureReason.FILESYSTEM_IO,
-                retryable=exc.retryable,
-                detail=str(exc),
-            )
-        
-        if isinstance(exc, FileSystemException):
-            return FailureInfo(
-                reason=FailureReason.FILESYSTEM_LOGIC,
-                retryable=exc.retryable,
-                detail=str(exc),
-            )
-        
-        if isinstance(exc, APIServiceException):
-            return FailureInfo(
-                reason=FailureReason.API_CALL_FAILURE,
-                retryable=exc.retryable,
-                detail=str(exc),
-            )
+        for exception_type, reason in EXCEPTION_REASON_MAP.items():
+            if isinstance(exc, exception_type):
+                return FailureInfo(
+                    reason=reason,
+                    retryable=isinstance(exc, RetryableException),
+                    detail=str(exc),
+                )
         
         # No matches
         return FailureInfo(
             reason=FailureReason.UNKNOWN,
-            retryable=getattr(exc, "retryable", False),
+            retryable=isinstance(exc, RetryableException),
             detail=str(exc),
         )

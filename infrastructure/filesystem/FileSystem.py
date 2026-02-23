@@ -1,9 +1,9 @@
 from pathlib import Path
 
 from application import (
-    DestinationExistsButDifferentFile,
-    SourceFileMissing,
-    SourceFileIsDirectory,
+    FileSystemDestinationExistsButDifferentFile,
+    FileSystemSourceFileMissing,
+    FileSystemSourceFileIsDirectory,
     FileSystemIOError,
     HardlinkCapable,
     FileDeletionCapable,
@@ -28,7 +28,7 @@ class FileSystem (
             return # Idempotent success
 
         if input_file.is_dir():
-            raise SourceFileIsDirectory("delete", input_file.as_posix())
+            raise FileSystemSourceFileIsDirectory("delete", input_file.as_posix())
 
         try:
             input_file.unlink()
@@ -49,10 +49,10 @@ class FileSystem (
         dest = Path(destination)
 
         if src.is_dir():
-            raise SourceFileIsDirectory("hardlink", src.as_posix())
+            raise FileSystemSourceFileIsDirectory("hardlink", src.as_posix())
         
         if not src.is_file():
-            raise SourceFileMissing(src.as_posix())
+            raise FileSystemSourceFileMissing(src.as_posix())
         
         if dest.is_dir():
             dest = dest / src.name
@@ -62,7 +62,7 @@ class FileSystem (
                 if dest.stat().st_ino == src.stat().st_ino:
                     return  # idempotent success
                 else:
-                    raise DestinationExistsButDifferentFile(dest.as_posix())
+                    raise FileSystemDestinationExistsButDifferentFile(dest.as_posix())
             except OSError as e:
                 raise FileSystemIOError("stat", dest.as_posix(), e)
         

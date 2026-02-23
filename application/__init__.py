@@ -1,7 +1,7 @@
 from .services.JobService import *
 from .subscribers.JobVerifyingProcessManager import *
 from .subscribers.JobCompletionProcessManager import *
-from .exceptions.RootException import *
+from .exceptions.RootExceptions import *
 from .exceptions.ServiceExceptions import *
 from .exceptions.ApplicationExceptions import *
 from .events.ApplicationEvents import *
@@ -19,6 +19,7 @@ from .interfaces.infrastructure.ports.JobPersistenceCapable import *
 from .workflow_engine.FailureReason import *
 from .workflow_engine.FailureClassifier import *
 from .workflow_engine.FailureInfo import *
+from .workflow_engine.EXCEPTION_REASON_MAP import *
 from .workflow_engine.ProcessStatus import *
 from .workflow_engine.TaskScheduler import *
 from .workflow_engine.DefaultProcessRunner import *

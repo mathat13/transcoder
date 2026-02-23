@@ -1,13 +1,15 @@
 from domain import OperationContext
 
-from application import APIServiceException
+from application import (APIServiceRetryableException,
+                         APIServiceTerminalException
+                         )
 
 from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
 
-class BaseAPIAdapter():
+class BaseAPIAdapter:
     service_name: str
 
-    def __init__(self, client, base_url: str, headers: dict):
+    def __init__(self, client, base_url: str, headers):
         self.client = client
         self.base_url = base_url
         self.headers = headers
@@ -16,14 +18,18 @@ class BaseAPIAdapter():
         if response.ok:
             return
 
-        is_retryable=response.is_server_error
-
-        raise APIServiceException(
-            service = self.service_name,
-            retryable = is_retryable,
-            status_code=response.status_code,
-            detail=response.json_data or response.text_data
-            )
+        if response.is_server_error:
+            raise APIServiceRetryableException(
+                service = self.service_name,
+                status_code=response.status_code,
+                detail=response.json_data or response.text_data
+                )
+        elif response.is_client_error:
+            raise APIServiceTerminalException(
+                service = self.service_name,
+                status_code=response.status_code,
+                detail=response.json_data or response.text_data
+                )
 
     def _headers_with_idempotency(self, context: OperationContext) -> dict[str, str]:
         """

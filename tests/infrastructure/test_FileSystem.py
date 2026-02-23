@@ -2,10 +2,12 @@ import pytest
 from pathlib import Path
 
 from application import (
-    DestinationExistsButDifferentFile,
-    SourceFileIsDirectory,
-    SourceFileMissing,
+    FileSystemDestinationExistsButDifferentFile,
+    FileSystemSourceFileIsDirectory,
+    FileSystemSourceFileMissing,
     FileSystemIOError,
+    RetryableException,
+    TerminalException,
 )
 from infrastructure import FileSystem
 
@@ -59,13 +61,13 @@ def test_FileSystem_delete_raises_SourceFileIsDirectory_correctly(tmp_path):
     dir_path = tmp_path / "temp_dir"
     dir_path.mkdir()
 
-    with pytest.raises(SourceFileIsDirectory) as exc:
+    with pytest.raises(FileSystemSourceFileIsDirectory) as exc:
         fs.delete(dir_path)
     
     exception = exc.value
     assert exception.operation == "delete"
     assert exception.file.path == str(dir_path)
-    assert exception.retryable == False
+    assert isinstance(exception, TerminalException)
 
 def test_FileSystem_delete_raises_FileSystemIOError_on_OSError(monkeypatch):
     fs = FileSystem()
@@ -85,7 +87,7 @@ def test_FileSystem_delete_raises_FileSystemIOError_on_OSError(monkeypatch):
     assert exception.operation == "delete"
     assert exception.file.path == str(test_path)
     assert isinstance(exception.original, OSError)
-    assert exception.retryable is True
+    assert isinstance(exception, RetryableException)
 
 def test_FileSystem_hardlink_creates_hardlink(tmp_path):
     fs = FileSystem()
@@ -126,13 +128,13 @@ def test_FileSystem_hardlink_raises_SourceFileIsDirectory_correctly(tmp_path):
 
     dest = tmp_path / "hardlink.txt"
 
-    with pytest.raises(SourceFileIsDirectory) as exc:
+    with pytest.raises(FileSystemSourceFileIsDirectory) as exc:
         fs.hardlink(source_directory, dest)
 
     exception = exc.value
     assert exception.operation == "hardlink"
     assert exception.file.path == str(source_directory)
-    assert exception.retryable == False
+    assert isinstance(exception, TerminalException)
 
 def test_FileSystem_hardlink_raises_DestinationExistsButDifferentFile_correctly(tmp_path):
     fs = FileSystem()
@@ -143,12 +145,12 @@ def test_FileSystem_hardlink_raises_DestinationExistsButDifferentFile_correctly(
     dest = tmp_path / "different_file.txt"
     dest.write_text("more fake data")
 
-    with pytest.raises(DestinationExistsButDifferentFile) as exc:
+    with pytest.raises(FileSystemDestinationExistsButDifferentFile) as exc:
         fs.hardlink(source_file, dest)
 
     exception = exc.value
     assert exception.file.path == str(dest)
-    assert exception.retryable == False
+    assert isinstance(exception, TerminalException)
 
 def test_FileSystem_hardlink_raises_SourceFileMissing_correctly(tmp_path):
     fs = FileSystem()
@@ -158,12 +160,12 @@ def test_FileSystem_hardlink_raises_SourceFileMissing_correctly(tmp_path):
 
     dest = tmp_path / "hardlink.txt"
 
-    with pytest.raises(SourceFileMissing) as exc:
+    with pytest.raises(FileSystemSourceFileMissing) as exc:
         fs.hardlink(source_file, dest)
 
     exception = exc.value
     assert exception.file.path == str(source_file)
-    assert exception.retryable == False
+    assert isinstance(exception, TerminalException)
 
 def test_FileSystem_hardlink_raises_FileSystemIOError_on_OSError_with_failed_hardlink_attempt(monkeypatch):
     fs = FileSystem()
@@ -185,4 +187,4 @@ def test_FileSystem_hardlink_raises_FileSystemIOError_on_OSError_with_failed_har
     assert exception.operation == "hardlink"
     assert exception.file.path == str(destination)
     assert isinstance(exception.original, OSError)
-    assert exception.retryable is True
+    assert isinstance(exception, RetryableException)
