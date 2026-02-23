@@ -9,6 +9,7 @@ from domain.services.DomainEventFactory import DOMAIN_EVENT_FACTORY
 from domain.value_objects.JobStatus import JobStatus
 from domain.value_objects.ExternalMediaIDs import ExternalMediaIDs
 from domain.value_objects.FileInfo import FileInfo
+from domain.events.DomainEvents import DomainEvent
 
 @dataclass
 class Job:
@@ -23,7 +24,7 @@ class Job:
     status: JobStatus = JobStatus.pending
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    events: List = field(default_factory=list, init=False)
+    events: List[DomainEvent] = field(default_factory=list, init=False)
 
     # ---------------------------
     # INTERNAL HELPERS
@@ -32,7 +33,7 @@ class Job:
     def _now(self) -> datetime:
         return datetime.now(timezone.utc)
 
-    def _emit(self, event):
+    def _emit(self, event: DomainEvent):
         self.events.append(event)
 
     # ---------------------------

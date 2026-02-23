@@ -1,5 +1,8 @@
 from dataclasses import dataclass
-from typing import Optional
+from typing import (
+    Optional,
+    Dict,
+)
 from requests.models import Response
 from json import JSONDecodeError
 
@@ -7,9 +10,9 @@ from json import JSONDecodeError
 class HTTPResponse:
     ok: bool
     status_code: int
-    headers: dict
+    headers: Dict[str, str]
     url: str
-    json_data: Optional[dict] = None
+    json_data: Optional[Dict[str, str]] = None
     text_data: Optional[str] = None
 
     @property

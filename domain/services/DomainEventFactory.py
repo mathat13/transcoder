@@ -3,7 +3,7 @@ from domain.events.DomainEvents import *
 
 class DOMAIN_EVENT_FACTORY:
     @staticmethod
-    def create(job, old_status, new_status):
+    def create(job, old_status: JobStatus | str, new_status: JobStatus):
         # Map transitions → domain event classes
         match new_status:
             case JobStatus.pending:
