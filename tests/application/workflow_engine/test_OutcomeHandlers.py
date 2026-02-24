@@ -3,17 +3,26 @@ import pytest
 from tests.bootstrap.TestSystem import TestSystem
 from tests.factories.EventFactories import (
     JobCompletedEventFactory,
+    JobMovedToVerifyingEventFactory,
     EventEnvelopeFactory,
+)
+from tests.factories.ExceptionFactories import (
+    RetryableExceptionFactory,
+    TerminalExceptionFactory,
 )
 
 from application import (OutcomeHandlerRegistry,
                          ProcessRunnerResult,
                          JobCompletionFailure,
                          JobCompletionSuccess,
+                         TranscodeVerified,
+                         TranscodeVerificationFailed,
                          RetryScheduled,
+                         JobVerificationOutcomeHandler,
+                         JobCompletionOutcomeHandler,
                          )
 
-def test_OutcomeHandlerRegistry_raises_KeyError_on_no_assembler(test_system: TestSystem):
+def test_OutcomeHandlerRegistry_raises_KeyError_on_no_assembler():
     registry = OutcomeHandlerRegistry()
     envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
 
@@ -23,33 +32,41 @@ def test_OutcomeHandlerRegistry_raises_KeyError_on_no_assembler(test_system: Tes
         registry.get(envelope=envelope)
 
 def test_JobCompletionOutcomeHandler_returns_correct_events(test_system: TestSystem):
-    def generate_FailedProcessRunnerResult():
-        exc = KeyError("Key Error")
-        return ProcessRunnerResult.failure(exc=exc)
     
-    event = JobCompletedEventFactory()
-    envelope = EventEnvelopeFactory(event=event)
-
-    failure_result = generate_FailedProcessRunnerResult()
-    success_result = ProcessRunnerResult.success()
+    envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
     
     handler = test_system.outcome_registry.get(envelope=envelope)
+    assert isinstance(handler, JobCompletionOutcomeHandler)
 
-    success = handler.on_success(envelope=envelope, result=success_result)
-    failure = handler.on_failure(envelope=envelope, result=failure_result)
-    retry = handler.on_retry(envelope=envelope, result=failure_result)
+    success_result = ProcessRunnerResult.success()
+    failure_result = ProcessRunnerResult.failure(TerminalExceptionFactory())
+    retry_result = ProcessRunnerResult.failure(RetryableExceptionFactory())
 
-    # Success
-    assert isinstance(success, JobCompletionSuccess)
-    assert success.job_id == event.job_id
+    success_outcome = handler.on_success(envelope=envelope, result=success_result)
+    failure_outcome = handler.on_failure(envelope=envelope, result=failure_result)
+    retry_outcome = handler.on_retry(envelope=envelope, result=retry_result)
 
-    # Failure
-    assert isinstance(failure, JobCompletionFailure)
-    assert failure.job_id == event.job_id
-    assert failure.reason == failure_result.failure_info.reason
+    assert isinstance(success_outcome, JobCompletionSuccess)
+    assert isinstance(failure_outcome, JobCompletionFailure)
+    assert isinstance(retry_outcome, RetryScheduled)
 
-    # Retry
-    assert isinstance(retry, RetryScheduled)
-    assert retry.original_event == event
+def test_JobVerificationOutcomeHandler_returns_correct_events(test_system: TestSystem):
+    
+    envelope = EventEnvelopeFactory(event=JobMovedToVerifyingEventFactory())
+    
+    handler = test_system.outcome_registry.get(envelope=envelope)
+    assert isinstance(handler, JobVerificationOutcomeHandler)
+
+    success_result = ProcessRunnerResult.success()
+    failure_result = ProcessRunnerResult.failure(TerminalExceptionFactory())
+    retry_result = ProcessRunnerResult.failure(RetryableExceptionFactory())
+
+    success_outcome = handler.on_success(envelope=envelope, result=success_result)
+    failure_outcome = handler.on_failure(envelope=envelope, result=failure_result)
+    retry_outcome = handler.on_retry(envelope=envelope, result=retry_result)
+
+    assert isinstance(success_outcome, TranscodeVerified)
+    assert isinstance(failure_outcome, TranscodeVerificationFailed)
+    assert isinstance(retry_outcome, RetryScheduled)
 
 

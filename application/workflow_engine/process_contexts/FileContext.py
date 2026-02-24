@@ -5,5 +5,5 @@ from domain import FileInfo
 
 @dataclass(frozen=True)
 class FileContext:
-    source_file: Optional[FileInfo]
-    transcode_file: Optional[FileInfo]
+    source_file: Optional[FileInfo] = None
+    transcode_file: Optional[FileInfo] = None

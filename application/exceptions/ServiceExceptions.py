@@ -17,9 +17,9 @@ class APIServiceTerminalException(TerminalException):
         self.status_code = status_code
         self.detail = detail
 
-class FileSystemSourceFileMissing(TerminalException):
+class FileSystemFileMissing(TerminalException):
     def __init__(self, file: str):
-        super().__init__(f"Source file does not exist: {file}")
+        super().__init__(f"File does not exist: {file}")
         self.file = FileInfo(file)
 
 class FileSystemSourceFileIsDirectory(TerminalException):

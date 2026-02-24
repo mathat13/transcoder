@@ -1,5 +1,5 @@
 from typing import Protocol
 
 class FileExistenceCheckCapable(Protocol):
-    def is_file(self, file: str) -> bool:
+    def assert_file_existence(self, file: str) -> None:
         ...

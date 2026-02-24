@@ -9,7 +9,7 @@ class ProcessStep(ABC):
         """Step name (used for observability)."""
 
     @abstractmethod
-    def execute(self, context: "ProcessContext") -> None:
+    def execute(self, process_context: "ProcessContext") -> None:
         """
         Execute the step.
 

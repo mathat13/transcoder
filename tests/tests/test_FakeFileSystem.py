@@ -21,10 +21,10 @@ def test_FakeFileSystem_helpers():
     assert fs._exists(existing_dir) == True
     assert fs._exists(non_existing_dir) == False
 
-    assert fs.is_file(existing_file) == True
-    assert fs.is_file(non_existing_file) == False
-    assert fs.is_file(existing_dir) == False
-    assert fs.is_file(non_existing_dir) == False
+    assert fs._is_file(existing_file) == True
+    assert fs._is_file(non_existing_file) == False
+    assert fs._is_file(existing_dir) == False
+    assert fs._is_file(non_existing_dir) == False
 
     assert fs._is_dir(existing_file) == False
     assert fs._is_dir(non_existing_file) == False
@@ -40,7 +40,7 @@ def test_FakeFileSystem_add():
 
     # Test add works as expected on file
     fs.add(existing_file)
-    assert fs.is_file(existing_file)
+    assert fs._is_file(existing_file)
     assert fs._files[existing_file] == inode
     assert fs._link_count[inode] == 1
 

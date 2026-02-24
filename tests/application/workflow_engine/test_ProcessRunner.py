@@ -18,7 +18,7 @@ class RecordingStep(ProcessStep):
     def name(self) -> str:
         return "Recording test step."
 
-    def execute(self, context: ProcessContext):
+    def execute(self, process_context: ProcessContext):
         self.executed = True
 
 class FailingStep(ProcessStep):
@@ -29,7 +29,7 @@ class FailingStep(ProcessStep):
     def name(self) -> str:
         return "Failing test step."
 
-    def execute(self, context: ProcessContext):
+    def execute(self, process_context: ProcessContext):
         self.executed = True
         raise RuntimeError("boom")
     

@@ -5,7 +5,7 @@ from application.interfaces.infrastructure.ports.JellyfinLibraryRefreshCapable i
 class RefreshJellyfinLibrary(ProcessStep):
     jellyfin: JellyfinLibraryRefreshCapable
 
-    def __init__(self, jellyfin):
+    def __init__(self, jellyfin: JellyfinLibraryRefreshCapable):
         self.jellyfin = jellyfin
 
     @property

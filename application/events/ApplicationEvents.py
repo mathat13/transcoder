@@ -20,7 +20,7 @@ class TranscodeVerified(ApplicationEvent):
 class TranscodeVerificationFailed(ApplicationEvent):
     job_id: UUID
     transcode_file: FileInfo
-    reason: Optional[str] = None
+    reason: Optional[FailureReason] = None
 
 @dataclass(kw_only=True)
 class TranscodeSuccess(ApplicationEvent):
@@ -33,7 +33,7 @@ class JobCompletionSuccess(ApplicationEvent):
 @dataclass(kw_only=True)
 class JobCompletionFailure(ApplicationEvent):
     job_id: UUID
-    reason: Optional[FailureReason]
+    reason: Optional[FailureReason] = None
 
 @dataclass(kw_only=True)
 class RetryScheduled(ApplicationEvent):

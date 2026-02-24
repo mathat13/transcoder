@@ -7,12 +7,15 @@ from tests.fakes.FakeSyncEventBus import FakeSyncEventBus
 
 from domain import (
     JobCompleted,
+    JobMovedToVerifying,
 
 )
 from application import (
     JobCompletionProcessAssembler,
+    JobVerificationProcessAssembler,
     ProcessAssemblerRegistry,
     JobCompletionOutcomeHandler,
+    JobVerificationOutcomeHandler,
     OutcomeHandlerRegistry,
     EventPublisher,
     ProcessManager,
@@ -37,13 +40,20 @@ def bootstrap_test_system(
         jellyfin=jellyfin,
     )
 
+    job_verification_assembler = JobVerificationProcessAssembler(
+        filesystem=filesystem,
+    )
+
     assembler_registry = ProcessAssemblerRegistry()
+    assembler_registry.register(JobMovedToVerifying, job_verification_assembler)
     assembler_registry.register(JobCompleted, job_completion_assembler)
 
     # --- process outcome contexts ---
     completion_outcome_handler = JobCompletionOutcomeHandler()
+    verification_outcome_handler = JobVerificationOutcomeHandler()
 
     outcome_registry = OutcomeHandlerRegistry()
+    outcome_registry.register(JobMovedToVerifying, verification_outcome_handler)
     outcome_registry.register(JobCompleted, completion_outcome_handler)
 
     # --- execution ---

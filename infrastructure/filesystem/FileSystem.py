@@ -2,7 +2,7 @@ from pathlib import Path
 
 from application import (
     FileSystemDestinationExistsButDifferentFile,
-    FileSystemSourceFileMissing,
+    FileSystemFileMissing,
     FileSystemSourceFileIsDirectory,
     FileSystemIOError,
     HardlinkCapable,
@@ -15,8 +15,13 @@ class FileSystem (
     FileDeletionCapable,
     FileExistenceCheckCapable,
 ):
-    def is_file(self, file: str) -> bool:
-        return Path(file).is_file()
+    def assert_file_existence(self, file: str) -> None:
+        input_file = Path(file)
+
+        if not input_file.is_file():
+            raise FileSystemFileMissing(input_file.as_posix())
+        # Success
+        return
     
     def delete(self, file: str) -> None:
         """
@@ -51,8 +56,7 @@ class FileSystem (
         if src.is_dir():
             raise FileSystemSourceFileIsDirectory("hardlink", src.as_posix())
         
-        if not src.is_file():
-            raise FileSystemSourceFileMissing(src.as_posix())
+        self.assert_file_existence(src.as_posix())
         
         if dest.is_dir():
             dest = dest / src.name

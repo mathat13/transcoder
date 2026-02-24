@@ -5,6 +5,7 @@ import uuid
 
 from domain import (
     JobCompleted,
+    JobMovedToVerifying,
     FileInfo,
     ExternalMediaIDs,
     OperationContext,
@@ -17,6 +18,13 @@ from application import (
 
 fake = Faker()
 
+class JobMovedToVerifyingEventFactory(factory.Factory):
+    class Meta:
+        model = JobMovedToVerifying
+
+    job_id = factory.LazyFunction(lambda: uuid.uuid4())
+    transcode_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
+    
 class JobCompletedEventFactory(factory.Factory):
     class Meta:
         model = JobCompleted

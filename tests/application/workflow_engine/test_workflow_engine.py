@@ -6,7 +6,7 @@ from application import (
     ProcessRunnerResult,
     ProcessStatus,
     FailureReason,
-    FileSystemSourceFileMissing,
+    FileSystemFileMissing,
     FileSystemIOError,
     APIServiceRetryableException,
     APIServiceTerminalException,
@@ -24,7 +24,7 @@ def test_ProcessRunnerResult_generates_correct_success_response():
 @pytest.mark.parametrize(
     "exception, expected_reason",
     [
-        (FileSystemSourceFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
+        (FileSystemFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
         (FileSystemIOError("hardlink", "/file.mp4", OSError), FailureReason.FILESYSTEM_IO),
         (APIServiceRetryableException("Radarr", 500, None), FailureReason.API_CALL_FAILURE),
         (APIServiceTerminalException("Radarr", 404, None), FailureReason.API_CALL_FAILURE),
@@ -49,7 +49,7 @@ def test_FailureClassifier_classifies_exceptions_correctly(exception: Exception,
 @pytest.mark.parametrize(
     "exception, expected_reason",
     [
-        (FileSystemSourceFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
+        (FileSystemFileMissing("/file.mp4"), FailureReason.FILESYSTEM_LOGIC),
         (FileSystemIOError("hardlink", "/file.mp4", OSError), FailureReason.FILESYSTEM_IO),
         (APIServiceRetryableException("Radarr", 500, None), FailureReason.API_CALL_FAILURE),
         (APIServiceTerminalException("Radarr", 404, None), FailureReason.API_CALL_FAILURE),

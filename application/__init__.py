@@ -29,7 +29,10 @@ from .workflow_engine.OutcomeHandlerRegistry import *
 from .workflow_engine.ProcessAssemlerRegistry import *
 from .workflow_engine.ProcessManager import *
 from .workflow_engine.process_assemblers.JobCompletionProcessAssembler import *
+from .workflow_engine.process_assemblers.JobVerificationProcessAssembler import *
 from .workflow_engine.process_outcomes.JobCompletionOutcomeHandler import *
+from .workflow_engine.process_outcomes.JobVerificationOutcomeHandler import *
+from .workflow_engine.process_steps.CheckFileExistence import *
 from .workflow_engine.process_steps.DeleteSourceFile import *
 from .workflow_engine.process_steps.HardlinkFile import *
 from .workflow_engine.process_steps.RefreshJellyfinLibrary import *
@@ -38,3 +41,4 @@ from .workflow_engine.process_contexts.ProcessContext import *
 from .workflow_engine.process_contexts.FileContext import *
 from .workflow_engine.process_contexts.MediaContext import *
 from .workflow_engine.process_contexts.JobCompletionContext import *
+from .workflow_engine.process_contexts.JobVerificationContext import *

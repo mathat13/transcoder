@@ -6,7 +6,7 @@ from application.interfaces.infrastructure.ports.RadarrUpdateMovieFileCapable im
 class UpdateRadarrMovieFile(ProcessStep):
     radarr: RadarrUpdateMovieFileCapable
 
-    def __init__(self, radarr):
+    def __init__(self, radarr: RadarrUpdateMovieFileCapable):
         self.radarr = radarr
 
     @property
@@ -22,10 +22,12 @@ class UpdateRadarrMovieFile(ProcessStep):
             Exception on failure (expected and mapped upstream).
         """
         # rescan movie file to pick up new transcode
-        self.radarr.rescan_movie(context=process_context.operation_context)
+        self.radarr.rescan_movie(media_identifiers=process_context.media.media_ids,
+                                 context=process_context.operation_context)
 
         # Perform twice for good measure (advised by users)
-        self.radarr.rescan_movie(context=process_context.operation_context)
+        self.radarr.rescan_movie(media_identifiers=process_context.media.media_ids,
+                                 context=process_context.operation_context)
 
         # Get new movie file
         movie_file = self.radarr.get_moviefile(media_identifiers=process_context.media.media_ids,

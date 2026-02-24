@@ -6,7 +6,7 @@ from application.interfaces.infrastructure.ports.HardlinkCapable import Hardlink
 class HardlinkFile(ProcessStep):
     fs: HardlinkCapable
     
-    def __init__(self, filesystem):
+    def __init__(self, filesystem: HardlinkCapable):
         self.fs = filesystem
 
     @property
@@ -14,11 +14,12 @@ class HardlinkFile(ProcessStep):
         """Step name (used for observability)."""
         return "Hardlink source file to watch directory"
 
-    def execute(self, context: "ProcessContext") -> None:
+    def execute(self, process_context: "ProcessContext") -> None:
         """
         Execute the step.
 
         Raises:
             Exception on failure (expected and mapped upstream).
         """
-        self.fs.hardlink(context.files.source_file.path, context.files.transcode_file.path)
+        self.fs.hardlink(process_context.files.source_file.path,
+                         process_context.files.transcode_file.path)
