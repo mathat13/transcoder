@@ -4,7 +4,7 @@ from typing import (Type,
                     List,
 )
 
-from tests.bootstrap.bootstrap_test_system import bootstrap_test_system
+from tests.bootstrap.bootstrap_test_system import bootstrap_workflow_test_system
 from tests.fakes.FakeProcessRunner import FakeProcessRunner
 from tests.factories.EventFactories import (
     EventEnvelopeFactory,
@@ -36,19 +36,22 @@ from application import (ProcessRunnerResult,
 )
 
 def test_process_manager_verification_outcomes(result: ProcessRunnerResult, expected_event_type: Type[Event]):
-    system = bootstrap_test_system(runner=FakeProcessRunner(result))
+    system = bootstrap_workflow_test_system(runner=FakeProcessRunner(result))
     envelope = EventEnvelopeFactory(event=JobMovedToVerifyingEventFactory())
 
-    handled: List[Event] = []
+    handled: List[Type[Event]] = []
 
     def handler(envelope: EventEnvelope) -> None:
-        handled.append(envelope.event)
+        handled.append(type(envelope.event))
     
-    system.publisher.event_bus.subscribe(event_type=expected_event_type, handler=handler)
+    system.event_bus.subscribe(event_type=expected_event_type, handler=handler)
     
     system.manager.handle(envelope)
 
-    assert isinstance(handled[0], expected_event_type)
+    assert handled == [
+        expected_event_type,
+    ]
+
 
 @pytest.mark.parametrize(
     "result, expected_event_type",
@@ -60,19 +63,21 @@ def test_process_manager_verification_outcomes(result: ProcessRunnerResult, expe
 )
 
 def test_process_manager_completion_outcomes(result: ProcessRunnerResult, expected_event_type: Type[Event]):
-    system = bootstrap_test_system(runner=FakeProcessRunner(result))
+    system = bootstrap_workflow_test_system(runner=FakeProcessRunner(result))
     envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
 
-    handled: List[Event] = []
+    handled: List[Type[Event]] = []
 
     def handler(envelope: EventEnvelope) -> None:
-        handled.append(envelope.event)
+        handled.append(type(envelope.event))
     
-    system.publisher.event_bus.subscribe(event_type=expected_event_type, handler=handler)
+    system.event_bus.subscribe(event_type=expected_event_type, handler=handler)
     
     system.manager.handle(envelope)
 
-    assert isinstance(handled[0], expected_event_type)
+    assert handled == [
+        expected_event_type,
+    ]
 
 
 

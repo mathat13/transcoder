@@ -1,6 +1,6 @@
 import pytest
 
-from tests.bootstrap.TestSystem import TestSystem
+from tests.bootstrap.Types import WorkflowTestSystem
 from tests.factories.EventFactories import (
     JobCompletedEventFactory,
     JobMovedToVerifyingEventFactory,
@@ -31,11 +31,11 @@ def test_OutcomeHandlerRegistry_raises_KeyError_on_no_assembler():
     with pytest.raises(KeyError):
         registry.get(envelope=envelope)
 
-def test_JobCompletionOutcomeHandler_returns_correct_events(test_system: TestSystem):
+def test_JobCompletionOutcomeHandler_returns_correct_events(workflow_test_system: WorkflowTestSystem):
     
     envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
     
-    handler = test_system.outcome_registry.get(envelope=envelope)
+    handler = workflow_test_system.outcome_registry.get(envelope=envelope)
     assert isinstance(handler, JobCompletionOutcomeHandler)
 
     success_result = ProcessRunnerResult.success()
@@ -50,11 +50,11 @@ def test_JobCompletionOutcomeHandler_returns_correct_events(test_system: TestSys
     assert isinstance(failure_outcome, JobCompletionFailure)
     assert isinstance(retry_outcome, RetryScheduled)
 
-def test_JobVerificationOutcomeHandler_returns_correct_events(test_system: TestSystem):
+def test_JobVerificationOutcomeHandler_returns_correct_events(workflow_test_system: WorkflowTestSystem):
     
     envelope = EventEnvelopeFactory(event=JobMovedToVerifyingEventFactory())
     
-    handler = test_system.outcome_registry.get(envelope=envelope)
+    handler = workflow_test_system.outcome_registry.get(envelope=envelope)
     assert isinstance(handler, JobVerificationOutcomeHandler)
 
     success_result = ProcessRunnerResult.success()

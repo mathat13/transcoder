@@ -4,20 +4,40 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from tests.factories.JobModelFactory import JobModelFactory
-from tests.bootstrap.bootstrap_test_system import bootstrap_test_system
-from tests.bootstrap.TestSystem import TestSystem
+from tests.bootstrap.bootstrap_test_system import (
+    bootstrap_application_test_system,
+    bootstrap_job_service_test_system,
+    bootstrap_workflow_test_system,
+)
+from tests.bootstrap.Types import (
+    ApplicationTestSystem,
+    JobServiceTestSystem,
+    WorkflowTestSystem,
+)
 
 from infrastructure import (
     Base,
     SQLiteJobRepository,
 )
 
-TEST_DATABASE_URL = "sqlite://"
+# --- Test systems ---
+@pytest.fixture()
+def application_test_system() -> ApplicationTestSystem:
+    system = bootstrap_application_test_system()
+    return system
 
 @pytest.fixture()
-def test_system() -> TestSystem:
-    system = bootstrap_test_system()
+def job_service_test_system() -> JobServiceTestSystem:
+    system = bootstrap_job_service_test_system()
     return system
+
+@pytest.fixture()
+def workflow_test_system() -> WorkflowTestSystem:
+    system = bootstrap_workflow_test_system()
+    return system
+
+# --- Database ---
+TEST_DATABASE_URL = "sqlite://"
 
 @pytest.fixture()
 def db_session():

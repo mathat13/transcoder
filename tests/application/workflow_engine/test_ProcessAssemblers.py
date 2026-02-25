@@ -1,6 +1,6 @@
 import pytest
 
-from tests.bootstrap.TestSystem import TestSystem
+from tests.bootstrap.Types import WorkflowTestSystem
 
 from application import (ProcessRunnerInput,
                          ProcessDefinition,
@@ -23,7 +23,7 @@ from tests.factories.EventFactories import (
     EventEnvelopeFactory,
 )
 
-def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system: TestSystem):
+def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler():
     registry = ProcessAssemblerRegistry()
     envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
 
@@ -32,10 +32,10 @@ def test_ProcessAssemblerRegistry_raises_KeyError_on_no_assembler(test_system: T
     with pytest.raises(KeyError):
         registry.assemble(envelope=envelope)
 
-def test_JobVerificationProcessAssembler_assembles_correct_object(test_system: TestSystem):
+def test_JobVerificationProcessAssembler_assembles_correct_object(workflow_test_system: WorkflowTestSystem):
     envelope = EventEnvelopeFactory(event=JobMovedToVerifyingEventFactory())
 
-    process_input = test_system.assembler_registry.assemble(envelope=envelope)
+    process_input = workflow_test_system.assembler_registry.assemble(envelope=envelope)
 
     assert isinstance(process_input, ProcessRunnerInput)
     
@@ -62,10 +62,10 @@ def test_JobVerificationProcessAssembler_assembles_correct_object(test_system: T
                 CheckFileExistence,
             ]
     
-def test_JobCompletionProcessAssembler_assembles_correct_object(test_system: TestSystem):
+def test_JobCompletionProcessAssembler_assembles_correct_object(workflow_test_system: WorkflowTestSystem):
     envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
 
-    process_input = test_system.assembler_registry.assemble(envelope=envelope)
+    process_input = workflow_test_system.assembler_registry.assemble(envelope=envelope)
 
     assert isinstance(process_input, ProcessRunnerInput)
     
