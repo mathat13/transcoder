@@ -1,5 +1,10 @@
 from uuid import UUID
 
+from application.events.EventEnvelope import EventEnvelope
+from application.events.EventPublisher import EventPublisher
+from application.interfaces.infrastructure.ports.JobPersistenceCapable import JobPersistenceCapable
+from application.events.ApplicationEvents import TranscodeVerified
+
 from domain import (
     Job,
     ExternalMediaIDs,
@@ -7,11 +12,6 @@ from domain import (
     OperationContext,
     JobStatus,
 )
-
-from application.events.EventEnvelope import EventEnvelope
-from application.events.EventPublisher import EventPublisher
-from application.interfaces.infrastructure.ports.JobPersistenceCapable import JobPersistenceCapable
-from application.events.ApplicationEvents import TranscodeVerified
 
 class JobService:
     def __init__(self, repo: JobPersistenceCapable, event_publisher: EventPublisher):

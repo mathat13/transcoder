@@ -4,8 +4,9 @@ from faker import Faker
 import uuid
 
 from domain import (
-    JobCompleted,
+    JobMovedToProcessing,
     JobMovedToVerifying,
+    JobCompleted,
     FileInfo,
     ExternalMediaIDs,
     OperationContext,
@@ -13,10 +14,19 @@ from domain import (
 )
 
 from application import (
+    TranscodeVerified,
     EventEnvelope,
 )
 
 fake = Faker()
+
+# --- Domain Events ---
+
+class JobMovedToProcessingEventFactory(factory.Factory):
+    class Meta:
+        model = JobMovedToProcessing
+
+    job_id = factory.LazyFunction(lambda: uuid.uuid4())
 
 class JobMovedToVerifyingEventFactory(factory.Factory):
     class Meta:
@@ -24,7 +34,7 @@ class JobMovedToVerifyingEventFactory(factory.Factory):
 
     job_id = factory.LazyFunction(lambda: uuid.uuid4())
     transcode_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
-    
+
 class JobCompletedEventFactory(factory.Factory):
     class Meta:
         model = JobCompleted
@@ -33,6 +43,15 @@ class JobCompletedEventFactory(factory.Factory):
     source_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
     transcode_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
     media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
+
+
+# --- Application Events ---
+class TranscodeVerifiedEventFactory(factory.Factory):
+    class Meta:
+        model = TranscodeVerified
+
+    job_id = factory.LazyFunction(lambda: uuid.uuid4())
+    transcode_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
 
 class EventEnvelopeFactory(factory.Factory):
 
