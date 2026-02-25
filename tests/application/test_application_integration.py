@@ -1,4 +1,11 @@
 import pytest
+from typing import (List,
+                    Type,
+                    )
+
+from tests.fakes.FakeJobRepository import FakeJobRepository
+from tests.factories.JobFactory import JobFactory
+from tests.bootstrap.Types import ApplicationTestSystem
 
 from domain import (
     JobCreated,
@@ -6,25 +13,18 @@ from domain import (
     JobMovedToVerifying,
     JobCompleted,
     JobStatus,
+    Event,
 )
 
 from application import (
     JobService,
     EventPublisher,
     EventEnvelope,
-    JobVerifyingProcessManager,
     TranscodeVerified,
-    TranscodeVerificationFailed,
 )
 
 from infrastructure import (
     SyncEventBus,
-)
-
-from tests import (
-    FakeJobRepository,
-    FakeFileSystem,
-    JobFactory,
 )
 
 def test_job_creation_happy_path():
@@ -69,35 +69,27 @@ def test_job_process_request_happy_path():
         JobMovedToProcessing,
     ]
 
-def test_job_verification_request_to_completion_happy_path():
-    fs = FakeFileSystem()
-    repo = FakeJobRepository()
-    bus = SyncEventBus()
-    publisher = EventPublisher(bus)
-    service = JobService(repo, publisher)
-    verifying_process_manager = JobVerifyingProcessManager(publisher, fs)
+def test_job_verification_request_to_completion_happy_path(application_test_system: ApplicationTestSystem):
 
-    emitted = []
+    handled: List[Type[Event]] = []
 
-    def capture(envelope):
-        emitted.append(type(envelope.event))
+    def handler(envelope: EventEnvelope) -> None:
+        handled.append(type(envelope.event))
 
-    bus.subscribe(JobMovedToVerifying, capture)
-    bus.subscribe(TranscodeVerified, capture)
-    bus.subscribe(JobCompleted, capture)
-
-    bus.subscribe(JobMovedToVerifying, verifying_process_manager)
-    bus.subscribe(TranscodeVerified, service)
+    application_test_system.event_bus.subscribe(event_type=JobMovedToVerifying, handler=handler)
+    application_test_system.event_bus.subscribe(event_type=TranscodeVerified, handler=handler)
+    application_test_system.event_bus.subscribe(event_type=JobCompleted, handler=handler)
 
     job = JobFactory(status=JobStatus.processing)
 
-    repo.save(job)
-    fs.add(job.transcode_file.path)
+    application_test_system.job_repo.save(job)
+    application_test_system.filesystem.add(job.transcode_file.path)
 
-    service.verify_job(job.id)
+    application_test_system.job_service.verify_job(job.id)
 
-    assert emitted == [
-        JobMovedToVerifying,
-        TranscodeVerified,
-        JobCompleted,
-    ]
+    # List reversed due to order of execution in sync workflows
+    assert list(reversed(handled)) == [
+    JobMovedToVerifying,
+    TranscodeVerified,
+    JobCompleted,
+]

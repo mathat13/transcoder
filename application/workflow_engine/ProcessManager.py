@@ -20,9 +20,14 @@ class ProcessManager:
         self.assemblers = assemblers
         self.outcomes = outcomes
 
-    def handle(self, envelope: "EventEnvelope") -> None:
+    def __call__(self, envelope: EventEnvelope) -> None:
         """
         Entry point from event bus.
+        """
+        self.handle(envelope=envelope)
+
+    def handle(self, envelope: "EventEnvelope") -> None:
+        """
         Decides whether to run, retry, or abandon a process.
         """
         # Assemble JobRunner payload from envelope
