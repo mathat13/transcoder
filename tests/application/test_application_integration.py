@@ -19,7 +19,7 @@ from application import (
 def test_job_creation_happy_path(application_test_system: ApplicationTestSystem):
     application_test_system.job_service.create_job("/input.mp4", 4)
 
-    assert application_test_system.event_bus.processed_event_types == [
+    assert application_test_system.event_bus.processed_event_types() == [
         JobCreated,
     ]
 
@@ -30,7 +30,7 @@ def test_job_process_request_happy_path(application_test_system: ApplicationTest
 
     application_test_system.job_service._transition_job(job=job, new_status=JobStatus.processing)
 
-    assert application_test_system.event_bus.processed_event_types == [
+    assert application_test_system.event_bus.processed_event_types() == [
         JobMovedToProcessing,
     ]
 
@@ -45,7 +45,7 @@ def test_job_verification_request_to_completion_happy_path(application_test_syst
     application_test_system.job_service.verify_job(job.id)
 
     # Assert specific order of operation
-    assert application_test_system.event_bus.processed_event_types == [
+    assert application_test_system.event_bus.processed_event_types() == [
     JobMovedToVerifying,
     TranscodeVerified,
     JobCompleted,
@@ -53,9 +53,13 @@ def test_job_verification_request_to_completion_happy_path(application_test_syst
     ]
 
     # Assert specific events processed (Example)
+    assert application_test_system.event_bus.processed_event_types()
     assert {
+    JobMovedToVerifying,
+    TranscodeVerified,
+}.issubset(application_test_system.event_bus.processed_event_types(event_type=(
     JobMovedToVerifying,
     TranscodeVerified,
     JobCompleted,
     JobCompletionSuccess,
-}.issubset(set(application_test_system.event_bus.processed_event_types))
+    )))

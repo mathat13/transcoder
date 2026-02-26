@@ -1,45 +1,54 @@
-from uuid import uuid4
+from tests.factories.EventFactories import (
+    JobMovedToVerifyingEventFactory,
+    JobCompletedEventFactory,
+    JobMovedToProcessingEventFactory,
+)
+from tests.bootstrap.Types import JobServiceTestSystem
 
 from domain import (
     JobMovedToVerifying,
-    FileInfo,
     OperationContext,
 )
 from application import (
-    EventPublisher,
     EventEnvelope,
 )
 
-from tests import (
-    FakeSyncEventBus,
-)
-
-def test_EventPublisher_generates_envelope_correctly():
-    event_bus = FakeSyncEventBus()
-    publisher = EventPublisher(event_bus)
-
-    domain_event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
+def test_EventPublisher_generates_envelope_correctly(job_service_test_system: JobServiceTestSystem):
+    domain_event = JobMovedToVerifyingEventFactory()
     context = OperationContext.create()
-    envelope = publisher.create_envelope(domain_event, context)
+    envelope = job_service_test_system.publisher.create_envelope(domain_event, context)
 
     assert envelope.context == context
     assert isinstance(envelope.event, type(domain_event))
     assert envelope.context is context
     assert isinstance(envelope, EventEnvelope)
 
-def test_EventPublisher_publish_publishes_correctly():
-    handled = []
-
-    def handler(envelope):
-        handled.append(envelope)
+def test_EventPublisher_publish_publishes_correctly(job_service_test_system: JobServiceTestSystem):
     
-    event_bus = FakeSyncEventBus()
-    publisher = EventPublisher(event_bus)
-
-    event_bus.subscribe(JobMovedToVerifying, handler)
-    
-    domain_event = JobMovedToVerifying(job_id=uuid4(), transcode_file=FileInfo("/path/to/existing_file.mp4"))
+    #Setup
+    domain_event = JobMovedToVerifyingEventFactory()
     context = OperationContext.create()
-    publisher.publish(domain_event, context)
 
-    assert isinstance(handled[0], EventEnvelope)
+    # Execution
+    job_service_test_system.publisher.publish(domain_event, context)
+
+    assert len(job_service_test_system.event_bus.processed_envelopes_of_type(event_type=JobMovedToVerifying)) == 1
+
+def test_EventPublisher_publishes_OperationContext_consistently(job_service_test_system: JobServiceTestSystem):
+    
+    # Setup
+    events = [
+        JobMovedToVerifyingEventFactory(),
+        JobMovedToVerifyingEventFactory(),
+        JobCompletedEventFactory(),
+        JobMovedToProcessingEventFactory(),
+        JobMovedToProcessingEventFactory(),
+    ]
+    context = OperationContext.create()
+
+    # Execution
+    job_service_test_system.publisher.publish_all(events=events, operation_context=context)
+
+    envelopes = job_service_test_system.event_bus.processed_envelopes_of_type(event_type=None)
+    for envelope in envelopes:
+        assert envelope.context == context
