@@ -16,22 +16,39 @@ from collections import defaultdict
 
 class FakeSyncEventBus(EnvelopeTransportCapable):
     def __init__(self):
-        self.subscribers: DefaultDict[Type[Event], List[Callable[[EventEnvelope], None]]] = defaultdict(list)
-        self.published: List[Type[Event]] = []
-        self.unpublished: List[Type[Event]] = []
+        self._subscribers: DefaultDict[Type[Event], List[Callable[[EventEnvelope], None]]] = defaultdict(list)
+        self._processed: List[EventEnvelope] = []
+        self._published: List[EventEnvelope] = []
+        self._unpublished: List[EventEnvelope] = []
 
+    # Helpers
+    # Returns publish order instead of order of execution
+    @property
+    def published_event_types(self) -> list[type[Event]]:
+        return [type(envelope.event) for envelope in self._published]
+
+    @property
+    def unpublished_event_types(self) -> list[type[Event]]:
+        return [type(envelope.event) for envelope in self._unpublished]
+
+    @property
+    def processed_event_types(self) -> list[type[Event]]:
+        return [type(envelope.event) for envelope in self._processed]
+
+    # Protocol
     def subscribe(self, event_type: Type[Event], handler: Callable[[EventEnvelope], None]):
-        self.subscribers[event_type].append(handler)
+        self._subscribers[event_type].append(handler)
 
     def publish(self, envelope: EventEnvelope):
         event = envelope.event
+        self._processed.append(envelope)
 
-        if not self.subscribers:
-            self.unpublished.append(type(envelope.event))
+        if event.__class__ not in self._subscribers:
+            self._unpublished.append(envelope)
             return
 
-        self.published.append(type(envelope.event))
-        for handler in self.subscribers[type(event)]:
+        self._published.append(envelope)
+        for handler in self._subscribers[type(event)]:
             handler(envelope)
 
     def publish_all(self, envelopes: Iterable[EventEnvelope]):
