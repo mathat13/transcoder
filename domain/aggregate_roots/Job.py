@@ -55,6 +55,24 @@ class Job:
         self._emit(event)
     
     @classmethod
+    def _create_for_test(
+        cls,
+        *,
+        source_file: FileInfo,
+        transcode_output_file: FileInfo,
+        media_ids: ExternalMediaIDs,
+        status: JobStatus,
+    ) -> "Job":
+        return cls(
+            id=uuid4(),
+            source_file=source_file,
+            transcode_output_file=transcode_output_file,
+            delivery_file=FileInfo.from_parent_and_name(source_file.parent, transcode_output_file.name),
+            external_media_ids=media_ids,
+            status=status,
+        )
+    
+    @classmethod
     def create(cls, source_file: FileInfo, transcode_output_file: FileInfo, media_ids: ExternalMediaIDs) -> "Job":
         """Factory for creating a valid Job aggregate."""
 

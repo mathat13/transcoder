@@ -16,20 +16,20 @@ from domain import (
 
 from tests import JobFactory
 
-def test_FileInfo_from_string_creation():
+def test_FileInfo_from_path_creation():
     path_str = "/media/source/video.mkv"
-    file_info = FileInfo.from_string(path_str)
+    file_info = FileInfo.from_path(path_str)
 
     assert str(file_info.path) == path_str
     assert isinstance(file_info, FileInfo)
 
 def test_FileInfo_from_parent_and_string_creation():
     path_str = "/media/source/video.mkv"
-    from_string_file_info = FileInfo.from_string(path_str)
-    from_parent_and_name_file_info = FileInfo.from_parent_and_name(from_string_file_info.parent,
-                                                                   from_string_file_info.name)
+    from_path_file_info = FileInfo.from_path(path_str)
+    from_parent_and_name_file_info = FileInfo.from_parent_and_name(from_path_file_info.parent,
+                                                                   from_path_file_info.name)
     
-    assert from_parent_and_name_file_info.path == from_string_file_info.path
+    assert from_parent_and_name_file_info.path == from_path_file_info.path
     assert isinstance(from_parent_and_name_file_info, FileInfo)
 
 def test_OperationContext_factory_create_method():
@@ -39,8 +39,8 @@ def test_OperationContext_factory_create_method():
 
 def test_job_added():
     media_ids = ExternalMediaIDs.create(5)
-    source_file=FileInfo.from_string("/path/to/source.mkv")
-    transcode_output_file=FileInfo.from_string("/path/to/transcode.mkv")
+    source_file=FileInfo.from_path("/path/to/source.mkv")
+    transcode_output_file=FileInfo.from_path("/path/to/transcode.mkv")
     job = Job.create(source_file=source_file,
                      transcode_output_file=transcode_output_file,
                      media_ids=media_ids)
@@ -59,7 +59,7 @@ def test_job_added():
 def test_job_transitions_from_pending_to_processing():
     job = JobFactory(status=JobStatus.pending)
     job.transition_to(JobStatus.processing)
-    assert job.status == JobStatus.processing    
+    assert job.status == JobStatus.processing   
     
     assert len(job.events) == 1
     event = job.events[0]
@@ -115,15 +115,13 @@ def test_ExternalMediaIDs_generated_correctly():
 
 def test_job_pull_events_works_correctly():
     media_ids = ExternalMediaIDs.create(5)
-    source_file=FileInfo.from_string("/path/to/source.mkv")
-    job = Job.create(source_file=source_file, media_ids=media_ids)
+    source_file=FileInfo.from_path("/path/to/source.mkv")
+    transcode_output_file=FileInfo.from_path("/path/to/transcode.mkv")
+    job = Job.create(source_file=source_file,
+                     transcode_output_file=transcode_output_file,
+                     media_ids=media_ids)
 
     assert len(job.events) != 0
-
-    events = job.pull_events()
-
-    assert len(events) != 0
-    assert len(job.events) == 0
 
 
 

@@ -1,7 +1,5 @@
 import factory
 from faker import Faker
-import datetime
-import uuid
 
 from domain import (
     Job,
@@ -16,10 +14,15 @@ class JobFactory(factory.Factory):
     class Meta:
         model = Job
 
-    id = factory.LazyFunction(lambda: uuid.uuid4())
-    external_media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
-    source_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
-    transcode_file = factory.LazyFunction(lambda: FileInfo.create(f"/media/{fake.file_name(extension='mkv')}"))
+    source_file = factory.LazyFunction(
+        lambda: FileInfo.from_path(f"/media/{fake.file_name(extension='mkv')}"))
+    transcode_output_file = factory.LazyFunction(
+        lambda: FileInfo.from_path(f"/transcode/{fake.file_name(extension='mkv')}"))
+    media_ids = factory.LazyFunction(
+        lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
     status = JobStatus.pending
-    created_at = factory.LazyFunction(lambda: fake.date_time_this_year(tzinfo=datetime.timezone.utc))
-    updated_at = factory.LazyFunction(lambda: fake.date_time_this_year(tzinfo=datetime.timezone.utc))
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        return model_class._create_for_test(**kwargs)
+    

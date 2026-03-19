@@ -1,5 +1,6 @@
 from pathlib import Path
 from dataclasses import dataclass
+from typing import Union
 
 @dataclass(frozen=True)
 class FileInfo:
@@ -18,9 +19,9 @@ class FileInfo:
         return self.path.suffix
     
     @classmethod
-    def from_string(cls, file_path: str) -> "FileInfo":
+    def from_path(cls, path: Union[str, Path]) -> "FileInfo":
         return cls(
-            path=Path(file_path)
+            path=Path(path)
         )
     
     @classmethod
