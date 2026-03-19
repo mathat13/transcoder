@@ -1,36 +1,30 @@
-import os
+from pathlib import Path
 from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class FileInfo:
-    path: str
-
-    def __post_init__(self):
-        self.validate()
-
-    def validate(self):
-        if not self.path or "/" not in self.path:
-            raise ValueError("Invalid file path format.")
+    path: Path
     
     @property
-    def parent(self) -> str:
-        return os.path.dirname(self.path)
+    def parent(self) -> Path:
+        return self.path.parent
 
     @property
     def name(self) -> str:
-        return os.path.basename(self.path)
+        return self.path.name
 
     @property
     def extension(self) -> str:
-        return os.path.splitext(self.path)[1]
-    
-    @property
-    def transcode_file(self) -> "FileInfo":
-        base, ext = os.path.splitext(self.path)
-        return FileInfo(f"{base}_transcoded{ext}")
+        return self.path.suffix
     
     @classmethod
-    def create(cls, file_path: str) -> "FileInfo":
+    def from_string(cls, file_path: str) -> "FileInfo":
         return cls(
-            path=file_path
+            path=Path(file_path)
+        )
+    
+    @classmethod
+    def from_parent_and_name(cls, parent: Path, name: str) -> "FileInfo":
+        return cls(
+            path=Path(parent / name)
         )
