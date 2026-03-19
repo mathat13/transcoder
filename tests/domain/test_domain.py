@@ -16,34 +16,21 @@ from domain import (
 
 from tests import JobFactory
 
-def test_FileInfo_creation():
+def test_FileInfo_from_string_creation():
     path_str = "/media/source/video.mkv"
-    file_info = FileInfo(path_str)
+    file_info = FileInfo.from_string(path_str)
 
-    assert file_info.path == path_str
+    assert str(file_info.path) == path_str
     assert isinstance(file_info, FileInfo)
 
-    transcoded = file_info.transcode_file
-
-    assert isinstance(transcoded, FileInfo)
-    assert transcoded.path == "/media/source/video_transcoded.mkv"
-
-def test_FileInfo_create_raises_value_error_with_invalid_path():
-    path = "abcderg"
-    with pytest.raises(ValueError) as excinfo:
-        FileInfo.create(path)
-
-def test_FileInfo_invalid_path_raises_value_error():
-
-    # String without a slash
-    with pytest.raises(ValueError) as excinfo:
-        FileInfo("invalidpath")
-    assert "Invalid file path format." in str(excinfo.value)
-
-    # Empty string
-    with pytest.raises(ValueError) as excinfo:
-        FileInfo("")
-    assert "Invalid file path format." in str(excinfo.value)
+def test_FileInfo_from_parent_and_string_creation():
+    path_str = "/media/source/video.mkv"
+    from_string_file_info = FileInfo.from_string(path_str)
+    from_parent_and_name_file_info = FileInfo.from_parent_and_name(from_string_file_info.parent,
+                                                                   from_string_file_info.name)
+    
+    assert from_parent_and_name_file_info.path == from_string_file_info.path
+    assert isinstance(from_parent_and_name_file_info, FileInfo)
 
 def test_OperationContext_factory_create_method():
     context = OperationContext.create()
@@ -52,16 +39,18 @@ def test_OperationContext_factory_create_method():
 
 def test_job_added():
     media_ids = ExternalMediaIDs.create(5)
-    source_file=FileInfo.create("/path/to/source.mkv")
-    job = Job.create(source_file=source_file, media_ids=media_ids)
+    source_file=FileInfo.from_string("/path/to/source.mkv")
+    transcode_output_file=FileInfo.from_string("/path/to/transcode.mkv")
+    job = Job.create(source_file=source_file,
+                     transcode_output_file=transcode_output_file,
+                     media_ids=media_ids)
 
     assert isinstance(job.id, UUID)
     assert job.status == JobStatus.pending
-    assert isinstance(job.source_file, FileInfo)
     assert isinstance(job.external_media_ids, ExternalMediaIDs)
-    assert job.source_file.path == "/path/to/source.mkv"
-    assert isinstance(job.transcode_file, FileInfo)
-    assert job.transcode_file.path == "/path/to/source_transcoded.mkv"
+    assert job.source_file is source_file
+    assert job.transcode_output_file is transcode_output_file
+    assert isinstance(job.delivery_file, FileInfo)
     
     assert len(job.events) == 1
     event = job.events[0]
@@ -126,7 +115,7 @@ def test_ExternalMediaIDs_generated_correctly():
 
 def test_job_pull_events_works_correctly():
     media_ids = ExternalMediaIDs.create(5)
-    source_file=FileInfo.create("/path/to/source.mkv")
+    source_file=FileInfo.from_string("/path/to/source.mkv")
     job = Job.create(source_file=source_file, media_ids=media_ids)
 
     assert len(job.events) != 0
