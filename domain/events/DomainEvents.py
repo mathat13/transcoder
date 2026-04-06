@@ -29,13 +29,14 @@ class JobMovedToProcessing(DomainEvent):
 @dataclass(kw_only=True)
 class JobMovedToVerifying(DomainEvent):
     job_id: UUID
-    transcode_file: FileInfo
+    transcode_output_file: FileInfo
 
 @dataclass(kw_only=True)
 class JobCompleted(DomainEvent):
     job_id: UUID
     source_file: FileInfo
-    transcode_file: FileInfo
+    transcode_output_file: FileInfo
+    delivery_file: FileInfo
     media_ids: ExternalMediaIDs
 
 @dataclass(kw_only=True)

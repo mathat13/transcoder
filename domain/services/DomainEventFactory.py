@@ -14,7 +14,7 @@ class DOMAIN_EVENT_FACTORY:
             case JobStatus.verifying:
                 return JobMovedToVerifying(
                     job_id=job.id,
-                    transcode_file=job.transcode_file
+                    transcode_output_file=job.transcode_output_file,
                 )
             case JobStatus.processing:
                 return JobMovedToProcessing(
@@ -24,7 +24,8 @@ class DOMAIN_EVENT_FACTORY:
                 return JobCompleted(
                     job_id=job.id,
                     source_file=job.source_file,
-                    transcode_file=job.transcode_file,
+                    transcode_output_file=job.transcode_output_file,
+                    delivery_file=job.delivery_file,
                     media_ids=job.external_media_ids,
 
                 )
