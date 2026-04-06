@@ -22,7 +22,8 @@ class JobCompletionOutcomeHandler(ProcessOutcomeHandler):
         result: ProcessRunnerResult,
     ) -> JobCompletionFailure:
         return JobCompletionFailure(job_id=envelope.event.job_id,
-                                    reason=result.failure_info.reason)
+                                    reason=result.failure_info.reason,
+                                    failure_info=result.failure_info,)
 
     def on_retry(
         self,

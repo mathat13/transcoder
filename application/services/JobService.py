@@ -51,15 +51,16 @@ class JobService:
         job.transition_to(new_status)
         return job
     
-    def create_job(self, source: str, media_ids: int) -> None:
+    def create_job(self, source: str, transcode_output_location: str, media_ids: int) -> None:
         # Move domain object creation to presentation layer and
         # change job_type and source to ubiquitous language once presentation layer implemented
         operation_context = OperationContext.create()
 
         media_identities = ExternalMediaIDs.create(media_ids)
-        source_file = FileInfo.create(source)
+        source_file = FileInfo.from_path(source)
+        transcode_output = FileInfo.from_path(transcode_output_location)
 
-        job = Job.create(source_file, media_identities)
+        job = Job.create(source_file=source_file, transcode_output_file=transcode_output, media_ids=media_identities)
 
         self.repo.save(job)
         self._emit(job=job, context=operation_context)

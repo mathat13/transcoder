@@ -23,10 +23,6 @@ from domain import (
     OperationContext,
 )
 
-from application import (
-    TranscodeVerified,
-)
-
 def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServiceTestSystem):
 
     # Setup
@@ -80,12 +76,7 @@ def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_
     # Setup
     job = JobFactory(status=JobStatus.verifying)
     job_service_test_system.job_repo.save(job)
-    envelope=EventEnvelopeFactory(
-        event=TranscodeVerifiedEventFactory(
-        job_id=job.id,
-        transcode_file=job.transcode_file,
-        )
-    )
+    envelope = EventEnvelopeFactory(event=TranscodeVerifiedEventFactory(job_id=job.id))
 
     # Execution
     job_service_test_system.event_bus.publish(envelope=envelope)

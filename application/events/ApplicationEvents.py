@@ -4,6 +4,7 @@ from uuid import UUID
 #from datetime import datetime
 
 from application.workflow_engine.FailureReason import FailureReason
+from application.workflow_engine.FailureInfo import FailureInfo
 
 from domain import Event, FileInfo
 
@@ -14,12 +15,12 @@ class ApplicationEvent(Event):
 @dataclass(kw_only=True)
 class TranscodeVerified(ApplicationEvent):
     job_id: UUID
-    transcode_file: FileInfo
+    transcode_output_file: FileInfo
 
 @dataclass(kw_only=True)
 class TranscodeVerificationFailed(ApplicationEvent):
     job_id: UUID
-    transcode_file: FileInfo
+    transcode_output_file: FileInfo
     reason: Optional[FailureReason] = None
 
 @dataclass(kw_only=True)
@@ -34,6 +35,7 @@ class JobCompletionSuccess(ApplicationEvent):
 class JobCompletionFailure(ApplicationEvent):
     job_id: UUID
     reason: Optional[FailureReason] = None
+    failure_info: Optional[FailureInfo] = None
 
 @dataclass(kw_only=True)
 class RetryScheduled(ApplicationEvent):

@@ -1,6 +1,15 @@
 import pytest
 from typing import Sequence
 
+from tests.bootstrap.bootstrap_test_system import bootstrap_workflow_test_system
+from tests.factories.EventFactories import (EventEnvelopeFactory,
+                                            JobMovedToVerifyingEventFactory,
+                                            JobCompletedEventFactory,
+                                            )
+
+from domain import (
+    JobStatus,
+)
 from application import (
     ProcessStep,
     DefaultProcessRunner,
@@ -74,3 +83,33 @@ def test_runner_success():
 
     assert result.status is ProcessStatus.SUCCESS
     assert all(step.executed for step in steps)
+
+def test_runner_verification_flow():
+    
+    # Setup
+    system = bootstrap_workflow_test_system(runner=DefaultProcessRunner())
+    envelope = EventEnvelopeFactory(event=JobMovedToVerifyingEventFactory())
+    system.filesystem.add(envelope.event.transcode_output_file.path)
+    payload = system.assembler_registry.assemble(envelope=envelope)
+
+    # Execute
+    result = system.runner.run(payload=payload)
+
+    assert result.status == ProcessStatus.SUCCESS
+
+def test_runner_completion_flow():
+    
+    # Setup
+    system = bootstrap_workflow_test_system(runner=DefaultProcessRunner())
+    envelope = EventEnvelopeFactory(event=JobCompletedEventFactory())
+    system.filesystem.add(envelope.event.source_file.path)
+    system.filesystem.add(envelope.event.transcode_output_file.path)
+    system.radarr.add_movie(media_identifiers=envelope.event.media_ids,
+                            file=envelope.event.source_file,
+                            context=envelope.context)
+    payload = system.assembler_registry.assemble(envelope=envelope)
+
+    # Execute
+    result = system.runner.run(payload=payload)
+
+    assert result.status == ProcessStatus.SUCCESS

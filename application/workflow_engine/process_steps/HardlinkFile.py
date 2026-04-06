@@ -21,5 +21,5 @@ class HardlinkFile(ProcessStep):
         Raises:
             Exception on failure (expected and mapped upstream).
         """
-        self.fs.hardlink(process_context.files.source_file.path,
-                         process_context.files.transcode_file.path)
+        self.fs.hardlink(process_context.files.transcode_output_file.path,
+                         process_context.files.delivery_file.path)

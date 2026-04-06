@@ -5,7 +5,7 @@ from application.workflow_engine.process_contexts.JobVerificationContext import 
 from application.workflow_engine.process_contexts.FileContext import FileContext
 from application.workflow_engine.ProcessRunnerInput import ProcessRunnerInput
 from application.workflow_engine.ProcessDefinition import ProcessDefinition
-from application.workflow_engine.process_steps.CheckFileExistence import CheckFileExistence
+from application.workflow_engine.process_steps.CheckTranscodeFileExistence import CheckTranscodeFileExistence
 
 from domain import (
     JobMovedToVerifying
@@ -24,14 +24,14 @@ class JobVerificationProcessAssembler(ProcessAssembler):
             operation_context=envelope.context,
             envelope=envelope,
             files=FileContext(
-                transcode_file=event.transcode_file,
+                transcode_output_file=event.transcode_output_file,
             ),
         )
 
         process = ProcessDefinition(
             name="job_verification",
             steps=[
-                CheckFileExistence(self.fs),
+                CheckTranscodeFileExistence(self.fs),
             ],
         )
 

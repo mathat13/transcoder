@@ -15,7 +15,7 @@ class JobVerificationOutcomeHandler(ProcessOutcomeHandler):
         result: ProcessRunnerResult,
     ) -> TranscodeVerified:
         return TranscodeVerified(job_id=envelope.event.job_id,
-                                 transcode_file=envelope.event.transcode_file)
+                                 transcode_output_file=envelope.event.transcode_output_file)
 
     def on_failure(
         self,
@@ -23,7 +23,7 @@ class JobVerificationOutcomeHandler(ProcessOutcomeHandler):
         result: ProcessRunnerResult,
     ) -> TranscodeVerificationFailed:
         return TranscodeVerificationFailed(job_id=envelope.event.job_id,
-                                           transcode_file=envelope.event.transcode_file,
+                                           transcode_output_file=envelope.event.transcode_output_file,
                                            reason=result.failure_info.reason)
 
     def on_retry(

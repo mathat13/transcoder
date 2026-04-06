@@ -14,10 +14,13 @@ from domain import (
 from application import (
     TranscodeVerified,
     JobCompletionSuccess,
+    JobCompletionFailure,
 )
 
 def test_job_creation_happy_path(application_test_system: ApplicationTestSystem):
-    application_test_system.job_service.create_job("/input.mp4", 4)
+    application_test_system.job_service.create_job(source="/media/input.mp4",
+                                                   transcode_output_location="/transcode/transcode.mp4",
+                                                   media_ids=4)
 
     assert application_test_system.event_bus.processed_event_types() == [
         JobCreated,
@@ -39,7 +42,11 @@ def test_job_verification_request_to_completion_happy_path(application_test_syst
     # Setup for happy path
     job = JobFactory(status=JobStatus.processing)
     application_test_system.job_repo.save(job)
-    application_test_system.filesystem.add(job.transcode_file.path)
+    application_test_system.filesystem.add(job.source_file.path)
+    application_test_system.filesystem.add(job.transcode_output_file.path)
+    application_test_system.radarr.add_movie(media_identifiers=job.external_media_ids,
+                                             file=job.source_file,
+                                             context=None)
 
     # Execute
     application_test_system.job_service.verify_job(job.id)
@@ -53,7 +60,6 @@ def test_job_verification_request_to_completion_happy_path(application_test_syst
     ]
 
     # Assert specific events processed (Example)
-    assert application_test_system.event_bus.processed_event_types()
     assert {
     JobMovedToVerifying,
     TranscodeVerified,

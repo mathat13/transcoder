@@ -30,7 +30,7 @@ from .workflow_engine.process_assemblers.JobCompletionProcessAssembler import *
 from .workflow_engine.process_assemblers.JobVerificationProcessAssembler import *
 from .workflow_engine.process_outcomes.JobCompletionOutcomeHandler import *
 from .workflow_engine.process_outcomes.JobVerificationOutcomeHandler import *
-from .workflow_engine.process_steps.CheckFileExistence import *
+from .workflow_engine.process_steps.CheckTranscodeFileExistence import *
 from .workflow_engine.process_steps.DeleteSourceFile import *
 from .workflow_engine.process_steps.HardlinkFile import *
 from .workflow_engine.process_steps.RefreshJellyfinLibrary import *

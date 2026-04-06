@@ -30,7 +30,8 @@ class JobCompletionProcessAssembler(ProcessAssembler):
             envelope=envelope,
             files=FileContext(
                 source_file=event.source_file,
-                transcode_file=event.transcode_file,
+                transcode_output_file=event.transcode_output_file,
+                delivery_file=event.delivery_file,
             ),
             media=MediaContext(
                 media_ids=event.media_ids

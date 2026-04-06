@@ -20,23 +20,23 @@ class APIServiceTerminalException(TerminalException):
 class FileSystemFileMissing(TerminalException):
     def __init__(self, file: str):
         super().__init__(f"File does not exist: {file}")
-        self.file = FileInfo(file)
+        self.file = FileInfo.from_path(file)
 
 class FileSystemSourceFileIsDirectory(TerminalException):
     def __init__(self, operation: str, file: str):
         super().__init__(f"Source file is a directory, cannot proceed with operation: {operation} -> {file}")
         self.operation = operation
-        self.file = FileInfo(file)
+        self.file = FileInfo.from_path(file)
 
 class FileSystemDestinationExistsButDifferentFile(TerminalException):
     def __init__(self, file: str):
         super().__init__(f"Destination exists but is a different file: {file}")
-        self.file = FileInfo(file)
+        self.file = FileInfo.from_path(file)
 
 class FileSystemIOError(RetryableException):
     def __init__(self, operation: str, file: str, original: Exception):
         super().__init__(f"Filesystem error during {operation} on {file}")
         self.operation = operation
-        self.file = FileInfo(file)
+        self.file = FileInfo.from_path(file)
         self.original = original
 

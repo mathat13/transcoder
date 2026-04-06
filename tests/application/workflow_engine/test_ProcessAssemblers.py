@@ -8,7 +8,7 @@ from application import (ProcessRunnerInput,
                          UpdateRadarrMovieFile,
                          DeleteSourceFile,
                          RefreshJellyfinLibrary,
-                         CheckFileExistence,
+                         CheckTranscodeFileExistence,
                          JobCompletionContext,
                          JobVerificationContext,
                          FileContext,
@@ -47,8 +47,7 @@ def test_JobVerificationProcessAssembler_assembles_correct_object(workflow_test_
 
     # process_context.files:
     assert isinstance(process_context.files, FileContext)
-    assert process_context.files.source_file == None
-    assert process_context.files.transcode_file == envelope.event.transcode_file
+    assert process_context.files.transcode_output_file == envelope.event.transcode_output_file
 
     # process_definition:
     process_definition = process_input.process_definition
@@ -59,7 +58,7 @@ def test_JobVerificationProcessAssembler_assembles_correct_object(workflow_test_
         processes.append(type(step))
     
     assert processes == [
-                CheckFileExistence,
+                CheckTranscodeFileExistence,
             ]
     
 def test_JobCompletionProcessAssembler_assembles_correct_object(workflow_test_system: WorkflowTestSystem):
@@ -78,7 +77,8 @@ def test_JobCompletionProcessAssembler_assembles_correct_object(workflow_test_sy
     # process_context.files:
     assert isinstance(process_context.files, FileContext)
     assert process_context.files.source_file == envelope.event.source_file
-    assert process_context.files.transcode_file == envelope.event.transcode_file
+    assert process_context.files.transcode_output_file == envelope.event.transcode_output_file
+    assert process_context.files.delivery_file == envelope.event.delivery_file
 
     # process_context.media:
     assert isinstance(process_context.media, MediaContext)
