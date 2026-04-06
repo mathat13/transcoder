@@ -9,6 +9,7 @@ from tests.factories.EventFactories import (
     JobMovedToVerifyingEventFactory,
     JobCompletedEventFactory,
     TranscodeVerifiedEventFactory,
+    JobCompletionSuccessEventFactory,
     EventEnvelopeFactory,
 )
 from tests.bootstrap.Types import JobServiceTestSystem
@@ -82,5 +83,19 @@ def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_
     job_service_test_system.event_bus.publish(envelope=envelope)
 
     assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobCompleted)) == 1
+
+def test_JobService_call_method_with_JobCompletionSuccess_event_triggers_job_deletion(job_service_test_system: JobServiceTestSystem):
+
+    # Setup
+    job = JobFactory(status=JobStatus.verifying)
+    job_service_test_system.job_repo.save(job)
+    envelope = EventEnvelopeFactory(event=JobCompletionSuccessEventFactory(job_id=job.id))
+
+    # Execution
+    job_service_test_system.event_bus.publish(envelope=envelope)
+
+    assert job_service_test_system.job_repo.get_job_by_id(job.id) is None
+
+
     
 

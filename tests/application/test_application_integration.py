@@ -59,6 +59,9 @@ def test_job_verification_request_to_completion_happy_path(application_test_syst
     JobCompletionSuccess,
     ]
 
+    # Assert job removed from repo
+    assert application_test_system.job_repo.get_job_by_id(job.id) is None
+
     # Assert specific events processed (Example)
     assert {
     JobMovedToVerifying,

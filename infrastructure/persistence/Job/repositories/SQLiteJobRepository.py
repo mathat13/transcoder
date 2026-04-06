@@ -30,6 +30,21 @@ class SQLiteJobRepository(JobPersistenceCapable):
         self.session.commit()
         self.session.refresh(job_record)
 
+    def delete(self, job_id: UUID) -> None:
+        job = (
+            self.session.query(JobModel)
+            .filter(JobModel.id == str(job_id))
+            .first()
+        )
+        
+        if job is None:
+        # Idempotent: nothing to delete
+            return
+
+        self.session.delete(job)
+        self.session.commit()
+
+
     def get_next_pending_job(self) -> Job | None:
         next_job_model = (
             self.session.query(JobModel)

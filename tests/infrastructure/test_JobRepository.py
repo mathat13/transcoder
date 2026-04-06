@@ -50,17 +50,6 @@ def test_JobMapper():
     assert job_record.transcode_output_file == str(converted_job.transcode_output_file.path)
     assert job_record.delivery_file == str(converted_job.delivery_file.path)
 
-def test_JobRepository_save(db_session, job_repository):
-    job = JobFactory()
-
-    job_repository.save(job)
-
-    # Manually retrieve record from db
-    retrieved_job = db_session.query(JobModel).filter(JobModel.id == str(job.id)).first()
-
-    # Retrieved job doesn't use JobMapper and so returns a JobModel
-    assert retrieved_job.id == str(job.id)
-
 def test_JobRepository_get_job_by_id(db_session, job_repository):
     job = JobFactory()
     job_model = JobMapper.to_JobModel(job)
@@ -73,6 +62,42 @@ def test_JobRepository_get_job_by_id(db_session, job_repository):
 
     assert isinstance(retrieved_job, Job)
     assert str(retrieved_job.id) == job_model.id
+
+def test_JobRepository_save(db_session, job_repository):
+    job = JobFactory()
+
+    job_repository.save(job)
+
+    # Manually retrieve record from db
+    retrieved_job = db_session.query(JobModel).filter(JobModel.id == str(job.id)).first()
+
+    # Retrieved job doesn't use JobMapper and so returns a JobModel
+    assert retrieved_job is not None
+
+def test_JobRepository_delete_returns_None_with_saved_job(db_session, job_repository):
+    
+    # Setup
+    job = JobFactory()
+    job_repository.save(job)
+
+    # Delete job
+    job_repository.delete(job.id)
+
+    # Assert job deleted
+    retrieved_job = job_repository.get_job_by_id(job.id)
+    assert retrieved_job is None
+
+def test_JobRepository_delete_returns_None_with_no_job(db_session, job_repository):
+    
+    # Setup
+    job = JobFactory()
+
+    # Delete job
+    job_repository.delete(job.id)
+
+    # Assert job deleted
+    retrieved_job = job_repository.get_job_by_id(job.id)
+    assert retrieved_job is None
 
 def test_JobRepository_get_next_pending_job(db_session, job_repository, job_model_factory):
     job_model_factory.create_batch(10, status="pending")

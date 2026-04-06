@@ -70,6 +70,19 @@ def test_FakeJobRepository_saves_job_correctly():
     assert saved.status == job.status
     assert saved.external_media_ids == job.external_media_ids
 
+def test_FakeJobRepository_deletes_job_correctly():
+    repo = FakeJobRepository()
+
+    job = JobFactory()
+
+    # Save job
+    repo.save(job)
+    assert repo.get_job_by_id(job.id) is not None
+
+    # Delete job
+    repo.delete(job.id)
+    assert repo.get_job_by_id(job.id) is None
+
 
     
 

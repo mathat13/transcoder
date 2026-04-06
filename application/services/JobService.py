@@ -3,7 +3,10 @@ from uuid import UUID
 from application.events.EventEnvelope import EventEnvelope
 from application.events.EventPublisher import EventPublisher
 from application.interfaces.infrastructure.ports.JobPersistenceCapable import JobPersistenceCapable
-from application.events.ApplicationEvents import TranscodeVerified
+from application.events.ApplicationEvents import (
+    TranscodeVerified,
+    JobCompletionSuccess
+    )
 
 from domain import (
     Job,
@@ -24,6 +27,9 @@ class JobService:
         if isinstance(event, TranscodeVerified):
             self._handle_transcode_verified(envelope=envelope)
 
+        if isinstance(event, JobCompletionSuccess):
+            self._handle_job_completion_success(envelope=envelope)
+
     def _handle_transcode_verified(self, envelope: EventEnvelope):
         event = envelope.event
         job = self.repo.get_job_by_id(event.job_id)
@@ -35,6 +41,12 @@ class JobService:
         # Persist job and then emit domain events attached to job if successful
         self.repo.save(job)
         self._emit(job, envelope.context)
+
+    def _handle_job_completion_success(self, envelope: EventEnvelope):
+        event = envelope.event
+
+        self.repo.delete(job_id=event.job_id)
+
 
     # Placholder while event outbox is not implemented
     # Not the nicest as it modifies an object that isn't itself, use with caution

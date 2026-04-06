@@ -15,6 +15,7 @@ from domain import (
 
 from application import (
     TranscodeVerified,
+    JobCompletionSuccess,
     EventEnvelope,
 )
 
@@ -54,6 +55,12 @@ class TranscodeVerifiedEventFactory(factory.Factory):
     job_id = factory.LazyFunction(lambda: uuid.uuid4())
     transcode_output_file = factory.LazyFunction(lambda: FileInfo.from_path(f"/transcode/{fake.file_name(extension='mkv')}"))
 
+class JobCompletionSuccessEventFactory(factory.Factory):
+    class Meta:
+        model = JobCompletionSuccess
+
+    job_id = factory.LazyFunction(lambda: uuid.uuid4())
+    
 class EventEnvelopeFactory(factory.Factory):
 
     class Meta:

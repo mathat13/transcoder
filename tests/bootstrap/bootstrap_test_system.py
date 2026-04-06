@@ -28,6 +28,7 @@ from application import (
     ProcessRunnerResult,
     JobService,
     TranscodeVerified,
+    JobCompletionSuccess,
 )
 
 def bootstrap_application_test_system() -> ApplicationTestSystem:
@@ -86,6 +87,7 @@ def bootstrap_application_test_system() -> ApplicationTestSystem:
     event_bus.subscribe(JobCompleted, manager)
     event_bus.subscribe(JobMovedToVerifying, manager)
     event_bus.subscribe(TranscodeVerified, job_service)
+    event_bus.subscribe(JobCompletionSuccess, job_service)
 
     return ApplicationTestSystem(
         filesystem=filesystem,
@@ -187,6 +189,7 @@ def bootstrap_job_service_test_system() -> JobServiceTestSystem:
 
     # --- event subscription
     event_bus.subscribe(TranscodeVerified, job_service)
+    event_bus.subscribe(JobCompletionSuccess, job_service)
 
     return JobServiceTestSystem(
         job_repo=job_repo,
