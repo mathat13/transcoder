@@ -17,11 +17,12 @@ def test_FileSystem_assert_file_exists_raises_exception_on_failure(tmp_path: Pat
     file_path  = tmp_path / "non_existing.mp4"
 
     # Don't actually write file
+    
     with pytest.raises(FileSystemFileMissing) as exc:
         fs.assert_file_existence(file_path.as_posix())
 
     exception = exc.value
-    assert exception.file.path == str(file_path)
+    assert exception.file.path == file_path
 
 def test_FileSystem_assert_file_exists_returns_None_on_success(tmp_path: Path):
     fs = FileSystem()
@@ -68,7 +69,7 @@ def test_FileSystem_delete_raises_SourceFileIsDirectory_correctly(tmp_path: Path
     
     exception = exc.value
     assert exception.operation == "delete"
-    assert exception.file.path == str(dir_path)
+    assert exception.file.path == dir_path
     assert isinstance(exception, TerminalException)
 
 def test_FileSystem_delete_raises_FileSystemIOError_on_OSError(monkeypatch):
@@ -87,7 +88,7 @@ def test_FileSystem_delete_raises_FileSystemIOError_on_OSError(monkeypatch):
 
     exception = exc.value
     assert exception.operation == "delete"
-    assert exception.file.path == str(test_path)
+    assert str(exception.file.path) == test_path
     assert isinstance(exception.original, OSError)
     assert isinstance(exception, RetryableException)
 
@@ -137,7 +138,7 @@ def test_FileSystem_hardlink_raises_SourceFileIsDirectory_correctly(tmp_path: Pa
 
     exception = exc.value
     assert exception.operation == "hardlink"
-    assert exception.file.path == str(source_directory)
+    assert exception.file.path == source_directory
     assert isinstance(exception, TerminalException)
 
 def test_FileSystem_hardlink_raises_DestinationExistsButDifferentFile_correctly(tmp_path: Path):
@@ -153,7 +154,7 @@ def test_FileSystem_hardlink_raises_DestinationExistsButDifferentFile_correctly(
         fs.hardlink(source_file.as_posix(), dest.as_posix())
 
     exception = exc.value
-    assert exception.file.path == str(dest)
+    assert exception.file.path == dest
     assert isinstance(exception, TerminalException)
 
 def test_FileSystem_hardlink_raises_SourceFileMissing_correctly(tmp_path: Path):
@@ -168,7 +169,7 @@ def test_FileSystem_hardlink_raises_SourceFileMissing_correctly(tmp_path: Path):
         fs.hardlink(source_file.as_posix(), dest.as_posix())
 
     exception = exc.value
-    assert exception.file.path == str(source_file)
+    assert exception.file.path == source_file
     assert isinstance(exception, TerminalException)
 
 def test_FileSystem_hardlink_raises_FileSystemIOError_on_OSError_with_failed_hardlink_attempt(monkeypatch):
@@ -189,6 +190,6 @@ def test_FileSystem_hardlink_raises_FileSystemIOError_on_OSError_with_failed_har
 
     exception = exc.value
     assert exception.operation == "hardlink"
-    assert exception.file.path == str(destination)
+    assert str(exception.file.path) == destination
     assert isinstance(exception.original, OSError)
     assert isinstance(exception, RetryableException)

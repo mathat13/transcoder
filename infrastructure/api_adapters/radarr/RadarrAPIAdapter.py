@@ -57,7 +57,7 @@ class RadarrAPIAdapter(BaseAPIAdapter,
         )[0]
 
         # Convert to ubiquitous language and pass back to application
-        return FileInfo(data.path)
+        return FileInfo.from_path(data.path)
 
         
 

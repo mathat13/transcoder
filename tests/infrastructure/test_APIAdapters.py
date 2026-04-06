@@ -124,7 +124,7 @@ def test_RadarrAPIAdapter_get_moviefile_returns_moviefile_on_hit_with_fake():
     response = adapter.get_moviefile(media_identifiers=media_identifiers, context=context)
 
     assert isinstance(response, FileInfo)
-    assert response.path == movie_path
+    assert str(response.path) == movie_path
 
 def test_RadarrAPIAdapter_get_moviefile_returns_None_on_no_hit_with_fake():
     media_identifiers = ExternalMediaIDs(105)

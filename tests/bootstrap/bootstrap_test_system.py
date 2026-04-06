@@ -24,15 +24,13 @@ from application import (
     ProcessManager,
     TaskScheduler,
     ProcessRunner,
+    DefaultProcessRunner,
     ProcessRunnerResult,
     JobService,
     TranscodeVerified,
 )
 
-def bootstrap_application_test_system(
-    *,
-    runner: ProcessRunner | None = None,
-) -> ApplicationTestSystem:
+def bootstrap_application_test_system() -> ApplicationTestSystem:
     # --- infrastructure fakes ---
     filesystem = FakeFileSystem()
     radarr = FakeRadarrAPIAdapter()
@@ -63,7 +61,7 @@ def bootstrap_application_test_system(
     outcome_registry.register(JobCompleted, completion_outcome_handler)
 
     # --- execution ---
-    runner = runner or FakeProcessRunner(result=ProcessRunnerResult.success())
+    runner = DefaultProcessRunner()
 
     # --- side effects ---
     event_bus=FakeSyncEventBus()
@@ -137,6 +135,9 @@ def bootstrap_workflow_test_system(
     outcome_registry.register(JobCompleted, completion_outcome_handler)
 
     # --- execution ---
+    # Can have a fake runner with pre-loaded response, or real runner, depending on testing needs
+    # Configurable by function parameter
+    # Defaulted to fake runner with success response
     runner = runner or FakeProcessRunner(result=ProcessRunnerResult.success())
 
     # --- side effects ---

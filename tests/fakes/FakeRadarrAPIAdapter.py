@@ -8,13 +8,13 @@ from application import RadarrUpdateMovieFileCapable
 
 class FakeRadarrAPIAdapter(RadarrUpdateMovieFileCapable):
     def __init__(self):
-        self.moviefiles: dict[int, str] = {}
+        self.moviefiles: dict[int, FileInfo] = {}
         self.rescan_called_with: list[int] = []
 
-    def _add_movie(self, media_identifiers: ExternalMediaIDs, file: FileInfo, context: OperationContext):
+    def add_movie(self, media_identifiers: ExternalMediaIDs, file: FileInfo, context: OperationContext):
         """Test helper: preload adapter state."""
         self.moviefiles[media_identifiers.radarr_movie_id] = file
-
+    
     def get_moviefile(self, media_identifiers: ExternalMediaIDs, context: OperationContext):
         return self.moviefiles[media_identifiers.radarr_movie_id]
 

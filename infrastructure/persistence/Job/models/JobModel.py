@@ -14,9 +14,10 @@ class JobModel(Base):
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     radarr_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    source_path = Column(String, nullable=False)        # original file path
-    transcode_path = Column(String, nullable=False)        # final transcoded file
-    status = Column(String, nullable=False)          # current workflow state
+    source_file = Column(String, nullable=False)                # original file path
+    transcode_output_file = Column(String, nullable=False)      # final transcoded file path
+    delivery_file = Column(String, nullable=False)              # path to place file for external service to pick up
+    status = Column(String, nullable=False)                     # current workflow state
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
     updated_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc), onupdate=datetime.datetime.now(datetime.timezone.utc))
 

@@ -17,8 +17,9 @@ class JobModelFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     id = factory.LazyFunction(lambda: str(uuid.uuid4()))
     external_media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
-    source_path = factory.LazyFunction(lambda: fake.file_path(extension="mkv"))
-    transcode_path = factory.LazyFunction(lambda: fake.file_path(extension="mkv"))
+    source_file = factory.LazyFunction(lambda: f"/media/{fake.file_name(extension='mkv')}")
+    transcode_output_file = factory.LazyFunction(lambda: f"/transcode/{fake.file_name(extension='mkv')}")
+    delivery_file = factory.LazyFunction(lambda: f"/media/{fake.file_name(extension='mkv')}")
     status = "pending"
     created_at = factory.LazyFunction(lambda: fake.date_time_this_year(tzinfo=datetime.timezone.utc))
     updated_at = factory.LazyFunction(lambda: fake.date_time_this_year(tzinfo=datetime.timezone.utc))

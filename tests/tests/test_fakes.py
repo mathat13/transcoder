@@ -58,10 +58,7 @@ def test_FakeHTTPClient_send_method():
 def test_FakeJobRepository_saves_job_correctly():
     repo = FakeJobRepository()
 
-    job = Job.create(
-        source_file=FileInfo("/input.mp4"),
-        media_ids=ExternalMediaIDs(1)
-    )
+    job = JobFactory()
 
     # Save job
     repo.save(job)

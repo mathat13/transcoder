@@ -24,13 +24,15 @@ def test_JobMapper():
     assert isinstance(job_record, JobModel)
     assert isinstance(job_record.id, str)
     assert isinstance(job_record.radarr_id, int)
-    assert isinstance(job_record.source_path, str)
-    assert isinstance(job_record.transcode_path, str)
+    assert isinstance(job_record.source_file, str)
+    assert isinstance(job_record.transcode_output_file, str)
+    assert isinstance(job_record.delivery_file, str)
     assert isinstance(job_record.status, str)
     assert isinstance(job_record.created_at, datetime)
     assert isinstance(job_record.updated_at, datetime)
-    assert job_record.source_path == job.source_file.path
-    assert job_record.transcode_path == job.transcode_file.path
+    assert job_record.source_file == str(job.source_file.path)
+    assert job_record.transcode_output_file == str(job.transcode_output_file.path)
+    assert job_record.delivery_file == str(job.delivery_file.path)
 
     converted_job = JobMapper.to_Job(job_record)
 
@@ -39,12 +41,14 @@ def test_JobMapper():
     assert isinstance(converted_job.external_media_ids, ExternalMediaIDs)
     assert isinstance(converted_job.external_media_ids.radarr_movie_id, int)
     assert isinstance(converted_job.source_file, FileInfo)
-    assert isinstance(converted_job.transcode_file, FileInfo)
+    assert isinstance(converted_job.transcode_output_file, FileInfo)
+    assert isinstance(converted_job.delivery_file, FileInfo)
     assert isinstance(converted_job.status, JobStatus)
     assert isinstance(converted_job.created_at, datetime)
     assert isinstance(converted_job.updated_at, datetime)
-    assert job_record.source_path == converted_job.source_file.path
-    assert job_record.transcode_path == converted_job.transcode_file.path
+    assert job_record.source_file == str(converted_job.source_file.path)
+    assert job_record.transcode_output_file == str(converted_job.transcode_output_file.path)
+    assert job_record.delivery_file == str(converted_job.delivery_file.path)
 
 def test_JobRepository_save(db_session, job_repository):
     job = JobFactory()

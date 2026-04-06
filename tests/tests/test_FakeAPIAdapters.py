@@ -18,7 +18,7 @@ def test_FakeRadarrAPIAdapter_add_movie_works_correctly():
     file = FileInfo("/test/path.mkv")
     context = OperationContext.create()
 
-    adapter._add_movie(media_identifiers, file, context)
+    adapter.add_movie(media_identifiers, file, context)
 
     assert adapter.moviefiles[media_identifiers.radarr_movie_id] == file
 
@@ -29,7 +29,7 @@ def test_FakeRadarrAPIAdapter_get_movieFile():
     file = FileInfo("/test/path.mkv")
     context = OperationContext.create()
 
-    adapter._add_movie(media_identifiers, file, context)
+    adapter.add_movie(media_identifiers, file, context)
 
     response = adapter.get_moviefile(media_identifiers, context)
 
@@ -43,7 +43,7 @@ def test_FakeRadarrAPIAdapter_rescan_movie():
     file = FileInfo("/test/path.mkv")
     context = OperationContext.create()
 
-    adapter._add_movie(media_identifiers, file, context)
+    adapter.add_movie(media_identifiers, file, context)
 
     adapter.rescan_movie(media_identifiers, context)
 
