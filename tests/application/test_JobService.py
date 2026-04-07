@@ -24,6 +24,10 @@ from domain import (
     OperationContext,
 )
 
+from application import (JobAssigned,
+                         NoJobAvailable,
+                         )
+
 def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServiceTestSystem):
 
     # Setup
@@ -57,7 +61,7 @@ def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServ
     ],
 )
 
-def test_JobService_emits_JobMovedToProcessing_event_on_processing_status_transition(initial_status: JobStatus,
+def test_JobService_emits_correct_events_on_status_transition(initial_status: JobStatus,
                                                                                      request_status: JobStatus,
                                                                                      expected_event_list:List[Type[Event]],
                                                                                      job_service_test_system: JobServiceTestSystem
@@ -71,6 +75,35 @@ def test_JobService_emits_JobMovedToProcessing_event_on_processing_status_transi
     job_service_test_system.job_service._transition_job(job, request_status)
     job_service_test_system.job_service._emit(job=job, context=context)
     assert job_service_test_system.event_bus.processed_event_types() == expected_event_list
+
+def test_JobService_dispatch_job_with_job(job_service_test_system: JobServiceTestSystem):
+    job = JobFactory(status=JobStatus.pending)
+
+    job_service_test_system.job_repo.save(job)
+
+    result = job_service_test_system.job_service.dispatch_job()
+
+    assert job_service_test_system.event_bus.processed_event_types() == [
+        JobMovedToProcessing,
+    ]
+
+    retrieved_job = job_service_test_system.job_repo.get_job_by_id(job.id)
+    assert retrieved_job.status ==JobStatus.processing
+
+    assert isinstance(result, JobAssigned)
+    assert result.job is job
+
+def test_JobService_dispatch_job_with_no_job(job_service_test_system: JobServiceTestSystem):
+    job = JobFactory(status=JobStatus.pending)
+
+    result = job_service_test_system.job_service.dispatch_job()
+
+    assert job_service_test_system.event_bus.processed_event_types() == []
+    
+    retrieved_job = job_service_test_system.job_repo.get_job_by_id(job.id)
+    assert retrieved_job is None
+
+    assert isinstance(result, NoJobAvailable)
 
 def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_on_success(job_service_test_system: JobServiceTestSystem):
 

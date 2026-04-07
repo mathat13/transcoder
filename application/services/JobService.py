@@ -3,10 +3,14 @@ from uuid import UUID
 from application.events.EventEnvelope import EventEnvelope
 from application.events.EventPublisher import EventPublisher
 from application.interfaces.infrastructure.ports.JobPersistenceCapable import JobPersistenceCapable
-from application.events.ApplicationEvents import (
-    TranscodeVerified,
-    JobCompletionSuccess
-    )
+from application.events.ApplicationEvents import (TranscodeVerified,
+                                                  JobCompletionSuccess
+                                                  )
+from application.result_types.result_types import (NextJobResult,
+                                                   JobAssigned,
+                                                   NoJobAvailable,
+                                                   )
+
 
 from domain import (
     Job,
@@ -77,8 +81,21 @@ class JobService:
         self.repo.save(job)
         self._emit(job=job, context=operation_context)
     
-    def dispatch_job(self):
-        pass
+    def dispatch_job(self) -> NextJobResult:
+        operation_context = OperationContext.create()
+
+        job = self.repo.get_next_pending_job()
+
+        if not job:
+            return NoJobAvailable()
+        
+        self._transition_job(job=job,
+                             new_status=JobStatus.processing,
+                            )
+        self.repo.save(job)
+        self._emit(job=job, context=operation_context)
+        
+        return JobAssigned(job=job)
 
     def verify_job(self, job_id: UUID) -> None:
         operation_context = OperationContext.create()

@@ -33,9 +33,9 @@ class UpdateRadarrMovieFile(ProcessStep):
         self.radarr.get_moviefile(media_identifiers=process_context.media.media_ids,
                                                 context=process_context.operation_context)
 
-        #if movie_file != process_context.files.transcode_file:
+        #if movie_file != process_context.files.delivery_file:
         #    raise RadarrMovieFileNotUpdated(
         #        movie_id=process_context.media.media_ids.radarr_movie_id,
-        #        expected=process_context.files.transcode_file,
+        #        expected=process_context.files.delivery_file,
         #        actual=movie_file,
         #    )

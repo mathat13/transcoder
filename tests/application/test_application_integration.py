@@ -14,7 +14,7 @@ from domain import (
 from application import (
     TranscodeVerified,
     JobCompletionSuccess,
-    JobCompletionFailure,
+    JobAssigned,
 )
 
 def test_job_creation_happy_path(application_test_system: ApplicationTestSystem):
@@ -31,11 +31,13 @@ def test_job_process_request_happy_path(application_test_system: ApplicationTest
 
     application_test_system.job_repo.save(job)
 
-    application_test_system.job_service._transition_job(job=job, new_status=JobStatus.processing)
+    result = application_test_system.job_service.dispatch_job()
 
     assert application_test_system.event_bus.processed_event_types() == [
         JobMovedToProcessing,
     ]
+
+    assert isinstance(result, JobAssigned)
 
 def test_job_verification_request_to_completion_happy_path(application_test_system: ApplicationTestSystem):
 
