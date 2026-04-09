@@ -23,11 +23,7 @@ class JobNotFound(VerifyJob):
     pass
 
 @dataclass
-class TranscodeNotFound(VerifyJob):
+class VerificationStarted(VerifyJob):
     pass
 
-@dataclass
-class TranscodeVerified(VerifyJob):
-    pass
-
-VerifyJobResult = Union[JobNotFound, TranscodeNotFound, TranscodeVerified]
+VerifyJobResult = Union[JobNotFound, VerificationStarted]

@@ -26,6 +26,9 @@ from domain import (
 
 from application import (JobAssigned,
                          NoJobAvailable,
+                         JobNotFoundDuringVerification,
+                         VerificationStarted,
+                         JobNotFound,
                          )
 
 def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServiceTestSystem):
@@ -105,6 +108,21 @@ def test_JobService_dispatch_job_with_no_job(job_service_test_system: JobService
 
     assert isinstance(result, NoJobAvailable)
 
+def test_JobService_call_method_with_TranscodeVerified_event_emits_JobNotFoundDuringVerification_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
+    # Setup
+    job = JobFactory(status=JobStatus.verifying)
+
+    envelope = EventEnvelopeFactory(event=TranscodeVerifiedEventFactory(job_id=job.id))
+
+    # Execution
+    job_service_test_system.event_bus.publish(envelope=envelope)
+
+    # Validation
+    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobNotFoundDuringVerification)) == 1
+    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobCompleted)) == 0
+
+    assert job_service_test_system.event_bus.processed_events_of_type(event_type=JobNotFoundDuringVerification)[0].job_id == job.id
+
 def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_on_success(job_service_test_system: JobServiceTestSystem):
 
     # Setup
@@ -115,6 +133,7 @@ def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_
     # Execution
     job_service_test_system.event_bus.publish(envelope=envelope)
 
+    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobNotFoundDuringVerification)) == 0
     assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobCompleted)) == 1
 
 def test_JobService_call_method_with_JobCompletionSuccess_event_triggers_job_deletion(job_service_test_system: JobServiceTestSystem):
@@ -129,6 +148,28 @@ def test_JobService_call_method_with_JobCompletionSuccess_event_triggers_job_del
 
     assert job_service_test_system.job_repo.get_job_by_id(job.id) is None
 
+def test_JobService_verify_job_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
+    # Setup
+    job = JobFactory(status=JobStatus.processing)
+
+    # Execution
+    result = job_service_test_system.job_service.verify_job(job_id=job.id)
+
+    # Validation
+    assert isinstance(result, JobNotFound)
+    assert job_service_test_system.job_repo.get_job_by_id(job_id=job.id) is None
+
+def test_JobService_verify_job_returns_correctly(job_service_test_system: JobServiceTestSystem):
+    # Setup
+    job = JobFactory(status=JobStatus.processing)
+    job_service_test_system.job_repo.save(job=job)
+
+    # Execution
+    result = job_service_test_system.job_service.verify_job(job_id=job.id)
+
+    # Validation
+    assert isinstance(result, VerificationStarted)
+    assert job_service_test_system.job_repo.get_job_by_id(job_id=job.id) is not None
 
     
 

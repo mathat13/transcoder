@@ -4,11 +4,15 @@ from application.events.EventEnvelope import EventEnvelope
 from application.events.EventPublisher import EventPublisher
 from application.interfaces.infrastructure.ports.JobPersistenceCapable import JobPersistenceCapable
 from application.events.ApplicationEvents import (TranscodeVerified,
-                                                  JobCompletionSuccess
+                                                  JobCompletionSuccess,
+                                                  JobNotFoundDuringVerification,
                                                   )
 from application.result_types.result_types import (NextJobResult,
+                                                   VerifyJobResult,
                                                    JobAssigned,
                                                    NoJobAvailable,
+                                                   JobNotFound,
+                                                   VerificationStarted,
                                                    )
 
 
@@ -33,12 +37,19 @@ class JobService:
 
         if isinstance(event, JobCompletionSuccess):
             self._handle_job_completion_success(envelope=envelope)
+        
 
     def _handle_transcode_verified(self, envelope: EventEnvelope):
         event = envelope.event
         job = self.repo.get_job_by_id(event.job_id)
 
-        job = self._transition_job(job=job,
+        if not job:
+            self.event_publisher.publish(JobNotFoundDuringVerification(job_id=event.job_id),
+                                         operation_context=envelope.context,
+                                         )
+            return
+
+        self._transition_job(job=job,
                             new_status=JobStatus.success,
                             )
         
@@ -49,8 +60,10 @@ class JobService:
     def _handle_job_completion_success(self, envelope: EventEnvelope):
         event = envelope.event
 
+        # Idempotent command so don't need to check if job exists
+        # At least while we're not archiving jobs
+        # Possibly move towards job checking once archiving comes into play
         self.repo.delete(job_id=event.job_id)
-
 
     # Placholder while event outbox is not implemented
     # Not the nicest as it modifies an object that isn't itself, use with caution
@@ -63,11 +76,10 @@ class JobService:
         events=job.pull_events()
         self.event_publisher.publish_all(events=events, operation_context=context)
 
-    def _transition_job(self, job: Job, new_status: JobStatus) -> Job:
+    def _transition_job(self, job: Job, new_status: JobStatus) -> None:
         job.transition_to(new_status)
-        return job
     
-    def create_job(self, source: str, transcode_output_location: str, media_ids: int) -> None:
+    def create_job(self, source: str, transcode_output_location: str, media_ids: int) -> Job:
         # Move domain object creation to presentation layer and
         # change job_type and source to ubiquitous language once presentation layer implemented
         operation_context = OperationContext.create()
@@ -80,7 +92,9 @@ class JobService:
 
         self.repo.save(job)
         self._emit(job=job, context=operation_context)
+        return job
     
+    # Future concurrency risk, what if 2 workers try to claim same job?
     def dispatch_job(self) -> NextJobResult:
         operation_context = OperationContext.create()
 
@@ -97,13 +111,19 @@ class JobService:
         
         return JobAssigned(job=job)
 
-    def verify_job(self, job_id: UUID) -> None:
+    def verify_job(self, job_id: UUID) -> VerifyJobResult:
         operation_context = OperationContext.create()
 
         job = self.repo.get_job_by_id(job_id=job_id)
+
+        if not job:
+            return JobNotFound()
+        
         self._transition_job(job=job,
                              new_status=JobStatus.verifying,
                             )
         
         self.repo.save(job)
         self._emit(job=job, context=operation_context)
+        
+        return VerificationStarted()

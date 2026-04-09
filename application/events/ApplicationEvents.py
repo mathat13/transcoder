@@ -44,3 +44,7 @@ class RetryScheduled(ApplicationEvent):
     #max_attempts: int
     #scheduled_for: datetime
     #reason: str
+
+@dataclass(kw_only=True)
+class JobNotFoundDuringVerification(ApplicationEvent):
+    job_id: UUID

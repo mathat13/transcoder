@@ -2,4 +2,5 @@
 .pytest_cache
 __pycache__/
 *.pyc
+media-transcoder3.code-workspace
 secrets.json
