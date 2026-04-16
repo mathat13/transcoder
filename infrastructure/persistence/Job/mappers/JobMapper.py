@@ -4,7 +4,6 @@ from domain import (
     Job,
     FileInfo,
     JobStatus,
-    ExternalMediaIDs,
 )
 
 from infrastructure.persistence.Job.models.JobModel import JobModel
@@ -28,15 +27,12 @@ class JobMapper:
     # Update this method to call a reconstitute factory method in Job object
     @staticmethod
     def to_Job(job_model: JobModel) -> Job:
-        return Job(
-            id = UUID(job_model.id),
-            external_media_ids=job_model.external_media_ids,
-            source_file = FileInfo.from_path(job_model.source_file),
+        return Job.rehydrate(
+            job_id=UUID(job_model.id),
+            source_file=FileInfo.from_path(job_model.source_file),
             transcode_output_file = FileInfo.from_path(job_model.transcode_output_file),
-            delivery_file = FileInfo.from_path(job_model.delivery_file),
+            media_ids=job_model.external_media_ids,
             status = JobStatus(job_model.status),
-            created_at = job_model.created_at,
-            updated_at  = job_model.updated_at
         )
             
     

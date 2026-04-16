@@ -13,11 +13,10 @@ from domain import (
     JobStatus,
     ExternalMediaIDs,
 )
-from tests import (
-    JobFactory
-)
+from tests.factories.JobModelFactory import JobModelFactory
+from tests.factories.JobFactory import JobFactory
 
-def test_JobMapper():
+def test_JobMapper_to_JobModel():
     job = JobFactory()
     job_record = JobMapper.to_JobModel(job)
 
@@ -34,6 +33,9 @@ def test_JobMapper():
     assert job_record.transcode_output_file == str(job.transcode_output_file.path)
     assert job_record.delivery_file == str(job.delivery_file.path)
 
+def test_JobMapper_to_Job():
+    job = JobFactory()
+    job_record = JobMapper.to_JobModel(job)
     converted_job = JobMapper.to_Job(job_record)
 
     assert isinstance(converted_job, Job)
@@ -46,9 +48,9 @@ def test_JobMapper():
     assert isinstance(converted_job.status, JobStatus)
     assert isinstance(converted_job.created_at, datetime)
     assert isinstance(converted_job.updated_at, datetime)
-    assert job_record.source_file == str(converted_job.source_file.path)
-    assert job_record.transcode_output_file == str(converted_job.transcode_output_file.path)
-    assert job_record.delivery_file == str(converted_job.delivery_file.path)
+    assert job_record.source_file == str(job.source_file.path) == str(converted_job.source_file.path)
+    assert job_record.transcode_output_file == str(job.transcode_output_file.path) == str(converted_job.transcode_output_file.path)
+    assert job_record.delivery_file == str(job.delivery_file.path) == str(converted_job.delivery_file.path)
 
 def test_JobRepository_get_job_by_id(db_session, job_repository):
     job = JobFactory()

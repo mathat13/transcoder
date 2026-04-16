@@ -91,6 +91,25 @@ class Job:
 
         return job
     
+    @classmethod
+    def rehydrate(cls,
+                  job_id: UUID,
+                  source_file: FileInfo,
+                  transcode_output_file: FileInfo,
+                  media_ids: ExternalMediaIDs,
+                  status: JobStatus,
+                  ) -> "Job":
+        """Factory for rehydrating a valid Job aggregate from persistence."""
+
+        return cls(
+            id=job_id,
+            source_file=source_file,
+            transcode_output_file=transcode_output_file,
+            delivery_file=FileInfo.from_parent_and_name(source_file.parent, transcode_output_file.name),
+            external_media_ids=media_ids,
+            status=status,
+        )
+    
     # ---------------------------
     # Event helpers
     # ---------------------------
