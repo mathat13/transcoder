@@ -1,6 +1,16 @@
 from dataclasses import dataclass
 from typing import Union
+from uuid import UUID
+
 from domain import Job
+
+class CreateJobResult:
+    pass
+
+@dataclass
+class JobCreationSuccess(CreateJobResult):
+    job_id: UUID
+
 
 class GetNextJobResult:
     pass
@@ -19,11 +29,11 @@ class VerifyJob:
     pass
 
 @dataclass
-class JobNotFound(VerifyJob):
-    pass
+class VerifyErrorJobNotFound(VerifyJob):
+    job_id: UUID
 
 @dataclass
 class VerificationStarted(VerifyJob):
-    pass
+    job: Job
 
-VerifyJobResult = Union[JobNotFound, VerificationStarted]
+VerifyJobResult = Union[VerifyErrorJobNotFound, VerificationStarted]

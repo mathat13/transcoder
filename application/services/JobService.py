@@ -7,11 +7,11 @@ from application.events.ApplicationEvents import (TranscodeVerified,
                                                   JobCompletionSuccess,
                                                   JobNotFoundDuringVerification,
                                                   )
-from application.result_types.result_types import (NextJobResult,
+from application.result_types.jobservice_result_types import (NextJobResult,
                                                    VerifyJobResult,
                                                    JobAssigned,
                                                    NoJobAvailable,
-                                                   JobNotFound,
+                                                   VerifyErrorJobNotFound,
                                                    VerificationStarted,
                                                    )
 
@@ -117,7 +117,7 @@ class JobService:
         job = self.repo.get_job_by_id(job_id=job_id)
 
         if not job:
-            return JobNotFound()
+            return VerifyErrorJobNotFound(job_id=job_id)
         
         self._transition_job(job=job,
                              new_status=JobStatus.verifying,
@@ -126,4 +126,4 @@ class JobService:
         self.repo.save(job)
         self._emit(job=job, context=operation_context)
         
-        return VerificationStarted()
+        return VerificationStarted(job=job)
