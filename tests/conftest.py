@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from fastapi import FastAPI
 
 from tests.factories.JobModelFactory import JobModelFactory
 from tests.bootstrap.bootstrap_test_system import (
@@ -9,11 +10,14 @@ from tests.bootstrap.bootstrap_test_system import (
     bootstrap_job_service_test_system,
     bootstrap_workflow_test_system,
 )
+
 from tests.bootstrap.Types import (
     ApplicationTestSystem,
     JobServiceTestSystem,
     WorkflowTestSystem,
 )
+
+from tests.fakes.FakeJobService import FakeJobService
 
 from infrastructure import (
     Base,
@@ -73,3 +77,29 @@ def job_repository(db_session) -> SQLiteJobRepository:
 def job_model_factory(db_session) -> JobModelFactory:
     JobModelFactory._meta.sqlalchemy_session = db_session
     return JobModelFactory
+
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+from presentation.api.routes.routes import router as jobs_router
+from presentation.api.dependencies import get_job_service
+
+@pytest.fixture
+def fake_job_service():
+    return FakeJobService()
+
+@pytest.fixture
+def app(fake_job_service: FakeJobService):
+    app = FastAPI()
+
+    def override_get_job_service():
+        return fake_job_service
+
+    app.dependency_overrides[get_job_service] = override_get_job_service
+    app.include_router(jobs_router)
+
+    return app
+
+@pytest.fixture
+def client(app):
+    return TestClient(app)

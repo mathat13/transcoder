@@ -58,13 +58,14 @@ class Job:
     def _create_for_test(
         cls,
         *,
+        id: UUID,
         source_file: FileInfo,
         transcode_output_file: FileInfo,
         media_ids: ExternalMediaIDs,
         status: JobStatus,
     ) -> "Job":
         return cls(
-            id=uuid4(),
+            id=id,
             source_file=source_file,
             transcode_output_file=transcode_output_file,
             delivery_file=FileInfo.from_parent_and_name(source_file.parent, transcode_output_file.name),

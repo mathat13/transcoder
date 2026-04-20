@@ -1,5 +1,6 @@
 import factory
 from faker import Faker
+from uuid import uuid4
 
 from domain import (
     Job,
@@ -14,6 +15,7 @@ class JobFactory(factory.Factory):
     class Meta:
         model = Job
 
+    id = factory.LazyFunction(lambda: uuid4())
     source_file = factory.LazyFunction(
         lambda: FileInfo.from_path(f"/media/{fake.file_name(extension='mkv')}"))
     transcode_output_file = factory.LazyFunction(
