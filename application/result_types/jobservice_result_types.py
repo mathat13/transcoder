@@ -16,14 +16,14 @@ class DispatchJob:
     pass
 
 @dataclass
-class JobAssigned(DispatchJob):
+class JobDispatched(DispatchJob):
     job: Job
 
 @dataclass
-class DispatchErrorNoJobAvailable(DispatchJob):
+class DispatchJobNoJobAvailable(DispatchJob):
     pass
 
-DispatchJobResult = Union[JobAssigned, DispatchErrorNoJobAvailable]
+DispatchJobResult = Union[JobDispatched, DispatchJobNoJobAvailable]
 
 class VerifyJob:
     pass

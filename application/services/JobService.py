@@ -10,8 +10,8 @@ from application.events.ApplicationEvents import (TranscodeVerified,
 from application.result_types.jobservice_result_types import (
                                                             VerifyJobResult,
                                                             DispatchJobResult,
-                                                            JobAssigned,
-                                                            DispatchErrorNoJobAvailable,
+                                                            JobDispatched,
+                                                            DispatchJobNoJobAvailable,
                                                             VerifyErrorJobNotFound,
                                                             VerificationStarted,
                                                             )
@@ -102,7 +102,7 @@ class JobService:
         job = self.repo.get_next_pending_job()
 
         if not job:
-            return DispatchErrorNoJobAvailable()
+            return DispatchJobNoJobAvailable()
         
         self._transition_job(job=job,
                              new_status=JobStatus.processing,
@@ -110,7 +110,7 @@ class JobService:
         self.repo.save(job)
         self._emit(job=job, context=operation_context)
         
-        return JobAssigned(job=job)
+        return JobDispatched(job=job)
 
     def verify_job(self, job_id: UUID) -> VerifyJobResult:
         operation_context = OperationContext.create()
