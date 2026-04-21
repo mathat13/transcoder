@@ -12,18 +12,18 @@ class JobCreationSuccess(CreateJobResult):
     job_id: UUID
 
 
-class GetNextJobResult:
+class DispatchJob:
     pass
 
 @dataclass
-class JobAssigned(GetNextJobResult):
+class JobAssigned(DispatchJob):
     job: Job
 
 @dataclass
-class NoJobAvailable(GetNextJobResult):
+class DispatchErrorNoJobAvailable(DispatchJob):
     pass
 
-NextJobResult = Union[JobAssigned, NoJobAvailable]
+DispatchJobResult = Union[JobAssigned, DispatchErrorNoJobAvailable]
 
 class VerifyJob:
     pass

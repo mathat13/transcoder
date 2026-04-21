@@ -7,13 +7,14 @@ from application.events.ApplicationEvents import (TranscodeVerified,
                                                   JobCompletionSuccess,
                                                   JobNotFoundDuringVerification,
                                                   )
-from application.result_types.jobservice_result_types import (NextJobResult,
-                                                   VerifyJobResult,
-                                                   JobAssigned,
-                                                   NoJobAvailable,
-                                                   VerifyErrorJobNotFound,
-                                                   VerificationStarted,
-                                                   )
+from application.result_types.jobservice_result_types import (
+                                                            VerifyJobResult,
+                                                            DispatchJobResult,
+                                                            JobAssigned,
+                                                            DispatchErrorNoJobAvailable,
+                                                            VerifyErrorJobNotFound,
+                                                            VerificationStarted,
+                                                            )
 
 
 from domain import (
@@ -95,13 +96,13 @@ class JobService:
         return job
     
     # Future concurrency risk, what if 2 workers try to claim same job?
-    def dispatch_job(self) -> NextJobResult:
+    def dispatch_job(self) -> DispatchJobResult:
         operation_context = OperationContext.create()
 
         job = self.repo.get_next_pending_job()
 
         if not job:
-            return NoJobAvailable()
+            return DispatchErrorNoJobAvailable()
         
         self._transition_job(job=job,
                              new_status=JobStatus.processing,
