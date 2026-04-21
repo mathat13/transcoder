@@ -45,7 +45,9 @@ def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService
     assert response.status_code == 404
     assert response.json()["detail"] == {
     "error": "job_not_found",
-    "job_id": str(job_id)
+    "message": None,
+    "job_id": str(job_id),
+    "details": None
     }
 
 def test_verify_job_invalid_uuid(client):

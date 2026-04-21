@@ -12,3 +12,9 @@ class VerifyJobResponse(BaseModel):
             id=str(job.id),
             status=job.status.value,
         )
+    
+class ErrorResponse(BaseModel):
+    error: str
+    message: str | None = None
+    job_id: str | None = None
+    details: dict | None = None

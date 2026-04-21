@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 
-from presentation.api.schemas.responses import VerifyJobResponse
+from presentation.api.schemas.responses import (VerifyJobResponse,
+                                                ErrorResponse,
+                                                )
 from application import (
     VerifyErrorJobNotFound,
     VerificationStarted,
@@ -17,8 +19,8 @@ class VerifyJobResultPresenter:
             case VerifyErrorJobNotFound(job_id):
                 raise HTTPException(
                     status_code=404,
-                    detail={
-                        "error": "job_not_found",
-                        "job_id": str(job_id)
-                    }
+                    detail=ErrorResponse(
+                        error="job_not_found",
+                        job_id=str(job_id)
+                    ).model_dump()
                 )
