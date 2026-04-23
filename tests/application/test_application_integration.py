@@ -9,18 +9,20 @@ from domain import (
     JobMovedToVerifying,
     JobCompleted,
     JobStatus,
+    ExternalMediaIDs,
+    FileInfo,
 )
 
 from application import (
     TranscodeVerified,
     JobCompletionSuccess,
     JobDispatched,
+    CreateJobCommand,
 )
 
-def test_job_creation_happy_path(application_test_system: ApplicationTestSystem):
-    application_test_system.job_service.create_job(source="/media/input.mp4",
-                                                   transcode_output_location="/transcode/transcode.mp4",
-                                                   media_ids=4)
+def test_manual_job_creation_happy_path(application_test_system: ApplicationTestSystem):
+    cmd = CreateJobCommand.from_manual(source_file="/media/input.mp4")
+    application_test_system.job_service.create_job(cmd=cmd, ctx=None)
 
     assert application_test_system.event_bus.processed_event_types() == [
         JobCreated,

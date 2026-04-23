@@ -11,7 +11,7 @@ class ExternalMediaIDs:
         return (self.radarr_movie_id,)
     
     @classmethod
-    def create(cls, radarr_id: int) -> "ExternalMediaIDs":
+    def from_radarr(cls, radarr_id: int) -> "ExternalMediaIDs":
         return cls(
             radarr_movie_id=radarr_id
         )

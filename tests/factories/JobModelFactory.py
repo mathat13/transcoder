@@ -16,7 +16,7 @@ class JobModelFactory(factory.alchemy.SQLAlchemyModelFactory):
         sqlalchemy_session_persistence = "commit"
 
     id = factory.LazyFunction(lambda: str(uuid.uuid4()))
-    external_media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.create(fake.random_int(min=10, max=50)))
+    external_media_ids = factory.LazyFunction(lambda: ExternalMediaIDs.from_radarr(fake.random_int(min=10, max=50)))
     source_file = factory.LazyFunction(lambda: f"/media/{fake.file_name(extension='mkv')}")
     transcode_output_file = factory.LazyFunction(lambda: f"/transcode/{fake.file_name(extension='mkv')}")
     delivery_file = factory.LazyFunction(lambda: f"/media/{fake.file_name(extension='mkv')}")

@@ -10,7 +10,7 @@ from application import (
 
 class DispatchJobResultPresenter:
     @staticmethod
-    def present_dispatch_job(result: DispatchJobResult):
+    def present_dispatch_job(result: DispatchJobResult) -> DispatchJobResponse:
         match result:
             case JobDispatched(job):
                 return DispatchJobResponse.from_job(job)

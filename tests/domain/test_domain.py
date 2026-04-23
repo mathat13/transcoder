@@ -38,7 +38,7 @@ def test_OperationContext_factory_create_method():
     assert isinstance(context.operation_id, UUID)
 
 def test_job_added():
-    media_ids = ExternalMediaIDs.create(5)
+    media_ids = ExternalMediaIDs.from_radarr(5)
     source_file=FileInfo.from_path("/path/to/source.mkv")
     transcode_output_file=FileInfo.from_path("/path/to/transcode.mkv")
     job = Job.create(source_file=source_file,
@@ -109,12 +109,12 @@ def test_invalid_transition_raises_value_error():
 
 def test_ExternalMediaIDs_generated_correctly():
     radarr_id = 1
-    media_ids = ExternalMediaIDs.create(radarr_id=radarr_id)
+    media_ids = ExternalMediaIDs.from_radarr(radarr_id=radarr_id)
 
     assert media_ids.radarr_movie_id == radarr_id
 
 def test_job_pull_events_works_correctly():
-    media_ids = ExternalMediaIDs.create(5)
+    media_ids = ExternalMediaIDs.from_radarr(5)
     source_file=FileInfo.from_path("/path/to/source.mkv")
     transcode_output_file=FileInfo.from_path("/path/to/transcode.mkv")
     job = Job.create(source_file=source_file,

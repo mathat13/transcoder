@@ -29,6 +29,8 @@ from application import (JobDispatched,
                          JobNotFoundDuringVerification,
                          VerificationStarted,
                          VerifyErrorJobNotFound,
+                         JobCreated,
+                         CreateJobCommand,
                          )
 
 def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServiceTestSystem):
@@ -79,6 +81,27 @@ def test_JobService_emits_correct_events_on_status_transition(initial_status: Jo
     job_service_test_system.job_service._emit(job=job, context=context)
     assert job_service_test_system.event_bus.processed_event_types() == expected_event_list
 
+def test_JobService_create_job_with_manual_command(job_service_test_system: JobServiceTestSystem):
+    source_file="/media/input.mp4"
+    cmd = CreateJobCommand.from_manual(source_file=source_file)
+
+    result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=None)
+
+    assert isinstance(result, JobCreated)
+    assert result.job.external_media_ids is None
+    assert str(result.job.source_file.path) == source_file
+
+def test_JobService_create_job_with_radarr_command(job_service_test_system: JobServiceTestSystem):
+    source_file="/media/input.mp4"
+    media_id=4
+
+    cmd = CreateJobCommand.from_radarr(source_file=source_file, media_id=media_id)
+    result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=None)
+
+    assert isinstance(result, JobCreated)
+    assert result.job.external_media_ids.radarr_movie_id is media_id
+    assert str(result.job.source_file.path) == source_file
+
 def test_JobService_dispatch_job_with_job(job_service_test_system: JobServiceTestSystem):
     job = JobFactory(status=JobStatus.pending)
 
@@ -91,7 +114,7 @@ def test_JobService_dispatch_job_with_job(job_service_test_system: JobServiceTes
     ]
 
     retrieved_job = job_service_test_system.job_repo.get_job_by_id(job.id)
-    assert retrieved_job.status ==JobStatus.processing
+    assert retrieved_job.status == JobStatus.processing
 
     assert isinstance(result, JobDispatched)
     assert result.job is job

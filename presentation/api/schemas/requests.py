@@ -5,3 +5,6 @@ class DispatchRequest(BaseModel):
 
 class VerifyRequest(BaseModel):
     id: str
+
+class ManualCreateRequest(BaseModel):
+    source_file: str

@@ -11,7 +11,7 @@ from application import (
 
 class VerifyJobResultPresenter:
     @staticmethod
-    def present_verify_job(result: VerifyJobResult):
+    def present_verify_job(result: VerifyJobResult) -> VerifyJobResponse:
         match result:
             case VerificationStarted(job):
                 return VerifyJobResponse.from_job(job)

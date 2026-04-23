@@ -4,13 +4,14 @@ from uuid import UUID
 
 from domain import Job
 
-class CreateJobResult:
+class CreateJob:
     pass
 
 @dataclass
-class JobCreationSuccess(CreateJobResult):
-    job_id: UUID
+class JobCreated(CreateJob):
+    job: Job
 
+CreateJobResult = Union[JobCreated]
 
 class DispatchJob:
     pass

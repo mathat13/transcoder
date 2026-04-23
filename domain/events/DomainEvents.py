@@ -37,7 +37,7 @@ class JobCompleted(DomainEvent):
     source_file: FileInfo
     transcode_output_file: FileInfo
     delivery_file: FileInfo
-    media_ids: ExternalMediaIDs
+    media_ids: Optional[ExternalMediaIDs]
 
 @dataclass(kw_only=True)
 class JobFailed(DomainEvent):

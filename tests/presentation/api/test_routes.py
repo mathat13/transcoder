@@ -8,7 +8,12 @@ from application import (
     VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
+    JobCreated,
 )
+
+from domain import FileInfo
+
+from presentation import ManualCreateRequest
 
 from domain import JobStatus
 
@@ -57,8 +62,9 @@ def test_verify_job_invalid_uuid(client):
     assert response.status_code == 422
 
 def test_dispatch_job_success(client, fake_job_service: FakeJobService):
-    job = JobFactory(status=JobStatus.processing)
+    
     # Setup
+    job = JobFactory(status=JobStatus.processing)
     ## Set fake_job_service.dispatch_job return value 
     fake_job_service.dispatch_job_fn=lambda: JobDispatched(job=job)
 
@@ -90,4 +96,24 @@ def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService)
     "job_id": None,
     "source_file": None,
     "output_file": None,
+    }
+
+def test_create_job_success(client, fake_job_service: FakeJobService):
+
+    # Setup
+    job = JobFactory()
+    source_file = str(job.source_file.path)
+    ## Set fake_job_service.dispatch_job return value
+    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
+    request = ManualCreateRequest(source_file=source_file)
+
+    # Execution
+    response = client.post(url=f"/jobs/create/manual", json=request.model_dump())
+
+    # Verification
+    assert response.status_code == 200
+    assert response.json() == {
+    "job_id": str(job.id),
+    "status": job.status.value,
+    "source_file": str(job.source_file.path),
     }

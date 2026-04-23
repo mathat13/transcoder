@@ -1,7 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Optional
 from uuid import uuid4, UUID
 
 from domain.services.JobStateMachine import JOB_STATE_MACHINE
@@ -19,7 +19,7 @@ class Job:
     source_file: FileInfo
     transcode_output_file: FileInfo
     delivery_file: FileInfo
-    external_media_ids: ExternalMediaIDs
+    external_media_ids: Optional[ExternalMediaIDs]
     
     # Default
     status: JobStatus = JobStatus.pending
@@ -61,7 +61,7 @@ class Job:
         id: UUID,
         source_file: FileInfo,
         transcode_output_file: FileInfo,
-        media_ids: ExternalMediaIDs,
+        media_ids: Optional[ExternalMediaIDs],
         status: JobStatus,
     ) -> "Job":
         return cls(
@@ -74,7 +74,7 @@ class Job:
         )
     
     @classmethod
-    def create(cls, source_file: FileInfo, transcode_output_file: FileInfo, media_ids: ExternalMediaIDs) -> "Job":
+    def create(cls, source_file: FileInfo, transcode_output_file: FileInfo, media_ids: Optional[ExternalMediaIDs]) -> "Job":
         """Factory for creating a valid Job aggregate."""
 
         job = cls(
@@ -82,7 +82,7 @@ class Job:
             source_file=source_file,
             transcode_output_file=transcode_output_file,
             delivery_file=FileInfo.from_parent_and_name(source_file.parent, transcode_output_file.name),
-            external_media_ids=media_ids,
+            external_media_ids=media_ids or None,
             status=JobStatus.pending,
         )
         
@@ -97,7 +97,7 @@ class Job:
                   job_id: UUID,
                   source_file: FileInfo,
                   transcode_output_file: FileInfo,
-                  media_ids: ExternalMediaIDs,
+                  media_ids: Optional[ExternalMediaIDs],
                   status: JobStatus,
                   ) -> "Job":
         """Factory for rehydrating a valid Job aggregate from persistence."""
@@ -107,7 +107,7 @@ class Job:
             source_file=source_file,
             transcode_output_file=transcode_output_file,
             delivery_file=FileInfo.from_parent_and_name(source_file.parent, transcode_output_file.name),
-            external_media_ids=media_ids,
+            external_media_ids=media_ids or None,
             status=status,
         )
     

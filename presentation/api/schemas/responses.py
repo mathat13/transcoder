@@ -14,6 +14,19 @@ class VerifyJobResponse(BaseModel):
             status=job.status.value,
         )
 
+class CreateJobResponse(BaseModel):
+    job_id: str
+    status: str
+    source_file: str
+
+    @classmethod
+    def from_job(cls, job: Job) -> "CreateJobResponse":
+        return cls(
+            job_id=str(job.id),
+            status=job.status.value,
+            source_file=str(job.source_file.path)
+        )
+
 class DispatchJobResponse(BaseModel):
     result: Literal["job_dispatched", "no_job_available"]
     job_id: str | None = None

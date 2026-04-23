@@ -14,8 +14,8 @@ from tests import (
 def test_FakeRadarrAPIAdapter_add_movie_works_correctly():
     adapter = FakeRadarrAPIAdapter()
 
-    media_identifiers = ExternalMediaIDs.create(105)
-    file = FileInfo("/test/path.mkv")
+    media_identifiers = ExternalMediaIDs.from_radarr(105)
+    file = FileInfo.from_path("/test/path.mkv")
     context = OperationContext.create()
 
     adapter.add_movie(media_identifiers, file, context)
@@ -25,8 +25,8 @@ def test_FakeRadarrAPIAdapter_add_movie_works_correctly():
 def test_FakeRadarrAPIAdapter_get_movieFile():
     adapter = FakeRadarrAPIAdapter()
 
-    media_identifiers = ExternalMediaIDs.create(105)
-    file = FileInfo("/test/path.mkv")
+    media_identifiers = ExternalMediaIDs.from_radarr(105)
+    file = FileInfo.from_path("/test/path.mkv")
     context = OperationContext.create()
 
     adapter.add_movie(media_identifiers, file, context)
@@ -39,8 +39,8 @@ def test_FakeRadarrAPIAdapter_get_movieFile():
 def test_FakeRadarrAPIAdapter_rescan_movie():
     adapter = FakeRadarrAPIAdapter()
 
-    media_identifiers = ExternalMediaIDs.create(105)
-    file = FileInfo("/test/path.mkv")
+    media_identifiers = ExternalMediaIDs.from_radarr(105)
+    file = FileInfo.from_path("/test/path.mkv")
     context = OperationContext.create()
 
     adapter.add_movie(media_identifiers, file, context)

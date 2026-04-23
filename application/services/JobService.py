@@ -1,4 +1,6 @@
 from uuid import UUID
+from typing import Optional
+from pathlib import Path
 
 from application.events.EventEnvelope import EventEnvelope
 from application.events.EventPublisher import EventPublisher
@@ -7,9 +9,12 @@ from application.events.ApplicationEvents import (TranscodeVerified,
                                                   JobCompletionSuccess,
                                                   JobNotFoundDuringVerification,
                                                   )
+from application.commands.jobservice_commands import CreateJobCommand
 from application.result_types.jobservice_result_types import (
                                                             VerifyJobResult,
                                                             DispatchJobResult,
+                                                            CreateJobResult,
+                                                            JobCreated,
                                                             JobDispatched,
                                                             DispatchJobNoJobAvailable,
                                                             VerifyErrorJobNotFound,
@@ -19,7 +24,6 @@ from application.result_types.jobservice_result_types import (
 
 from domain import (
     Job,
-    ExternalMediaIDs,
     FileInfo,
     OperationContext,
     JobStatus,
@@ -37,8 +41,7 @@ class JobService:
             self._handle_transcode_verified(envelope=envelope)
 
         if isinstance(event, JobCompletionSuccess):
-            self._handle_job_completion_success(envelope=envelope)
-        
+            self._handle_job_completion_success(envelope=envelope)  
 
     def _handle_transcode_verified(self, envelope: EventEnvelope):
         event = envelope.event
@@ -80,20 +83,24 @@ class JobService:
     def _transition_job(self, job: Job, new_status: JobStatus) -> None:
         job.transition_to(new_status)
     
-    def create_job(self, source: str, transcode_output_location: str, media_ids: int) -> Job:
-        # Move domain object creation to presentation layer and
-        # change job_type and source to ubiquitous language once presentation layer implemented
-        operation_context = OperationContext.create()
+    # Temporary method while config-based transcode_output_file generation not implemented
+    def _default_transcode_output_for(self, source_file: FileInfo) -> FileInfo:
+        return FileInfo.from_parent_and_name(
+            Path("/tmp/transcode"),
+            f"{source_file.path.stem}_transcode.mp4"
+            )
 
-        media_identities = ExternalMediaIDs.create(media_ids)
-        source_file = FileInfo.from_path(source)
-        transcode_output = FileInfo.from_path(transcode_output_location)
+    def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext]) -> CreateJobResult:
+        ctx = ctx or OperationContext.create()
+        transcode_output = self._default_transcode_output_for(cmd.source_file)
 
-        job = Job.create(source_file=source_file, transcode_output_file=transcode_output, media_ids=media_identities)
+        job = Job.create(source_file=cmd.source_file,
+                         transcode_output_file=transcode_output,
+                         media_ids=cmd.media_ids)
 
         self.repo.save(job)
-        self._emit(job=job, context=operation_context)
-        return job
+        self._emit(job=job, context=ctx)
+        return JobCreated(job=job)
     
     # Future concurrency risk, what if 2 workers try to claim same job?
     def dispatch_job(self) -> DispatchJobResult:
