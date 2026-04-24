@@ -90,7 +90,7 @@ class JobService:
             f"{source_file.path.stem}_transcode.mp4"
             )
 
-    def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext]) -> CreateJobResult:
+    def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext] = None) -> CreateJobResult:
         ctx = ctx or OperationContext.create()
         transcode_output = self._default_transcode_output_for(cmd.source_file)
 

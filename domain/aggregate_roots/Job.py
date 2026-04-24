@@ -61,8 +61,8 @@ class Job:
         id: UUID,
         source_file: FileInfo,
         transcode_output_file: FileInfo,
-        media_ids: Optional[ExternalMediaIDs],
         status: JobStatus,
+        media_ids: Optional[ExternalMediaIDs] = None,
     ) -> "Job":
         return cls(
             id=id,
@@ -74,7 +74,11 @@ class Job:
         )
     
     @classmethod
-    def create(cls, source_file: FileInfo, transcode_output_file: FileInfo, media_ids: Optional[ExternalMediaIDs]) -> "Job":
+    def create(cls,
+               source_file: FileInfo,
+               transcode_output_file: FileInfo,
+               media_ids: Optional[ExternalMediaIDs] = None
+               ) -> "Job":
         """Factory for creating a valid Job aggregate."""
 
         job = cls(
@@ -82,7 +86,7 @@ class Job:
             source_file=source_file,
             transcode_output_file=transcode_output_file,
             delivery_file=FileInfo.from_parent_and_name(source_file.parent, transcode_output_file.name),
-            external_media_ids=media_ids or None,
+            external_media_ids=media_ids,
             status=JobStatus.pending,
         )
         
@@ -97,8 +101,8 @@ class Job:
                   job_id: UUID,
                   source_file: FileInfo,
                   transcode_output_file: FileInfo,
-                  media_ids: Optional[ExternalMediaIDs],
                   status: JobStatus,
+                  media_ids: Optional[ExternalMediaIDs] = None,
                   ) -> "Job":
         """Factory for rehydrating a valid Job aggregate from persistence."""
 
@@ -107,7 +111,7 @@ class Job:
             source_file=source_file,
             transcode_output_file=transcode_output_file,
             delivery_file=FileInfo.from_parent_and_name(source_file.parent, transcode_output_file.name),
-            external_media_ids=media_ids or None,
+            external_media_ids=media_ids,
             status=status,
         )
     
