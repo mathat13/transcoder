@@ -31,7 +31,7 @@ class FakeJobService:
             raise NotImplementedError("dispatch_job_fn not configured")
         return self.dispatch_job_fn()
     
-    def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext]) -> CreateJobResult:
+    def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext] = None) -> CreateJobResult:
         if self.create_job_fn is None:
             raise NotImplementedError("create_job_fn not configured")
         ctx = ctx or OperationContext.create()

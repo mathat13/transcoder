@@ -6,6 +6,7 @@ from domain import (
 )
 @dataclass
 class CreateJobCommand:
+    # Application object taking non-ubiqutous arguments, may be improved
     source_file: FileInfo
     media_ids: ExternalMediaIDs | None = None
 

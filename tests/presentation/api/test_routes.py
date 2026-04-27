@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from tests.fakes.FakeJobService import FakeJobService
 from tests.factories.JobFactory import JobFactory
+from tests.factories.pydantic_factories.radarr_webhook_factory import RadarrWebhookCreateRequestFactory
 
 from application import (
     VerificationStarted,
@@ -10,8 +11,6 @@ from application import (
     JobDispatched,
     JobCreated,
 )
-
-from domain import FileInfo
 
 from presentation import ManualCreateRequest
 
@@ -98,7 +97,7 @@ def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService)
     "output_file": None,
     }
 
-def test_create_job_success(client, fake_job_service: FakeJobService):
+def test_create_job_success_with_manual_request(client, fake_job_service: FakeJobService):
 
     # Setup
     job = JobFactory()
@@ -109,6 +108,55 @@ def test_create_job_success(client, fake_job_service: FakeJobService):
 
     # Execution
     response = client.post(url=f"/jobs/create/manual", json=request.model_dump())
+
+    # Verification
+    assert response.status_code == 200
+    assert response.json() == {
+    "job_id": str(job.id),
+    "status": job.status.value,
+    "source_file": str(job.source_file.path),
+    }
+
+def test_create_job_success_with_radarr_webhook_request(client, fake_job_service: FakeJobService):
+
+    # Setup
+    job = JobFactory()
+    source_file = str(job.source_file.path)
+    media_id = job.external_media_ids.radarr_movie_id
+    ## Set fake_job_service.dispatch_job return value
+    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
+    request = RadarrWebhookCreateRequestFactory(movie__id=media_id, movieFile__sourceFile=source_file)
+
+    # Execution
+    response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
+
+    # Verification
+    assert response.status_code == 200
+    assert response.json() == {
+    "job_id": str(job.id),
+    "status": job.status.value,
+    "source_file": str(job.source_file.path),
+    }
+
+
+def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(client,
+                                                                              fake_job_service: FakeJobService):
+
+    # Setup
+    job = JobFactory()
+    source_file = str(job.source_file.path)
+    media_id = job.external_media_ids.radarr_movie_id
+    ## Set fake_job_service.dispatch_job return value
+    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
+    request = RadarrWebhookCreateRequestFactory(movie__id=media_id,
+                                                movieFile__sourceFile=source_file,
+                                                movie__name='kiran',
+                                                movieFile__name='kiran',
+                                                name='kiran'
+                                                )
+    
+    # Execution
+    response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
 
     # Verification
     assert response.status_code == 200

@@ -21,7 +21,7 @@ class JobFactory(factory.Factory):
     transcode_output_file = factory.LazyFunction(
         lambda: FileInfo.from_path(f"/transcode/{fake.file_name(extension='mkv')}"))
     media_ids = factory.LazyFunction(
-        lambda: ExternalMediaIDs.from_radarr(fake.random_int(min=10, max=50)))
+        lambda: ExternalMediaIDs.from_radarr(fake.random_int(min=1, max=50)))
     status = JobStatus.pending
 
     @classmethod

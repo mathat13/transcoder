@@ -9,7 +9,10 @@ from presentation.api.schemas.responses import (
     DispatchJobResponse,
     CreateJobResponse,
 )
-from presentation.api.schemas.requests import ManualCreateRequest
+from presentation.api.schemas.requests import (
+    ManualCreateRequest,
+    RadarrWebhookCreateRequest,
+)
 
 
 
@@ -46,17 +49,17 @@ def create_manual_job(
         source_file=request.source_file,
     )
 
-    result = service.create_job(cmd=cmd, ctx=None)
+    result = service.create_job(cmd=cmd)
     return CreateJobResultPresenter.present_create_job(result)
 
-#@router.post("/create/webhook/radarr", response_model=CreateJobResponse)
-#def create_job(
-#    payload: str,
-#    service: JobService = Depends(get_job_service)
-#):
-#    cmd = CreateJobCommand.from_radarr(
-#        source_file=source_file,
-#        media_id=
-#    )
-#    result = service.create_job(cmd=cmd)
-#    return CreateJobResultPresenter.present_create_job(result)
+@router.post("/create/webhook/radarr", response_model=CreateJobResponse)
+def create_job(
+    request: RadarrWebhookCreateRequest,
+    service: JobService = Depends(get_job_service)
+):
+    cmd = CreateJobCommand.from_radarr(
+        source_file=request.movieFile.sourceFile,
+        media_id=request.movie.id,
+    )
+    result = service.create_job(cmd=cmd)
+    return CreateJobResultPresenter.present_create_job(result)
