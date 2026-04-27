@@ -131,6 +131,10 @@ def test_create_job_success_with_radarr_webhook_request(client, fake_job_service
     response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
 
     # Verification
+    assert fake_job_service.last_cmd.media_ids == job.external_media_ids
+    assert fake_job_service.last_cmd.source_file == job.source_file
+    assert fake_job_service.create_job_calls == 1
+
     assert response.status_code == 200
     assert response.json() == {
     "job_id": str(job.id),
@@ -159,6 +163,10 @@ def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(cl
     response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
 
     # Verification
+    assert fake_job_service.last_cmd.media_ids == job.external_media_ids
+    assert fake_job_service.last_cmd.source_file == job.source_file
+    assert fake_job_service.create_job_calls == 1
+
     assert response.status_code == 200
     assert response.json() == {
     "job_id": str(job.id),

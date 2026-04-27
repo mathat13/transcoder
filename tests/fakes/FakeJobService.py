@@ -17,6 +17,11 @@ class FakeJobService:
     create_job_fn: Optional[Callable[[CreateJobCommand, OperationContext], CreateJobResult]]
     
     def __init__(self):
+        self.last_cmd = None
+        self.last_ctx = None
+
+        self.create_job_calls = 0
+
         self.verify_job_fn = None
         self.dispatch_job_fn = None
         self.create_job_fn = None
@@ -32,6 +37,10 @@ class FakeJobService:
         return self.dispatch_job_fn()
     
     def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext] = None) -> CreateJobResult:
+        self.last_cmd = cmd
+        self.last_ctx = ctx
+        self.create_job_calls += 1
+        
         if self.create_job_fn is None:
             raise NotImplementedError("create_job_fn not configured")
         ctx = ctx or OperationContext.create()
