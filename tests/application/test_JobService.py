@@ -15,6 +15,8 @@ from tests.factories.EventFactories import (
 from tests.bootstrap.Types import JobServiceTestSystem
 
 from domain import (
+    FileInfo,
+    ExternalMediaIDs,
     Event,
     JobMovedToProcessing,
     JobMovedToVerifying,
@@ -82,25 +84,25 @@ def test_JobService_emits_correct_events_on_status_transition(initial_status: Jo
     assert job_service_test_system.event_bus.processed_event_types() == expected_event_list
 
 def test_JobService_create_job_with_manual_command(job_service_test_system: JobServiceTestSystem):
-    source_file="/media/input.mp4"
+    source_file=FileInfo.from_path("/media/input.mp4")
     cmd = CreateJobCommand.from_manual(source_file=source_file)
 
     result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=None)
 
     assert isinstance(result, JobCreated)
     assert result.job.external_media_ids is None
-    assert str(result.job.source_file.path) == source_file
+    assert result.job.source_file is source_file
 
 def test_JobService_create_job_with_radarr_command(job_service_test_system: JobServiceTestSystem):
-    source_file="/media/input.mp4"
-    media_id=4
-
-    cmd = CreateJobCommand.from_radarr(source_file=source_file, media_id=media_id)
+    source_file=FileInfo.from_path("/media/input.mp4")
+    media_ids=ExternalMediaIDs.from_radarr(4)
+    cmd = CreateJobCommand.from_radarr(source_file=source_file, media_ids=media_ids)
+    
     result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=None)
 
     assert isinstance(result, JobCreated)
-    assert result.job.external_media_ids.radarr_movie_id is media_id
-    assert str(result.job.source_file.path) == source_file
+    assert result.job.external_media_ids is media_ids
+    assert result.job.source_file is source_file
 
 def test_JobService_dispatch_job_with_job(job_service_test_system: JobServiceTestSystem):
     job = JobFactory(status=JobStatus.pending)
@@ -173,9 +175,10 @@ def test_JobService_call_method_with_JobCompletionSuccess_event_triggers_job_del
 def test_JobService_verify_job_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
     # Setup
     job = JobFactory(status=JobStatus.processing)
+    job_id = job.id
 
     # Execution
-    result = job_service_test_system.job_service.verify_job(job_id=job.id)
+    result = job_service_test_system.job_service.verify_job(job_id=job_id)
 
     # Validation
     assert isinstance(result, VerifyErrorJobNotFound)
@@ -184,10 +187,11 @@ def test_JobService_verify_job_on_no_job_in_repo(job_service_test_system: JobSer
 def test_JobService_verify_job_returns_correctly(job_service_test_system: JobServiceTestSystem):
     # Setup
     job = JobFactory(status=JobStatus.processing)
+    job_id = job.id
     job_service_test_system.job_repo.save(job=job)
 
     # Execution
-    result = job_service_test_system.job_service.verify_job(job_id=job.id)
+    result = job_service_test_system.job_service.verify_job(job_id=job_id)
 
     # Validation
     assert isinstance(result, VerificationStarted)

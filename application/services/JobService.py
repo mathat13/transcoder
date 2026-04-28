@@ -9,7 +9,9 @@ from application.events.ApplicationEvents import (TranscodeVerified,
                                                   JobCompletionSuccess,
                                                   JobNotFoundDuringVerification,
                                                   )
-from application.commands.jobservice_commands import CreateJobCommand
+from application.commands.jobservice_commands import (
+    CreateJobCommand,
+)
 from application.result_types.jobservice_result_types import (
                                                             VerifyJobResult,
                                                             DispatchJobResult,

@@ -4,6 +4,8 @@ from uuid import UUID
 from presentation.api.presenters.create_job import CreateJobResultPresenter
 from presentation.api.presenters.verify_job import VerifyJobResultPresenter
 from presentation.api.presenters.dispatch_job import DispatchJobResultPresenter
+from presentation.api.translators.ManualCreateJobTranslator import ManualCreateJobTranslator
+from presentation.api.translators.RadarrWebhookCreateJobTranslator import RadarrWebhookCreateJobTranslator
 from presentation.api.schemas.responses import (
     VerifyJobResponse,
     DispatchJobResponse,
@@ -11,7 +13,7 @@ from presentation.api.schemas.responses import (
 )
 from presentation.api.schemas.requests import (
     ManualCreateRequest,
-    RadarrWebhookCreateRequest,
+    RadarrWebhookCreateJobRequest,
 )
 
 
@@ -19,8 +21,7 @@ from presentation.api.schemas.requests import (
 from presentation.api.dependencies import get_job_service
 
 from application import (
-    JobService,
-    CreateJobCommand,
+    JobService
 )
 
 router = APIRouter(prefix="/jobs")
@@ -30,7 +31,8 @@ def verify_job(
     job_id: UUID,
     service: JobService = Depends(get_job_service)
 ):
-    result = service.verify_job(job_id)
+    
+    result = service.verify_job(job_id=job_id)
     return VerifyJobResultPresenter.present_verify_job(result)
 
 @router.post("/dispatch", response_model=DispatchJobResponse)
@@ -45,21 +47,18 @@ def create_manual_job(
     request: ManualCreateRequest,
     service: JobService = Depends(get_job_service)
 ):
-    cmd = CreateJobCommand.from_manual(
-        source_file=request.source_file,
-    )
+    cmd = ManualCreateJobTranslator.translate(request=request)
 
     result = service.create_job(cmd=cmd)
     return CreateJobResultPresenter.present_create_job(result)
 
 @router.post("/create/webhook/radarr", response_model=CreateJobResponse)
 def create_job(
-    request: RadarrWebhookCreateRequest,
+    request: RadarrWebhookCreateJobRequest,
     service: JobService = Depends(get_job_service)
 ):
-    cmd = CreateJobCommand.from_radarr(
-        source_file=request.movieFile.sourceFile,
-        media_id=request.movie.id,
-    )
+    cmd = RadarrWebhookCreateJobTranslator.translate(request=request)
+
     result = service.create_job(cmd=cmd)
+
     return CreateJobResultPresenter.present_create_job(result)

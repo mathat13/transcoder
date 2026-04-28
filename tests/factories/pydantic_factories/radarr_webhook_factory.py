@@ -5,7 +5,7 @@ from faker import Faker
 from presentation import (
     Movie,
     MovieFile,
-    RadarrWebhookCreateRequest,
+    RadarrWebhookCreateJobRequest,
 )
 
 fake = Faker()
@@ -23,9 +23,9 @@ class MovieFileFactory(factory.Factory):
     
     sourceFile = factory.LazyFunction(lambda: f"/source/{fake.file_name(extension='mkv')}")
 
-class RadarrWebhookCreateRequestFactory(factory.Factory):
+class RadarrWebhookCreateJobRequestFactory(factory.Factory):
     class Meta:
-        model = RadarrWebhookCreateRequest
+        model = RadarrWebhookCreateJobRequest
 
     movie = SubFactory(MovieFactory)
     movieFile = SubFactory(MovieFileFactory)

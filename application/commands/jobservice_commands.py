@@ -1,25 +1,31 @@
 from dataclasses import dataclass
+from uuid import UUID
 
 from domain import (
     FileInfo,
     ExternalMediaIDs,
 )
+
 @dataclass
 class CreateJobCommand:
-    # Application object taking non-ubiqutous arguments, may be improved
     source_file: FileInfo
     media_ids: ExternalMediaIDs | None = None
 
     @classmethod
-    def from_manual(cls, source_file: str) -> "CreateJobCommand":
+    def from_manual(cls,
+                    source_file: FileInfo
+                    ) -> "CreateJobCommand":
         return cls(
-            source_file=FileInfo.from_path(source_file),
+            source_file=source_file,
         )
     
     @classmethod
-    def from_radarr(cls, source_file: str, media_id: int) -> "CreateJobCommand":
+    def from_radarr(cls,
+                    source_file: FileInfo,
+                    media_ids: ExternalMediaIDs
+                    ) -> "CreateJobCommand":
         return cls(
-            source_file=FileInfo.from_path(source_file),
-            media_ids=ExternalMediaIDs.from_radarr(media_id),
+            source_file=source_file,
+            media_ids=media_ids,
         )
 

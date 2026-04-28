@@ -2,7 +2,7 @@ from uuid import uuid4
 
 from tests.fakes.FakeJobService import FakeJobService
 from tests.factories.JobFactory import JobFactory
-from tests.factories.pydantic_factories.radarr_webhook_factory import RadarrWebhookCreateRequestFactory
+from tests.factories.pydantic_factories.radarr_webhook_factory import RadarrWebhookCreateJobRequestFactory
 
 from application import (
     VerificationStarted,
@@ -29,6 +29,9 @@ def test_verify_job_success(client, fake_job_service: FakeJobService):
     response = client.post(f"/jobs/{job.id}/verify")
 
     # Verification
+    # OperationContext assertions
+    assert fake_job_service.verify_job_calls == 1
+
     assert response.status_code == 200
     assert response.json() == {
     "id": str(job.id),
@@ -48,6 +51,9 @@ def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService
     response = client.post(f"/jobs/{job_id}/verify")
 
     # Verification
+    # OperationContext assertions
+    assert fake_job_service.verify_job_calls == 1
+
     assert response.status_code == 404
     assert response.json()["detail"] == {
     "error": "job_not_found",
@@ -71,6 +77,8 @@ def test_dispatch_job_success(client, fake_job_service: FakeJobService):
     response = client.post(f"/jobs/dispatch")
 
     # Verification
+    assert fake_job_service.dispatch_job_calls == 1
+
     assert response.status_code == 200
     assert response.json() == {
     "result": "job_dispatched",
@@ -89,6 +97,8 @@ def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService)
     response = client.post(f"/jobs/dispatch")
 
     # Verification
+    assert fake_job_service.dispatch_job_calls == 1
+
     assert response.status_code == 200
     assert response.json() == {
     "result": "no_job_available",
@@ -110,6 +120,8 @@ def test_create_job_success_with_manual_request(client, fake_job_service: FakeJo
     response = client.post(url=f"/jobs/create/manual", json=request.model_dump())
 
     # Verification
+    assert fake_job_service.create_job_calls == 1
+
     assert response.status_code == 200
     assert response.json() == {
     "job_id": str(job.id),
@@ -125,7 +137,8 @@ def test_create_job_success_with_radarr_webhook_request(client, fake_job_service
     media_id = job.external_media_ids.radarr_movie_id
     ## Set fake_job_service.dispatch_job return value
     fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
-    request = RadarrWebhookCreateRequestFactory(movie__id=media_id, movieFile__sourceFile=source_file)
+    request = RadarrWebhookCreateJobRequestFactory(movie__id=media_id,
+                                                   movieFile__sourceFile=source_file)
 
     # Execution
     response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
@@ -152,8 +165,9 @@ def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(cl
     media_id = job.external_media_ids.radarr_movie_id
     ## Set fake_job_service.dispatch_job return value
     fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
-    request = RadarrWebhookCreateRequestFactory(movie__id=media_id,
+    request = RadarrWebhookCreateJobRequestFactory(movie__id=media_id,
                                                 movieFile__sourceFile=source_file,
+                                                # Extra ignored attributes
                                                 movie__name='kiran',
                                                 movieFile__name='kiran',
                                                 name='kiran'

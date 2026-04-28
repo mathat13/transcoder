@@ -21,7 +21,7 @@ from application import (
 )
 
 def test_manual_job_creation_happy_path(application_test_system: ApplicationTestSystem):
-    cmd = CreateJobCommand.from_manual(source_file="/media/input.mp4")
+    cmd = CreateJobCommand.from_manual(source_file=FileInfo.from_path("/media/input.mp4"))
     application_test_system.job_service.create_job(cmd=cmd, ctx=None)
 
     assert application_test_system.event_bus.processed_event_types() == [

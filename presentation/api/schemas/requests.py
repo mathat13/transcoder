@@ -1,12 +1,5 @@
 from pydantic import BaseModel, ConfigDict
 
-
-class DispatchRequest(BaseModel):
-    pass
-
-class VerifyRequest(BaseModel):
-    id: str
-
 class ManualCreateRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -22,7 +15,7 @@ class MovieFile(BaseModel):
 
     sourceFile: str
 
-class RadarrWebhookCreateRequest(BaseModel):
+class RadarrWebhookCreateJobRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     movie: Movie
