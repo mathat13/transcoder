@@ -92,8 +92,7 @@ class JobService:
             f"{source_file.path.stem}_transcode.mp4"
             )
 
-    def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext] = None) -> CreateJobResult:
-        ctx = ctx or OperationContext.create()
+    def create_job(self, cmd: CreateJobCommand, ctx: OperationContext) -> CreateJobResult:
         transcode_output = self._default_transcode_output_for(cmd.source_file)
 
         job = Job.create(source_file=cmd.source_file,
@@ -105,9 +104,7 @@ class JobService:
         return JobCreated(job=job)
     
     # Future concurrency risk, what if 2 workers try to claim same job?
-    def dispatch_job(self) -> DispatchJobResult:
-        operation_context = OperationContext.create()
-
+    def dispatch_job(self, ctx: OperationContext) -> DispatchJobResult:
         job = self.repo.get_next_pending_job()
 
         if not job:
@@ -117,13 +114,11 @@ class JobService:
                              new_status=JobStatus.processing,
                             )
         self.repo.save(job)
-        self._emit(job=job, context=operation_context)
+        self._emit(job=job, context=ctx)
         
         return JobDispatched(job=job)
 
-    def verify_job(self, job_id: UUID) -> VerifyJobResult:
-        operation_context = OperationContext.create()
-
+    def verify_job(self, job_id: UUID, ctx: OperationContext) -> VerifyJobResult:
         job = self.repo.get_job_by_id(job_id=job_id)
 
         if not job:
@@ -134,6 +129,6 @@ class JobService:
                             )
         
         self.repo.save(job)
-        self._emit(job=job, context=operation_context)
+        self._emit(job=job, context=ctx)
         
         return VerificationStarted(job=job)

@@ -1,4 +1,4 @@
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 from tests.fakes.FakeJobService import FakeJobService
 from tests.factories.JobFactory import JobFactory
@@ -14,14 +14,17 @@ from application import (
 
 from presentation import ManualCreateRequest
 
-from domain import JobStatus
+from domain import (
+    JobStatus,
+    OperationContext,
+)
 
 def test_verify_job_success(client, fake_job_service: FakeJobService):
 
     # Setup
     job = JobFactory(status=JobStatus.verifying)
     # Set fake_job_service.verify_job return value 
-    fake_job_service.verify_job_fn=lambda job_id: VerificationStarted(
+    fake_job_service.verify_job_fn=lambda job_id, ctx: VerificationStarted(
             job=job,
         )
 
@@ -29,7 +32,8 @@ def test_verify_job_success(client, fake_job_service: FakeJobService):
     response = client.post(f"/jobs/{job.id}/verify")
 
     # Verification
-    # OperationContext assertions
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
     assert fake_job_service.verify_job_calls == 1
 
     assert response.status_code == 200
@@ -43,7 +47,7 @@ def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService
     # Setup
     job_id = uuid4()
     # Set fake_job_service.verify_job return value 
-    fake_job_service.verify_job_fn=lambda job_id: VerifyErrorJobNotFound(
+    fake_job_service.verify_job_fn=lambda job_id, ctx: VerifyErrorJobNotFound(
             job_id=job_id
             )
 
@@ -51,7 +55,8 @@ def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService
     response = client.post(f"/jobs/{job_id}/verify")
 
     # Verification
-    # OperationContext assertions
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
     assert fake_job_service.verify_job_calls == 1
 
     assert response.status_code == 404
@@ -71,12 +76,14 @@ def test_dispatch_job_success(client, fake_job_service: FakeJobService):
     # Setup
     job = JobFactory(status=JobStatus.processing)
     ## Set fake_job_service.dispatch_job return value 
-    fake_job_service.dispatch_job_fn=lambda: JobDispatched(job=job)
+    fake_job_service.dispatch_job_fn=lambda ctx: JobDispatched(job=job)
 
     # Execution
     response = client.post(f"/jobs/dispatch")
 
     # Verification
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
     assert fake_job_service.dispatch_job_calls == 1
 
     assert response.status_code == 200
@@ -91,13 +98,15 @@ def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService)
 
     # Setup
     ## Set fake_job_service.dispatch_job return value 
-    fake_job_service.dispatch_job_fn=lambda: DispatchJobNoJobAvailable()
+    fake_job_service.dispatch_job_fn=lambda ctx: DispatchJobNoJobAvailable()
 
     # Execution
     response = client.post(f"/jobs/dispatch")
 
     # Verification
     assert fake_job_service.dispatch_job_calls == 1
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
 
     assert response.status_code == 200
     assert response.json() == {
@@ -112,7 +121,7 @@ def test_create_job_success_with_manual_request(client, fake_job_service: FakeJo
     # Setup
     job = JobFactory()
     source_file = str(job.source_file.path)
-    ## Set fake_job_service.dispatch_job return value
+    ## Set fake_job_service.create_job return value
     fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
     request = ManualCreateRequest(source_file=source_file)
 
@@ -121,6 +130,9 @@ def test_create_job_success_with_manual_request(client, fake_job_service: FakeJo
 
     # Verification
     assert fake_job_service.create_job_calls == 1
+    assert fake_job_service.last_cmd.source_file == job.source_file
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
 
     assert response.status_code == 200
     assert response.json() == {
@@ -135,7 +147,7 @@ def test_create_job_success_with_radarr_webhook_request(client, fake_job_service
     job = JobFactory()
     source_file = str(job.source_file.path)
     media_id = job.external_media_ids.radarr_movie_id
-    ## Set fake_job_service.dispatch_job return value
+    ## Set fake_job_service.create_job return value
     fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
     request = RadarrWebhookCreateJobRequestFactory(movie__id=media_id,
                                                    movieFile__sourceFile=source_file)
@@ -144,6 +156,8 @@ def test_create_job_success_with_radarr_webhook_request(client, fake_job_service
     response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
 
     # Verification
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
     assert fake_job_service.last_cmd.media_ids == job.external_media_ids
     assert fake_job_service.last_cmd.source_file == job.source_file
     assert fake_job_service.create_job_calls == 1
@@ -177,6 +191,8 @@ def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(cl
     response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
 
     # Verification
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
     assert fake_job_service.last_cmd.media_ids == job.external_media_ids
     assert fake_job_service.last_cmd.source_file == job.source_file
     assert fake_job_service.create_job_calls == 1

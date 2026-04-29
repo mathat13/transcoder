@@ -14,9 +14,9 @@ from application import (
 )
 
 class FakeJobService:
-    verify_job_fn: Optional[Callable[[UUID], VerifyJobResult]]
-    dispatch_job_fn: Optional[Callable[..., DispatchJobResult]]
+    verify_job_fn: Optional[Callable[[UUID, OperationContext], VerifyJobResult]]
     create_job_fn: Optional[Callable[[CreateJobCommand, OperationContext], CreateJobResult]]
+    dispatch_job_fn: Optional[Callable[[OperationContext], DispatchJobResult]]
     
     def __init__(self):
         self.last_cmd = None
@@ -30,28 +30,27 @@ class FakeJobService:
         self.dispatch_job_fn = None
         self.create_job_fn = None
 
-    def verify_job(self, job_id: UUID) -> VerifyJobResult:
-        #self.last_ctx = ctx
+    def verify_job(self, job_id: UUID, ctx: OperationContext) -> VerifyJobResult:
+        self.last_ctx = ctx
         self.verify_job_calls += 1
 
         if self.verify_job_fn is None:
             raise NotImplementedError("verify_job_fn not configured")
-        return self.verify_job_fn(job_id)
+        return self.verify_job_fn(job_id, ctx)
     
-    def dispatch_job(self) -> DispatchJobResult:
-        #self.last_ctx = ctx
+    def dispatch_job(self, ctx: OperationContext) -> DispatchJobResult:
+        self.last_ctx = ctx
         self.dispatch_job_calls += 1
 
         if self.dispatch_job_fn is None:
             raise NotImplementedError("dispatch_job_fn not configured")
-        return self.dispatch_job_fn()
+        return self.dispatch_job_fn(ctx)
     
-    def create_job(self, cmd: CreateJobCommand, ctx: Optional[OperationContext] = None) -> CreateJobResult:
+    def create_job(self, cmd: CreateJobCommand, ctx: OperationContext) -> CreateJobResult:
         self.last_cmd = cmd
         self.last_ctx = ctx
         self.create_job_calls += 1
         
         if self.create_job_fn is None:
             raise NotImplementedError("create_job_fn not configured")
-        ctx = ctx or OperationContext.create()
         return self.create_job_fn(cmd, ctx)
