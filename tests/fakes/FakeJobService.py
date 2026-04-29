@@ -32,6 +32,7 @@ class FakeJobService:
 
     def verify_job(self, job_id: UUID, ctx: OperationContext) -> VerifyJobResult:
         self.last_ctx = ctx
+        self.last_cmd = job_id
         self.verify_job_calls += 1
 
         if self.verify_job_fn is None:

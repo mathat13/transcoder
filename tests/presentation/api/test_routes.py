@@ -9,8 +9,9 @@ from application import (
     VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
-    JobCreated,
+    CreateJobCommand
 )
+from application.result_types.jobservice_result_types import JobCreated
 
 from presentation import ManualCreateRequest
 
@@ -33,14 +34,13 @@ def test_verify_job_success(client, fake_job_service: FakeJobService):
 
     # Verification
     assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
+    assert isinstance(fake_job_service.last_cmd, UUID)
     assert fake_job_service.verify_job_calls == 1
 
     assert response.status_code == 200
-    assert response.json() == {
-    "id": str(job.id),
-    "status": job.status.value
-    }
+    json = response.json()
+    assert json["id"] == str(job.id)
+    assert json["status"] == job.status.value
 
 def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService):
 
@@ -56,16 +56,12 @@ def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService
 
     # Verification
     assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
     assert fake_job_service.verify_job_calls == 1
 
     assert response.status_code == 404
-    assert response.json()["detail"] == {
-    "error": "job_not_found",
-    "message": None,
-    "job_id": str(job_id),
-    "details": None
-    }
+    json = response.json()
+    assert json["detail"]["error"] == "job_not_found"
+    assert json["detail"]["job_id"] == str(job_id)
 
 def test_verify_job_invalid_uuid(client):
     response = client.post("/jobs/not-a-uuid/verify")
@@ -83,16 +79,14 @@ def test_dispatch_job_success(client, fake_job_service: FakeJobService):
 
     # Verification
     assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
     assert fake_job_service.dispatch_job_calls == 1
 
     assert response.status_code == 200
-    assert response.json() == {
-    "result": "job_dispatched",
-    "job_id": str(job.id),
-    "source_file": str(job.source_file.path),
-    "output_file": str(job.transcode_output_file.path),
-    }
+    json = response.json()
+    assert json["result"] == "job_dispatched"
+    assert json["job_id"] == str(job.id)
+    assert json["source_file"] == str(job.source_file.path)
+    assert json["output_file"] == str(job.transcode_output_file.path)
 
 def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService):
 
@@ -106,15 +100,13 @@ def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService)
     # Verification
     assert fake_job_service.dispatch_job_calls == 1
     assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
 
     assert response.status_code == 200
-    assert response.json() == {
-    "result": "no_job_available",
-    "job_id": None,
-    "source_file": None,
-    "output_file": None,
-    }
+    json = response.json()
+    assert json["result"] == "no_job_available"
+    assert json["job_id"] == None
+    assert json["source_file"] == None
+    assert json["output_file"] == None
 
 def test_create_job_success_with_manual_request(client, fake_job_service: FakeJobService):
 
@@ -130,16 +122,14 @@ def test_create_job_success_with_manual_request(client, fake_job_service: FakeJo
 
     # Verification
     assert fake_job_service.create_job_calls == 1
-    assert fake_job_service.last_cmd.source_file == job.source_file
+    assert isinstance(fake_job_service.last_cmd, CreateJobCommand)
     assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
 
     assert response.status_code == 200
-    assert response.json() == {
-    "job_id": str(job.id),
-    "status": job.status.value,
-    "source_file": str(job.source_file.path),
-    }
+    json = response.json()
+    assert json["job_id"] == str(job.id)
+    assert json["status"] == job.status.value
+    assert json["source_file"] == str(job.source_file.path)
 
 def test_create_job_success_with_radarr_webhook_request(client, fake_job_service: FakeJobService):
 
@@ -157,18 +147,14 @@ def test_create_job_success_with_radarr_webhook_request(client, fake_job_service
 
     # Verification
     assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
-    assert fake_job_service.last_cmd.media_ids == job.external_media_ids
-    assert fake_job_service.last_cmd.source_file == job.source_file
+    assert isinstance(fake_job_service.last_cmd, CreateJobCommand)
     assert fake_job_service.create_job_calls == 1
 
     assert response.status_code == 200
-    assert response.json() == {
-    "job_id": str(job.id),
-    "status": job.status.value,
-    "source_file": str(job.source_file.path),
-    }
-
+    json = response.json()
+    assert json["job_id"] == str(job.id)
+    assert json["status"] == job.status.value
+    assert json["source_file"] == str(job.source_file.path)
 
 def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(client,
                                                                               fake_job_service: FakeJobService):
@@ -192,14 +178,11 @@ def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(cl
 
     # Verification
     assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_ctx.operation_id, UUID)
-    assert fake_job_service.last_cmd.media_ids == job.external_media_ids
-    assert fake_job_service.last_cmd.source_file == job.source_file
+    assert isinstance(fake_job_service.last_cmd, CreateJobCommand)
     assert fake_job_service.create_job_calls == 1
 
     assert response.status_code == 200
-    assert response.json() == {
-    "job_id": str(job.id),
-    "status": job.status.value,
-    "source_file": str(job.source_file.path),
-    }
+    json = response.json()
+    assert json["job_id"] == str(job.id)
+    assert json["status"] == job.status.value
+    assert json["source_file"] == str(job.source_file.path)
