@@ -40,7 +40,7 @@ class SelectOption(RadarrBaseModel):
     dividerAfter: bool
 
 
-class Field(RadarrBaseModel):
+class RadarrField(RadarrBaseModel):
     order: int
     name: str
     label: str
@@ -68,7 +68,7 @@ class Specification(RadarrBaseModel):
     infoLink: str
     negate: bool
     required: bool
-    fields: List[Field]
+    fields: List[RadarrField]
     presets: List[str]
 
 

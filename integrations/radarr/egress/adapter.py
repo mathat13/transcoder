@@ -1,17 +1,17 @@
 from pydantic import TypeAdapter
 
-from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
-from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
-from infrastructure.api_adapters.radarr.data_models.headers import RadarrHeaders
-from infrastructure.api_adapters.radarr.data_models.get_moviefile import GetMovieFileResponse
-from infrastructure.api_adapters.radarr.data_models.rescan_movie import RescanMovieRequest
+from integrations.dependencies.BaseAPIAdapter import BaseAPIAdapter
+from infrastructure import HTTPRequest
+from integrations.radarr.egress.requests.headers import RadarrHeaders
+from integrations.radarr.egress.responses.get_moviefile import GetMovieFileResponse
+from integrations.radarr.egress.requests.rescan_movie import RescanMovieRequest
 
 from domain import (ExternalMediaIDs,
                     FileInfo,
                     OperationContext,
 )
 
-from application import (RadarrUpdateMovieFileCapable)
+from application import RadarrUpdateMovieFileCapable
 
 class RadarrAPIAdapter(BaseAPIAdapter,
                        RadarrUpdateMovieFileCapable):

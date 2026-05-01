@@ -4,7 +4,7 @@ from application import (APIServiceRetryableException,
                          APIServiceTerminalException
                          )
 
-from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
+from infrastructure import HTTPResponse
 
 class BaseAPIAdapter:
     service_name: str

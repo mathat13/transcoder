@@ -1,8 +1,9 @@
 import requests
 
-from infrastructure.api_adapters.shared.HTTPResponse import HTTPResponse
-from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
-
+from infrastructure.transport.http.models import (
+    HTTPResponse,
+    HTTPRequest,
+)
 
 class HTTPClient():
     """

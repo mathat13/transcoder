@@ -1,8 +1,8 @@
 from domain import (OperationContext)
 
-from infrastructure.api_adapters.base.BaseAPIAdapter import BaseAPIAdapter
-from infrastructure.api_adapters.shared.HTTPRequest import HTTPRequest
-from infrastructure.api_adapters.jellyfin.data_models.headers import JellyfinHeaders
+from integrations import BaseAPIAdapter
+from infrastructure.transport.http.models import HTTPRequest
+from integrations.jellyfin.egress.requests.headers import JellyfinHeaders
 
 from application import (
     JellyfinLibraryRefreshCapable,

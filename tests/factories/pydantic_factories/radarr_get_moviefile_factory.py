@@ -1,14 +1,13 @@
 import factory
 from factory import Faker, SubFactory, List
-from typing import List as TypingList
 
-from infrastructure import (
+from integrations import (
     Language,
     Quality1,
     Revision,
     Quality,
     SelectOption,
-    Field,
+    RadarrField,
     Specification,
     CustomFormat,
     MediaInfo,
@@ -66,9 +65,9 @@ class SelectOptionFactory(factory.Factory):
     dividerAfter = Faker("boolean")
 
 
-class FieldFactory(factory.Factory):
+class RadarrFieldFactory(factory.Factory):
     class Meta:
-        model = Field
+        model = RadarrField
 
     order = Faker("random_int", min=0, max=10)
     name = Faker("word")
@@ -100,7 +99,7 @@ class SpecificationFactory(factory.Factory):
     infoLink = Faker("url")
     negate = Faker("boolean")
     required = Faker("boolean")
-    fields = List([SubFactory(FieldFactory) for _ in range(2)])
+    fields = List([SubFactory(RadarrFieldFactory) for _ in range(2)])
     presets = List([Faker("word") for _ in range(2)])
 
 
