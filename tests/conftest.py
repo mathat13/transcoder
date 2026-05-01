@@ -20,8 +20,10 @@ from tests.bootstrap.Types import (
 
 from tests.fakes.FakeJobService import FakeJobService
 
-from presentation.api.routes.routes import router as jobs_router
-from presentation.api.dependencies import get_job_service
+from presentation.api.dependencies import (
+    get_job_service,
+    jobs_router
+)
 
 from infrastructure import (
     Base,
