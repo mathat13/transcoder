@@ -1,4 +1,4 @@
-from presentation.api.schemas.requests import RadarrWebhookCreateJobRequest
+from integrations.radarr.ingress.requests import RadarrWebhookCreateJobRequest
 
 from domain import (FileInfo,
                     ExternalMediaIDs,

@@ -5,16 +5,12 @@ from presentation.api.presenters.create_job import CreateJobResultPresenter
 from presentation.api.presenters.verify_job import VerifyJobResultPresenter
 from presentation.api.presenters.dispatch_job import DispatchJobResultPresenter
 from presentation.api.translators.ManualCreateJobTranslator import ManualCreateJobTranslator
-from presentation.api.translators.RadarrWebhookCreateJobTranslator import RadarrWebhookCreateJobTranslator
 from presentation.api.schemas.responses import (
     VerifyJobResponse,
     DispatchJobResponse,
     CreateJobResponse,
 )
-from presentation.api.schemas.requests import (
-    ManualCreateRequest,
-    RadarrWebhookCreateJobRequest,
-)
+from presentation.api.schemas.requests import ManualCreateRequest
 
 from presentation.api.dependencies import (
     get_job_service,

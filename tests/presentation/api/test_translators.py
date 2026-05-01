@@ -4,9 +4,10 @@ from tests.factories.pydantic_factories.radarr_webhook_factory import RadarrWebh
 
 from presentation import (
     ManualCreateJobTranslator,
-    RadarrWebhookCreateJobTranslator,
     ManualCreateRequest,
 )
+
+from integrations import RadarrWebhookCreateJobTranslator
 
 from domain import (
     FileInfo,

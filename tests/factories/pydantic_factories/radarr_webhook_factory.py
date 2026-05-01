@@ -2,7 +2,7 @@ import factory
 from factory import SubFactory
 from faker import Faker
 
-from presentation import (
+from integrations import (
     Movie,
     MovieFile,
     RadarrWebhookCreateJobRequest,

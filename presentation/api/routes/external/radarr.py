@@ -1,15 +1,17 @@
 from fastapi import Depends
 
 from presentation.api.presenters.create_job import CreateJobResultPresenter
-from presentation.api.translators.RadarrWebhookCreateJobTranslator import RadarrWebhookCreateJobTranslator
 from presentation.api.schemas.responses import CreateJobResponse
-from presentation.api.schemas.requests import RadarrWebhookCreateJobRequest
-
 from presentation.api.dependencies import (
     get_job_service,
     build_operation_context,
     jobs_router as router,
 )
+
+from integrations import (
+    RadarrWebhookCreateJobRequest,
+    RadarrWebhookCreateJobTranslator
+    )
 
 from application import JobService
 from domain import OperationContext
