@@ -5,6 +5,7 @@ from presentation.api.presenters.create_job import CreateJobResultPresenter
 from presentation.api.presenters.verify_job import VerifyJobResultPresenter
 from presentation.api.presenters.dispatch_job import DispatchJobResultPresenter
 from presentation.api.translators.ManualCreateJobTranslator import ManualCreateJobTranslator
+from presentation.api.translators.result_types import *
 from presentation.api.schemas.responses import (
     VerifyJobResponse,
     DispatchJobResponse,
@@ -22,6 +23,7 @@ from domain import OperationContext
 
 from application import JobService
 
+# Add global exception handler here
 
 @router.post("/{job_id}/verify", response_model=VerifyJobResponse)
 def verify_job(
@@ -47,8 +49,12 @@ def create_manual_job(
     service: JobService = Depends(get_job_service),
     ctx: OperationContext = Depends(build_operation_context),
 ):
-    cmd = ManualCreateJobTranslator.translate(request=request)
+    result = ManualCreateJobTranslator.translate(request=request)
 
-    result = service.create_job(cmd=cmd, ctx=ctx)
-    return CreateJobResultPresenter.present_create_job(result)
+    match result:
+        case CommandReady():
+            return CreateJobResultPresenter.present_create_job(
+                service.create_job(cmd=result.command, ctx=ctx)
+            )
+        # Implement ignore cases if ever needed
 

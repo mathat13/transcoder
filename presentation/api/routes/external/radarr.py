@@ -2,16 +2,14 @@ from fastapi import Depends
 
 from presentation.api.presenters.create_job import CreateJobResultPresenter
 from presentation.api.schemas.responses import CreateJobResponse
+from presentation.api.schemas.requests import RadarrWebhookCreateJobRequest
+from presentation.api.translators.RadarrWebhookCreateJobTranslator import RadarrWebhookCreateJobTranslator
+from presentation.api.translators.result_types import *
 from presentation.api.dependencies import (
     get_job_service,
     build_operation_context,
     jobs_router as router,
 )
-
-from integrations import (
-    RadarrWebhookCreateJobRequest,
-    RadarrWebhookCreateJobTranslator
-    )
 
 from application import JobService
 from domain import OperationContext
@@ -22,8 +20,16 @@ def create_job(
     service: JobService = Depends(get_job_service),
     ctx: OperationContext = Depends(build_operation_context),
 ):
-    cmd = RadarrWebhookCreateJobTranslator.translate(request=request)
+    
+    result = RadarrWebhookCreateJobTranslator.translate(request=request)
 
-    result = service.create_job(cmd=cmd, ctx=ctx)
-
-    return CreateJobResultPresenter.present_create_job(result)
+    match result:
+        case Ignored(reason=reason):
+            return {
+                "status": "ignored",
+                "reason": reason.value
+                }
+        case CommandReady():
+            return CreateJobResultPresenter.present_create_job(
+                service.create_job(cmd=result.command, ctx=ctx)
+            )

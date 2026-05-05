@@ -1,17 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-class Movie(BaseModel):
+class RadarrWebhookPayload(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
-    id: int
-
-class MovieFile(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    sourceFile: str
-
-class RadarrWebhookCreateJobRequest(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    movie: Movie
-    movieFile: MovieFile
+    eventType: str

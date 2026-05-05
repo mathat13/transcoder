@@ -2,11 +2,13 @@ import factory
 from factory import SubFactory
 from faker import Faker
 
-from integrations import (
+from presentation import (
     Movie,
     MovieFile,
     RadarrWebhookCreateJobRequest,
 )
+
+from integrations import RadarrWebhookPayload
 
 fake = Faker()
 
@@ -29,3 +31,9 @@ class RadarrWebhookCreateJobRequestFactory(factory.Factory):
 
     movie = SubFactory(MovieFactory)
     movieFile = SubFactory(MovieFileFactory)
+    eventType = factory.LazyFunction(lambda: "Download")
+
+class RadarrWebhookPayloadFactory(factory.Factory):
+    model = RadarrWebhookPayload
+
+    eventType = factory.LazyFunction(lambda: "Download")

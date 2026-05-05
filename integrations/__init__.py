@@ -1,4 +1,4 @@
-from .radarr.ingress.RadarrWebhookCreateJobTranslator import *
+from .radarr.ingress.RadarrWebhookEventPolicy import *
 from .radarr.ingress.requests import *
 from .radarr.egress.requests.rescan_movie import *
 from .radarr.egress.requests.headers import *
