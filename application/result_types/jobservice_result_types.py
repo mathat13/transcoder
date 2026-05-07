@@ -38,3 +38,13 @@ class VerificationStarted(VerifyJob):
     job: Job
 
 VerifyJobResult = Union[VerifyErrorJobNotFound, VerificationStarted]
+
+@dataclass
+class GetJobByIDFound:
+    job: Job
+
+@dataclass
+class GetJobByIDNotFound:
+    pass
+
+GetJobByIDResult = Union[GetJobByIDFound, GetJobByIDNotFound]

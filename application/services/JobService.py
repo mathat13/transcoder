@@ -21,6 +21,9 @@ from application.result_types.jobservice_result_types import (
                                                             DispatchJobNoJobAvailable,
                                                             VerifyErrorJobNotFound,
                                                             VerificationStarted,
+                                                            GetJobByIDNotFound,
+                                                            GetJobByIDFound,
+                                                            GetJobByIDResult,
                                                             )
 
 
@@ -91,6 +94,13 @@ class JobService:
             Path("/tmp/transcode"),
             f"{source_file.path.stem}_transcode.mp4"
             )
+
+    def get_job_by_id(self, job_id: UUID, ctx: OperationContext) -> GetJobByIDResult:
+        job = self.repo.get_job_by_id(job_id=job_id)
+        if not job:
+            return GetJobByIDNotFound()
+        
+        return GetJobByIDFound(job=job)
 
     def create_job(self, cmd: CreateJobCommand, ctx: OperationContext) -> CreateJobResult:
         transcode_output = self._default_transcode_output_for(cmd.source_file)

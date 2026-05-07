@@ -32,6 +32,8 @@ from application import (JobDispatched,
                          VerificationStarted,
                          VerifyErrorJobNotFound,
                          CreateJobCommand,
+                         GetJobByIDFound,
+                         GetJobByIDNotFound,
                          )
 from application.result_types.jobservice_result_types import JobCreated
 
@@ -82,6 +84,31 @@ def test_JobService_emits_correct_events_on_status_transition(initial_status: Jo
     job_service_test_system.job_service._transition_job(job, request_status)
     job_service_test_system.job_service._emit(job=job, context=context)
     assert job_service_test_system.event_bus.processed_event_types() == expected_event_list
+
+def test_JobService_get_job_by_id_with_job(job_service_test_system: JobServiceTestSystem):
+    # Setup
+    job = JobFactory(status=JobStatus.pending)
+    ctx = OperationContext.create()
+    job_service_test_system.job_repo.save(job)
+
+    # Execution
+    result = job_service_test_system.job_service.get_job_by_id(job_id=job.id, ctx=ctx)
+
+    # Verification
+    assert isinstance(result, GetJobByIDFound)
+    assert result.job is job
+
+def test_JobService_get_job_by_id_with_no_job(job_service_test_system: JobServiceTestSystem):
+    # Setup
+    job = JobFactory(status=JobStatus.pending)
+    ctx = OperationContext.create()
+    # No saving of job to repo
+
+    # Execution
+    result = job_service_test_system.job_service.get_job_by_id(job_id=job.id, ctx=ctx)
+
+    # Verification
+    assert isinstance(result, GetJobByIDNotFound)
 
 def test_JobService_create_job_with_manual_command(job_service_test_system: JobServiceTestSystem):
     source_file=FileInfo.from_path("/media/input.mp4")
