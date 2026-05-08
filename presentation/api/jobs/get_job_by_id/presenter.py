@@ -14,9 +14,6 @@ class GetJobByIDResultPresenter:
             case GetJobByIDFound(job=job):
                 dto = JobSummaryMapper.to_job_summary(job=job)
                 return GetJobByIDResponse(result="job_found",
-                                          data=dto,
-                                          meta=None)
+                                          data=dto)
             case GetJobByIDNotFound():
-                return GetJobByIDResponse(result="job_not_found",
-                                          data=None,
-                                          meta=None)
+                return GetJobByIDResponse(result="job_not_found")
