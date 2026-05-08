@@ -1,5 +1,5 @@
-from presentation.api.jobs.get_job_by_id.response import GetJobByIDResponse
-from presentation.api.jobs.get_job_by_id.mapper import JobSummaryMapper
+from presentation.api.jobs.internal.get_job_by_id.response import GetJobByIDResponse
+from presentation.api.jobs.internal.get_job_by_id.mapper import JobSummaryMapper
 
 from application import (
     GetJobByIDFound,

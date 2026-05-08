@@ -84,6 +84,7 @@ def job_model_factory(db_session) -> JobModelFactory:
     JobModelFactory._meta.sqlalchemy_session = db_session
     return JobModelFactory
 
+# --- FastAPI ---
 @pytest.fixture
 def fake_job_service():
     return FakeJobService()
