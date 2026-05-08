@@ -17,12 +17,12 @@ from presentation import (
     GetJobByIDResponse,
     )
 
-from application.result_types.jobservice_result_types import JobCreated
 from application import (
     VerificationStarted,
     VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
+    JobCreatedResult,
     GetJobByIDNotFound,
     GetJobByIDFound,
 )
@@ -62,10 +62,10 @@ def test_VerifyJobResultPresenter_with_VerifyErrorJobNotFound():
     assert err.detail["error"] == "job_not_found"
     assert err.detail["job_id"] == str(job_id)
 
-def test_CreateJobResultPresenter_with_JobCreated():
+def test_CreateJobResultPresenter_with_JobCreatedResult():
     # Setup
     job = JobFactory(status=JobStatus.pending)
-    result = JobCreated(
+    result = JobCreatedResult(
             job=job
             )
     

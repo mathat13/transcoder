@@ -1,31 +1,36 @@
 from uuid import UUID
-from typing import Optional
 from pathlib import Path
 
 from application.events.EventEnvelope import EventEnvelope
 from application.events.EventPublisher import EventPublisher
 from application.interfaces.infrastructure.ports.JobPersistenceCapable import JobPersistenceCapable
-from application.events.ApplicationEvents import (TranscodeVerified,
-                                                  JobCompletionSuccess,
-                                                  JobNotFoundDuringVerification,
-                                                  )
-from application.commands.jobservice_commands import (
+from application.events.ApplicationEvents import (
+    TranscodeVerified,
+    JobCompletionSuccess,
+    JobNotFoundDuringVerification,
+)
+from application.services.jobs.commands.create_job.command import (
     CreateJobCommand,
 )
-from application.result_types.jobservice_result_types import (
-                                                            VerifyJobResult,
-                                                            DispatchJobResult,
-                                                            CreateJobResult,
-                                                            JobCreated,
-                                                            JobDispatched,
-                                                            DispatchJobNoJobAvailable,
-                                                            VerifyErrorJobNotFound,
-                                                            VerificationStarted,
-                                                            GetJobByIDNotFound,
-                                                            GetJobByIDFound,
-                                                            GetJobByIDResult,
-                                                            )
-
+from application.services.jobs.commands.create_job.results import (
+    JobCreatedResult,
+    CreateJobResult,
+)
+from application.services.jobs.commands.dispatch_job.results import (
+    JobDispatched,
+    DispatchJobNoJobAvailable,
+    DispatchJobResult,
+)
+from application.services.jobs.commands.verify_job.results import (
+    VerifyErrorJobNotFound,
+    VerificationStarted,
+    VerifyJobResult,
+)
+from application.services.jobs.queries.get_job_by_id.results import (
+    GetJobByIDNotFound,
+    GetJobByIDFound,
+    GetJobByIDResult,
+)
 
 from domain import (
     Job,
@@ -111,7 +116,7 @@ class JobService:
 
         self.repo.save(job)
         self._emit(job=job, context=ctx)
-        return JobCreated(job=job)
+        return JobCreatedResult(job=job)
     
     # Future concurrency risk, what if 2 workers try to claim same job?
     def dispatch_job(self, ctx: OperationContext) -> DispatchJobResult:

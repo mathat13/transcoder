@@ -9,12 +9,12 @@ from application import (
     VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
+    JobCreatedResult,
     CreateJobCommand,
     GetJobByIDFound,
     GetJobByIDNotFound,
 )
 # Imported indiviually due to having the same name as an event in application layer (whoops)
-from application.result_types.jobservice_result_types import JobCreated
 
 from presentation import ManualCreateRequest
 
@@ -117,7 +117,7 @@ def test_create_job_success_with_manual_request(client, fake_job_service: FakeJo
     job = JobFactory()
     source_file = str(job.source_file.path)
     ## Set fake_job_service.create_job return value
-    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
+    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreatedResult(job=job)
     request = ManualCreateRequest(source_file=source_file)
 
     # Execution
@@ -141,7 +141,7 @@ def test_create_job_success_with_radarr_webhook_request(client, fake_job_service
     source_file = str(job.source_file.path)
     media_id = job.external_media_ids.radarr_movie_id
     ## Set fake_job_service.create_job return value
-    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
+    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreatedResult(job=job)
     request = RadarrWebhookCreateJobRequestFactory(movie__id=media_id,
                                                    movieFile__sourceFile=source_file)
 
@@ -167,7 +167,7 @@ def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(cl
     source_file = str(job.source_file.path)
     media_id = job.external_media_ids.radarr_movie_id
     ## Set fake_job_service.dispatch_job return value
-    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreated(job=job)
+    fake_job_service.create_job_fn=lambda cmd, ctx: JobCreatedResult(job=job)
     request = RadarrWebhookCreateJobRequestFactory(movie__id=media_id,
                                                 movieFile__sourceFile=source_file,
                                                 # Extra ignored attributes

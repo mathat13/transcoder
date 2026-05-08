@@ -31,11 +31,11 @@ from application import (JobDispatched,
                          JobNotFoundDuringVerification,
                          VerificationStarted,
                          VerifyErrorJobNotFound,
+                         JobCreatedResult,
                          CreateJobCommand,
                          GetJobByIDFound,
                          GetJobByIDNotFound,
                          )
-from application.result_types.jobservice_result_types import JobCreated
 
 def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServiceTestSystem):
 
@@ -117,7 +117,7 @@ def test_JobService_create_job_with_manual_command(job_service_test_system: JobS
 
     result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=ctx)
 
-    assert isinstance(result, JobCreated)
+    assert isinstance(result, JobCreatedResult)
     assert result.job.external_media_ids is None
     assert result.job.source_file is source_file
 
@@ -129,7 +129,7 @@ def test_JobService_create_job_with_radarr_command(job_service_test_system: JobS
     
     result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=ctx)
 
-    assert isinstance(result, JobCreated)
+    assert isinstance(result, JobCreatedResult)
     assert result.job.external_media_ids is media_ids
     assert result.job.source_file is source_file
 
