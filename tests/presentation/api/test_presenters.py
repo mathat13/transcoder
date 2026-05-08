@@ -10,10 +10,11 @@ from presentation import (
     VerifyJobResultPresenter,
     CreateJobResultPresenter,
     DispatchJobResultPresenter,
+    GetJobByIDResultPresenter,
     VerifyJobResponse,
     DispatchJobResponse,
     CreateJobResponse,
-    ErrorResponse,
+    GetJobByIDResponse,
     )
 
 from application.result_types.jobservice_result_types import JobCreated
@@ -22,6 +23,8 @@ from application import (
     VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
+    GetJobByIDNotFound,
+    GetJobByIDFound,
 )
 
 def test_VerifyJobResultPresenter_with_VerificationStarted():
@@ -106,3 +109,41 @@ def test_DispatchJobResultPresenter_with_DispatchJobNoJobAvailable():
     # Validation
     assert isinstance(response, DispatchJobResponse)
     assert response.result == "no_job_available"
+
+def test_GetJobByIDResultPresenter_with_GetJobByIDJobFound():
+    # Setup
+    job = JobFactory(status=JobStatus.verifying)
+    # Set fake_job_service.verify_job return value
+    result = GetJobByIDFound(job=job)
+    
+    # Exeution
+    response = GetJobByIDResultPresenter.present(result=result)
+
+    # Validation
+    assert isinstance(response, GetJobByIDResponse)
+    assert response.model_dump() == {
+        "result": "job_found",
+        "data": {
+            "id": str(job.id),
+            "source_file": str(job.source_file.path),
+            "transcode_output_file": str(job.transcode_output_file.path),
+            "delivery_file": str(job.delivery_file.path),
+            "status": job.status.value
+        },
+        "meta": None,
+    }
+
+def test_GetJobByIDResultPresenter_with_GetJobByIDNotFound():
+    # Setup
+    result = GetJobByIDNotFound()
+    
+    # Exeution
+    response = GetJobByIDResultPresenter.present(result=result)
+
+    # Validation
+    assert isinstance(response, GetJobByIDResponse)
+    assert response.model_dump() == {
+        "result": "job_not_found",
+        "data": None,
+        "meta": None,
+    }

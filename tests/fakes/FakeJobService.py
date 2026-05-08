@@ -7,6 +7,7 @@ from application import (
     VerifyJobResult,
     DispatchJobResult,
     CreateJobResult,
+    GetJobByIDResult,
 )
 
 from application import (
@@ -17,6 +18,7 @@ class FakeJobService:
     verify_job_fn: Optional[Callable[[UUID, OperationContext], VerifyJobResult]]
     create_job_fn: Optional[Callable[[CreateJobCommand, OperationContext], CreateJobResult]]
     dispatch_job_fn: Optional[Callable[[OperationContext], DispatchJobResult]]
+    get_job_by_id_fn: Optional[Callable[[UUID, OperationContext], GetJobByIDResult]]
     
     def __init__(self):
         self.last_cmd = None
@@ -25,10 +27,12 @@ class FakeJobService:
         self.create_job_calls = 0
         self.dispatch_job_calls = 0
         self.verify_job_calls = 0
+        self.get_job_by_id_calls = 0
 
         self.verify_job_fn = None
         self.dispatch_job_fn = None
         self.create_job_fn = None
+        self.get_job_by_id_fn = None
 
     def verify_job(self, job_id: UUID, ctx: OperationContext) -> VerifyJobResult:
         self.last_ctx = ctx
@@ -55,3 +59,12 @@ class FakeJobService:
         if self.create_job_fn is None:
             raise NotImplementedError("create_job_fn not configured")
         return self.create_job_fn(cmd, ctx)
+    
+    def get_job_by_id(self, job_id: UUID, ctx: OperationContext) -> GetJobByIDResult:
+        self.last_cmd = job_id
+        self.last_ctx = ctx
+        self.get_job_by_id_calls += 1
+
+        if self.get_job_by_id_fn is None:
+            raise NotImplementedError("get_job_by_id_fn not configured")
+        return self.get_job_by_id_fn(job_id, ctx)

@@ -1,7 +1,24 @@
 from pydantic import BaseModel
-from typing import Literal
+from typing import Literal, Generic
 
 from domain import Job
+
+from typing import TypeVar
+
+T = TypeVar("T")
+
+# Meta responses
+class ApiResponse(BaseModel, Generic[T]):
+    data: T | None = None
+    meta: dict | None = None
+    
+class ErrorResponse(BaseModel):
+    error: str
+    message: str | None = None
+    job_id: str | None = None
+    details: dict | None = None
+
+# DTOs
 
 class VerifyJobResponse(BaseModel):
     id: str
@@ -45,9 +62,3 @@ class DispatchJobResponse(BaseModel):
     @classmethod
     def no_job_available(cls) -> "DispatchJobResponse":
         return cls(result="no_job_available")
-    
-class ErrorResponse(BaseModel):
-    error: str
-    message: str | None = None
-    job_id: str | None = None
-    details: dict | None = None

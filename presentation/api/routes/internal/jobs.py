@@ -57,4 +57,3 @@ def create_manual_job(
                 service.create_job(cmd=result.command, ctx=ctx)
             )
         # Implement ignore cases if ever needed
-

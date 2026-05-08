@@ -9,8 +9,11 @@ from application import (
     VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
-    CreateJobCommand
+    CreateJobCommand,
+    GetJobByIDFound,
+    GetJobByIDNotFound,
 )
+# Imported indiviually due to having the same name as an event in application layer (whoops)
 from application.result_types.jobservice_result_types import JobCreated
 
 from presentation import ManualCreateRequest
@@ -186,3 +189,45 @@ def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(cl
     assert json["job_id"] == str(job.id)
     assert json["status"] == job.status.value
     assert json["source_file"] == str(job.source_file.path)
+
+def test_get_job_by_id_success(client, fake_job_service: FakeJobService):
+
+    # Setup
+    job = JobFactory()
+    ## Set fake_job_service.create_job return value
+    fake_job_service.get_job_by_id_fn=lambda job_id, ctx: GetJobByIDFound(job=job)
+
+    # Execution
+    response = client.get(url=f"/jobs/{job.id}")
+
+    # Verification
+    assert fake_job_service.get_job_by_id_calls == 1
+    assert isinstance(fake_job_service.last_cmd, UUID)
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+
+    assert response.status_code == 200
+    json = response.json()
+    assert json["result"] == "job_found"
+    assert json["data"] is not None
+    assert json["meta"] is None
+
+def test_get_job_by_id_no_job_found(client, fake_job_service: FakeJobService):
+
+    # Setup
+    job = JobFactory()
+    ## Set fake_job_service.get_job_by_id return value
+    fake_job_service.get_job_by_id_fn=lambda job_id, ctx: GetJobByIDNotFound()
+
+    # Execution
+    response = client.get(url=f"/jobs/{job.id}")
+
+    # Verification
+    assert fake_job_service.get_job_by_id_calls == 1
+    assert isinstance(fake_job_service.last_cmd, UUID)
+    assert isinstance(fake_job_service.last_ctx, OperationContext)
+
+    assert response.status_code == 200
+    json = response.json()
+    assert json["result"] == "job_not_found"
+    assert json["data"] is None
+    assert json["meta"] is None
