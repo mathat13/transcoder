@@ -1,12 +1,10 @@
-from uuid import uuid4, UUID
+import pytest
 
 from tests.fakes.FakeJobService import FakeJobService
 from tests.factories.JobFactory import JobFactory
 from tests.factories.pydantic_factories.radarr_webhook_factory import RadarrWebhookCreateJobRequestFactory
 
 from application import (
-    VerificationStarted,
-    VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
     JobCreatedResult,
@@ -19,53 +17,6 @@ from domain import (
     JobStatus,
     OperationContext,
 )
-
-def test_verify_job_success(client, fake_job_service: FakeJobService):
-
-    # Setup
-    job = JobFactory(status=JobStatus.verifying)
-    # Set fake_job_service.verify_job return value 
-    fake_job_service.verify_job_fn=lambda job_id, ctx: VerificationStarted(
-            job=job,
-        )
-
-    # Execution
-    response = client.post(f"/jobs/{job.id}/verify")
-
-    # Verification
-    assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert isinstance(fake_job_service.last_cmd, UUID)
-    assert fake_job_service.verify_job_calls == 1
-
-    assert response.status_code == 200
-    json = response.json()
-    assert json["id"] == str(job.id)
-    assert json["status"] == job.status.value
-
-def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService):
-
-    # Setup
-    job_id = uuid4()
-    # Set fake_job_service.verify_job return value 
-    fake_job_service.verify_job_fn=lambda job_id, ctx: VerifyErrorJobNotFound(
-            job_id=job_id
-            )
-
-    # Execution
-    response = client.post(f"/jobs/{job_id}/verify")
-
-    # Verification
-    assert isinstance(fake_job_service.last_ctx, OperationContext)
-    assert fake_job_service.verify_job_calls == 1
-
-    assert response.status_code == 404
-    json = response.json()
-    assert json["detail"]["error"] == "job_not_found"
-    assert json["detail"]["job_id"] == str(job_id)
-
-def test_verify_job_invalid_uuid(client):
-    response = client.post("/jobs/not-a-uuid/verify")
-    assert response.status_code == 422
 
 def test_dispatch_job_success(client, fake_job_service: FakeJobService):
     

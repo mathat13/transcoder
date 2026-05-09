@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Literal, Generic
+from typing import Literal
 
 from domain import Job
 
@@ -7,29 +7,7 @@ from typing import TypeVar
 
 T = TypeVar("T")
 
-# Meta responses
-class ApiResponse(BaseModel, Generic[T]):
-    data: T | None = None
-    meta: dict | None = None
-    
-class ErrorResponse(BaseModel):
-    error: str
-    message: str | None = None
-    job_id: str | None = None
-    details: dict | None = None
-
 # DTOs
-
-class VerifyJobResponse(BaseModel):
-    id: str
-    status: str
-
-    @classmethod
-    def from_job(cls, job: Job) -> "VerifyJobResponse":
-        return cls(
-            id=str(job.id),
-            status=job.status.value,
-        )
 
 class CreateJobResponse(BaseModel):
     job_id: str

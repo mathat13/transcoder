@@ -1,8 +1,8 @@
 from fastapi import Depends
 from uuid import UUID
 
-from presentation.api.jobs.internal.get_job_by_id.presenter import GetJobByIDResultPresenter
-from presentation.api.jobs.internal.get_job_by_id.response import GetJobByIDResponse
+from presentation.api.jobs.internal.queries.get_job_by_id.presenter import GetJobByIDPresenter
+from presentation.api.jobs.internal.queries.get_job_by_id.response import GetJobByIDResponse
 from presentation.api.dependencies import (
     get_job_service,
     build_operation_context,
@@ -20,6 +20,6 @@ def get_job_by_id(
     ctx: OperationContext = Depends(build_operation_context),
 ):
     result = service.get_job_by_id(job_id=job_id, ctx=ctx)
-    return GetJobByIDResultPresenter.present(result=result)
+    return GetJobByIDPresenter.present(result=result)
 
     

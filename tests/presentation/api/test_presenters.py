@@ -1,66 +1,21 @@
 import pytest
-from uuid import uuid4
-from fastapi import HTTPException
 
 from tests.factories.JobFactory import JobFactory
 
 from domain import JobStatus
 
 from presentation import (
-    VerifyJobResultPresenter,
     CreateJobResultPresenter,
     DispatchJobResultPresenter,
-    GetJobByIDResultPresenter,
-    VerifyJobResponse,
     DispatchJobResponse,
     CreateJobResponse,
-    GetJobByIDResponse,
     )
 
 from application import (
-    VerificationStarted,
-    VerifyErrorJobNotFound,
     DispatchJobNoJobAvailable,
     JobDispatched,
     JobCreatedResult,
-    GetJobByIDNotFound,
-    GetJobByIDFound,
 )
-
-def test_VerifyJobResultPresenter_with_VerificationStarted():
-    # Setup
-    job = JobFactory(status=JobStatus.verifying)
-    # Set fake_job_service.verify_job return value 
-    result = VerificationStarted(
-            job=job,
-        )
-    
-    # Exeution
-    response = VerifyJobResultPresenter.present_verify_job(result=result)
-
-    # Validation
-    assert isinstance(response, VerifyJobResponse)
-    assert response.model_dump() == {
-        "id": str(job.id),
-        "status": job.status.value,
-    }
-
-def test_VerifyJobResultPresenter_with_VerifyErrorJobNotFound():
-    # Setup
-    job_id = uuid4()
-    result = VerifyErrorJobNotFound(
-            job_id=job_id
-            )
-    
-    # Exeution
-    with pytest.raises(HTTPException) as exc:
-        VerifyJobResultPresenter.present_verify_job(result=result)
-
-    # Validation
-    err = exc.value
-    assert err.status_code == 404
-    assert err.detail["error"] == "job_not_found"
-    assert err.detail["job_id"] == str(job_id)
 
 def test_CreateJobResultPresenter_with_JobCreatedResult():
     # Setup

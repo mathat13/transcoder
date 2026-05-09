@@ -8,11 +8,11 @@ class VerifyJob:
     pass
 
 @dataclass
-class VerifyErrorJobNotFound(VerifyJob):
-    job_id: UUID
-
-@dataclass
 class VerificationStarted(VerifyJob):
     job: Job
 
-VerifyJobResult = Union[VerifyErrorJobNotFound, VerificationStarted]
+@dataclass
+class VerifyJobNotFound(VerifyJob):
+    job_id: UUID
+
+VerifyJobResult = Union[VerificationStarted, VerifyJobNotFound]

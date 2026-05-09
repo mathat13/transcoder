@@ -5,7 +5,7 @@ from typing import TypeVar
 
 T = TypeVar("T")
 
-class ApiResponse(BaseModel, Generic[T]):
+class APIResponse(BaseModel, Generic[T]):
     """
     Base response template, expected to inject a result literal attribute.
     Example response will end up looking like:
@@ -16,11 +16,13 @@ class ApiResponse(BaseModel, Generic[T]):
     data: T | None = None
     meta: dict | None = None
     
-class ErrorResponse(BaseModel):
+class APIErrorResponse(BaseModel, Generic[T]):
     """
-    Response used for 'errors',
-    expected to be embedded inside a FastAPI HTTPException for further info."""
-    error: str
-    message: str | None = None
-    job_id: str | None = None
-    details: dict | None = None
+    Response used for 'errors', currently designed to be used to represent failed application use cases,
+    where application returned correctly, just a failure case,
+    currently the same design as APIResponse but defining different template as
+    I expect needs of each use-case to evolve independently
+    expected to be embedded inside a FastAPI HTTPException for further info.
+    """
+    data: T | None = None
+    meta: dict | None = None

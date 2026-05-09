@@ -22,7 +22,7 @@ from application.services.jobs.commands.dispatch_job.results import (
     DispatchJobResult,
 )
 from application.services.jobs.commands.verify_job.results import (
-    VerifyErrorJobNotFound,
+    VerifyJobNotFound,
     VerificationStarted,
     VerifyJobResult,
 )
@@ -137,7 +137,7 @@ class JobService:
         job = self.repo.get_job_by_id(job_id=job_id)
 
         if not job:
-            return VerifyErrorJobNotFound(job_id=job_id)
+            return VerifyJobNotFound(job_id=job_id)
         
         self._transition_job(job=job,
                              new_status=JobStatus.verifying,

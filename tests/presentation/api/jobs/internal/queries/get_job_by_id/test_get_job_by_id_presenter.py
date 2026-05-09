@@ -1,11 +1,9 @@
-import pytest
-
 from tests.factories.JobFactory import JobFactory
 
 from domain import JobStatus
 
 from presentation import (
-    GetJobByIDResultPresenter,
+    GetJobByIDPresenter,
     GetJobByIDResponse,
     )
 
@@ -14,14 +12,14 @@ from application import (
     GetJobByIDFound,
 )
 
-def test_GetJobByIDResultPresenter_with_GetJobByIDJobFound():
+def test_GetJobByIDPresenter_with_GetJobByIDJobFound():
     # Setup
     job = JobFactory(status=JobStatus.verifying)
     # Set fake_job_service.verify_job return value
     result = GetJobByIDFound(job=job)
     
     # Exeution
-    response = GetJobByIDResultPresenter.present(result=result)
+    response = GetJobByIDPresenter.present(result=result)
 
     # Validation
     assert isinstance(response, GetJobByIDResponse)
@@ -37,12 +35,12 @@ def test_GetJobByIDResultPresenter_with_GetJobByIDJobFound():
         "meta": None,
     }
 
-def test_GetJobByIDResultPresenter_with_GetJobByIDNotFound():
+def test_GetJobByIDPresenter_with_GetJobByIDNotFound():
     # Setup
     result = GetJobByIDNotFound()
     
     # Exeution
-    response = GetJobByIDResultPresenter.present(result=result)
+    response = GetJobByIDPresenter.present(result=result)
 
     # Validation
     assert isinstance(response, GetJobByIDResponse)

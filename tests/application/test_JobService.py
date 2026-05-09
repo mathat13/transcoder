@@ -30,7 +30,7 @@ from application import (JobDispatched,
                          DispatchJobNoJobAvailable,
                          JobNotFoundDuringVerification,
                          VerificationStarted,
-                         VerifyErrorJobNotFound,
+                         VerifyJobNotFound,
                          JobCreatedResult,
                          CreateJobCommand,
                          GetJobByIDFound,
@@ -218,7 +218,7 @@ def test_JobService_verify_job_on_no_job_in_repo(job_service_test_system: JobSer
     result = job_service_test_system.job_service.verify_job(job_id=job_id, ctx=ctx)
 
     # Validation
-    assert isinstance(result, VerifyErrorJobNotFound)
+    assert isinstance(result, VerifyJobNotFound)
     assert job_service_test_system.job_repo.get_job_by_id(job_id=job.id) is None
 
 def test_JobService_verify_job_returns_correctly(job_service_test_system: JobServiceTestSystem):
