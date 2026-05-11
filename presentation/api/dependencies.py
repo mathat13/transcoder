@@ -1,5 +1,3 @@
-from fastapi import APIRouter
-
 from domain import OperationContext
 
 def get_job_service():
@@ -7,5 +5,3 @@ def get_job_service():
 
 def build_operation_context() -> OperationContext:
     return OperationContext.create()
-
-jobs_router = APIRouter(prefix="/jobs")

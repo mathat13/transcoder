@@ -2,9 +2,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from fastapi.responses import JSONResponse
 
 from tests.factories.JobModelFactory import JobModelFactory
 from tests.bootstrap.bootstrap_test_system import (
@@ -21,11 +19,10 @@ from tests.bootstrap.Types import (
 
 from tests.fakes.FakeJobService import FakeJobService
 
-from presentation.api.dependencies import (
+from presentation import (
     get_job_service,
-    jobs_router
+    create_app,
 )
-from presentation import APIError
 
 from infrastructure import (
     Base,
@@ -93,25 +90,12 @@ def fake_job_service():
 
 @pytest.fixture
 def app(fake_job_service: FakeJobService):
-    app = FastAPI()
-
-    @app.exception_handler(APIError)
-    def api_error_handler(
-        request,
-        exc: APIError
-        ) -> JSONResponse:
-
-        return JSONResponse(
-            status_code=exc.status_code,
-            content=exc.response.model_dump(),
-        )
-
+    app = create_app()
 
     def override_get_job_service():
         return fake_job_service
 
     app.dependency_overrides[get_job_service] = override_get_job_service
-    app.include_router(jobs_router)
 
     return app
 

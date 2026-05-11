@@ -13,8 +13,9 @@ from presentation.api.schemas.requests import ManualCreateRequest
 from presentation.api.dependencies import (
     get_job_service,
     build_operation_context,
-    jobs_router as router,
 )
+
+from presentation.api.routers import jobs_router as router
 
 from domain import OperationContext
 

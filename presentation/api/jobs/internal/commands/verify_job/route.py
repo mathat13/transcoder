@@ -8,8 +8,9 @@ from presentation.api.jobs.internal.commands.verify_job.response import VerifyJo
 from presentation.api.dependencies import (
     get_job_service,
     build_operation_context,
-    jobs_router as router,
 )
+
+from presentation.api.routers import jobs_router as router
 
 from domain import OperationContext
 
