@@ -4,7 +4,7 @@ from domain import JobStatus
 
 from presentation import (
     GetJobByIDPresenter,
-    GetJobByIDResponse,
+    GetJobByIDSuccessResponse,
     )
 
 from application import (
@@ -22,7 +22,7 @@ def test_GetJobByIDPresenter_with_GetJobByIDJobFound():
     response = GetJobByIDPresenter.present(result=result)
 
     # Validation
-    assert isinstance(response, GetJobByIDResponse)
+    assert isinstance(response, GetJobByIDSuccessResponse)
     assert response.model_dump() == {
         "result": "job_found",
         "data": {
@@ -43,7 +43,7 @@ def test_GetJobByIDPresenter_with_GetJobByIDNotFound():
     response = GetJobByIDPresenter.present(result=result)
 
     # Validation
-    assert isinstance(response, GetJobByIDResponse)
+    assert isinstance(response, GetJobByIDSuccessResponse)
     assert response.model_dump() == {
         "result": "job_not_found",
         "data": None,

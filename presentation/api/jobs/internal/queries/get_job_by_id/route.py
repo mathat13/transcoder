@@ -2,7 +2,7 @@ from fastapi import Depends
 from uuid import UUID
 
 from presentation.api.jobs.internal.queries.get_job_by_id.presenter import GetJobByIDPresenter
-from presentation.api.jobs.internal.queries.get_job_by_id.response import GetJobByIDResponse
+from presentation.api.jobs.internal.queries.get_job_by_id.responses.success import GetJobByIDSuccessResponse
 from presentation.api.dependencies import (
     get_job_service,
     build_operation_context,
@@ -14,7 +14,7 @@ from domain import OperationContext
 
 from application import JobService
 
-@router.get("/{id}", response_model=GetJobByIDResponse)
+@router.get("/{id}", response_model=GetJobByIDSuccessResponse)
 def get_job_by_id(
     id: UUID,
     service: JobService = Depends(get_job_service),

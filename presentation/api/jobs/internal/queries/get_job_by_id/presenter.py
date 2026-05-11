@@ -1,5 +1,5 @@
-from presentation.api.jobs.internal.queries.get_job_by_id.response import GetJobByIDResponse
-from presentation.api.jobs.internal.queries.get_job_by_id.mapper import JobSummaryMapper
+from presentation.api.jobs.internal.queries.get_job_by_id.responses.success import GetJobByIDSuccessResponse
+from presentation.api.jobs.internal.queries.dtos.job_summary.mapper import JobSummaryMapper
 
 from application import (
     GetJobByIDFound,
@@ -9,13 +9,13 @@ from application import (
 
 class GetJobByIDPresenter:
     @staticmethod
-    def present(result: GetJobByIDResult) -> GetJobByIDResponse:
+    def present(result: GetJobByIDResult) -> GetJobByIDSuccessResponse:
         match result:
             case GetJobByIDFound(job=job):
                 dto = JobSummaryMapper.to_job_summary(job=job)
-                return GetJobByIDResponse(
+                return GetJobByIDSuccessResponse(
                     result="job_found",
                     data=dto,
                     )
             case GetJobByIDNotFound():
-                return GetJobByIDResponse(result="job_not_found")
+                return GetJobByIDSuccessResponse(result="job_not_found")
