@@ -35,7 +35,7 @@ def test_dispatch_job_success(client, fake_job_service: FakeJobService):
     assert response.status_code == 200
     json = response.json()
     assert json["result"] == "job_dispatched"
-    assert json["job_id"] == str(job.id)
+    assert json["id"] == str(job.id)
     assert json["source_file"] == str(job.source_file.path)
     assert json["output_file"] == str(job.transcode_output_file.path)
 
@@ -55,7 +55,7 @@ def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService)
     assert response.status_code == 200
     json = response.json()
     assert json["result"] == "no_job_available"
-    assert json["job_id"] == None
+    assert json["id"] == None
     assert json["source_file"] == None
     assert json["output_file"] == None
 
@@ -78,7 +78,7 @@ def test_create_job_success_with_manual_request(client, fake_job_service: FakeJo
 
     assert response.status_code == 200
     json = response.json()
-    assert json["job_id"] == str(job.id)
+    assert json["id"] == str(job.id)
     assert json["status"] == job.status.value
     assert json["source_file"] == str(job.source_file.path)
 
@@ -103,7 +103,7 @@ def test_create_job_success_with_radarr_webhook_request(client, fake_job_service
 
     assert response.status_code == 200
     json = response.json()
-    assert json["job_id"] == str(job.id)
+    assert json["id"] == str(job.id)
     assert json["status"] == job.status.value
     assert json["source_file"] == str(job.source_file.path)
 
@@ -134,6 +134,6 @@ def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(cl
 
     assert response.status_code == 200
     json = response.json()
-    assert json["job_id"] == str(job.id)
+    assert json["id"] == str(job.id)
     assert json["status"] == job.status.value
     assert json["source_file"] == str(job.source_file.path)

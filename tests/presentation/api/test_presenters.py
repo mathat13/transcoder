@@ -30,7 +30,7 @@ def test_CreateJobResultPresenter_with_JobCreatedResult():
     # Validation
     assert isinstance(response, CreateJobResponse)
     assert response.model_dump() == {
-        "job_id": str(job.id),
+        "id": str(job.id),
         "status": job.status.value,
         "source_file": str(job.source_file.path)
     }
@@ -49,7 +49,7 @@ def test_DispatchJobResultPresenter_with_JobDispatched():
     assert isinstance(response, DispatchJobResponse)
     assert response.model_dump() == {
         "result": "job_dispatched",
-        "job_id": str(job.id),
+        "id": str(job.id),
         "source_file": str(job.source_file.path),
         "output_file": str(job.transcode_output_file.path)
     }

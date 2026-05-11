@@ -17,7 +17,7 @@ def test_get_job_by_id_success(client, fake_job_service: FakeJobService):
     # Setup
     job = JobFactory()
     ## Set fake_job_service.create_job return value
-    fake_job_service.get_job_by_id_fn=lambda job_id, ctx: GetJobByIDFound(job=job)
+    fake_job_service.get_job_by_id_fn=lambda id, ctx: GetJobByIDFound(job=job)
 
     # Execution
     response = client.get(url=f"/jobs/{job.id}")
@@ -38,7 +38,7 @@ def test_get_job_by_id_no_job_found(client, fake_job_service: FakeJobService):
     # Setup
     job = JobFactory()
     ## Set fake_job_service.get_job_by_id return value
-    fake_job_service.get_job_by_id_fn=lambda job_id, ctx: GetJobByIDNotFound()
+    fake_job_service.get_job_by_id_fn=lambda id, ctx: GetJobByIDNotFound()
 
     # Execution
     response = client.get(url=f"/jobs/{job.id}")

@@ -29,9 +29,9 @@ class VerifyJobPresenter:
                     data = dto,
                 )
             
-            case VerifyJobNotFound(job_id):
+            case VerifyJobNotFound(id):
                 dto = VerifyJobErrorDTO(
-                    id=str(job_id),
+                    id=str(id),
                 )
                 raise APIError(
                     status_code=404,

@@ -11,10 +11,10 @@ class SQLiteJobRepository(JobPersistenceCapable):
     def __init__(self, session):
         self.session = session
 
-    def get_job_by_id(self, job_id: UUID) -> Job | None:
+    def get_job_by_id(self, id: UUID) -> Job | None:
         retrieved_job_record = (
             self.session.query(JobModel)
-            .filter(JobModel.id == str(job_id))
+            .filter(JobModel.id == str(id))
             .first()
         )
 
@@ -30,10 +30,10 @@ class SQLiteJobRepository(JobPersistenceCapable):
         self.session.commit()
         self.session.refresh(job_record)
 
-    def delete(self, job_id: UUID) -> None:
+    def delete(self, id: UUID) -> None:
         job = (
             self.session.query(JobModel)
-            .filter(JobModel.id == str(job_id))
+            .filter(JobModel.id == str(id))
             .first()
         )
         

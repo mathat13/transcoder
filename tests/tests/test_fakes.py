@@ -1,8 +1,6 @@
 from domain import (
     JobStatus,
     Job,
-    FileInfo,
-    ExternalMediaIDs,
 )
 
 from tests import (

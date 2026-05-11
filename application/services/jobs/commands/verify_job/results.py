@@ -13,6 +13,6 @@ class VerificationStarted(VerifyJob):
 
 @dataclass
 class VerifyJobNotFound(VerifyJob):
-    job_id: UUID
+    id: UUID
 
 VerifyJobResult = Union[VerificationStarted, VerifyJobNotFound]

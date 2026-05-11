@@ -42,9 +42,9 @@ def test_VerifyJobPresenter_with_VerificationStarted():
 
 def test_VerifyJobPresenter_with_VerifyJobNotFound():
     # Setup
-    job_id = uuid4()
+    id = uuid4()
     result = VerifyJobNotFound(
-            job_id=job_id
+            id=id
             )
     
     # Exeution
@@ -61,7 +61,7 @@ def test_VerifyJobPresenter_with_VerifyJobNotFound():
     assert response.model_dump() == {
         "error": "job_not_found",
         "data": {
-            "id": str(job_id),
+            "id": str(id),
         },
         "meta": None,
     }

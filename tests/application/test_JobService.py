@@ -92,7 +92,7 @@ def test_JobService_get_job_by_id_with_job(job_service_test_system: JobServiceTe
     job_service_test_system.job_repo.save(job)
 
     # Execution
-    result = job_service_test_system.job_service.get_job_by_id(job_id=job.id, ctx=ctx)
+    result = job_service_test_system.job_service.get_job_by_id(id=job.id, ctx=ctx)
 
     # Verification
     assert isinstance(result, GetJobByIDFound)
@@ -105,7 +105,7 @@ def test_JobService_get_job_by_id_with_no_job(job_service_test_system: JobServic
     # No saving of job to repo
 
     # Execution
-    result = job_service_test_system.job_service.get_job_by_id(job_id=job.id, ctx=ctx)
+    result = job_service_test_system.job_service.get_job_by_id(id=job.id, ctx=ctx)
 
     # Verification
     assert isinstance(result, GetJobByIDNotFound)
@@ -215,25 +215,25 @@ def test_JobService_verify_job_on_no_job_in_repo(job_service_test_system: JobSer
     ctx = OperationContext.create()
 
     # Execution
-    result = job_service_test_system.job_service.verify_job(job_id=job_id, ctx=ctx)
+    result = job_service_test_system.job_service.verify_job(id=id, ctx=ctx)
 
     # Validation
     assert isinstance(result, VerifyJobNotFound)
-    assert job_service_test_system.job_repo.get_job_by_id(job_id=job.id) is None
+    assert job_service_test_system.job_repo.get_job_by_id(id=job.id) is None
 
 def test_JobService_verify_job_returns_correctly(job_service_test_system: JobServiceTestSystem):
     # Setup
     job = JobFactory(status=JobStatus.processing)
-    job_id = job.id
+    id = job.id
     ctx = OperationContext.create()
     job_service_test_system.job_repo.save(job=job)
 
     # Execution
-    result = job_service_test_system.job_service.verify_job(job_id=job_id, ctx=ctx)
+    result = job_service_test_system.job_service.verify_job(id=id, ctx=ctx)
 
     # Validation
     assert isinstance(result, VerificationStarted)
-    assert job_service_test_system.job_repo.get_job_by_id(job_id=job.id) is not None
+    assert job_service_test_system.job_repo.get_job_by_id(id=job.id) is not None
 
     
 

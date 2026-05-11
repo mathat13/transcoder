@@ -65,7 +65,7 @@ def test_job_verification_request_to_completion_happy_path(application_test_syst
                                              context=ctx)
 
     # Execute
-    result = application_test_system.job_service.verify_job(job_id=job.id, ctx=ctx)
+    result = application_test_system.job_service.verify_job(id=job.id, ctx=ctx)
 
     # Verification
     assert application_test_system.event_bus.processed_event_types() == [

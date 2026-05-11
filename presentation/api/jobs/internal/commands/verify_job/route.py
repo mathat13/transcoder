@@ -16,12 +16,12 @@ from domain import OperationContext
 
 from application import JobService
 
-@router.post("/{job_id}/verify", response_model=VerifyJobResponse)
+@router.post("/{id}/verify", response_model=VerifyJobResponse)
 def verify_job(
-    job_id: UUID,
+    id: UUID,
     service: JobService = Depends(get_job_service),
     ctx: OperationContext = Depends(build_operation_context),
 ):
     
-    result = service.verify_job(job_id=job_id, ctx=ctx)
+    result = service.verify_job(id=id, ctx=ctx)
     return VerifyJobPresenter.present(result)

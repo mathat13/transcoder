@@ -20,7 +20,7 @@ def test_verify_job_success(client, fake_job_service: FakeJobService):
     # Setup
     job = JobFactory(status=JobStatus.verifying)
     # Set fake_job_service.verify_job return value 
-    fake_job_service.verify_job_fn=lambda job_id, ctx: VerificationStarted(
+    fake_job_service.verify_job_fn=lambda id, ctx: VerificationStarted(
             job=job,
         )
 
@@ -42,14 +42,14 @@ def test_verify_job_success(client, fake_job_service: FakeJobService):
 def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService):
 
     # Setup
-    job_id = uuid4()
+    id = uuid4()
     # Set fake_job_service.verify_job return value 
-    fake_job_service.verify_job_fn=lambda job_id, ctx: VerifyJobNotFound(
-            job_id=job_id
+    fake_job_service.verify_job_fn=lambda id, ctx: VerifyJobNotFound(
+            id=id
             )
 
     # Execution
-    response = client.post(f"/jobs/{job_id}/verify")
+    response = client.post(f"/jobs/{id}/verify")
 
     # Validation
     assert isinstance(fake_job_service.last_ctx, OperationContext)

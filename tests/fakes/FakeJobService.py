@@ -34,14 +34,14 @@ class FakeJobService:
         self.create_job_fn = None
         self.get_job_by_id_fn = None
 
-    def verify_job(self, job_id: UUID, ctx: OperationContext) -> VerifyJobResult:
+    def verify_job(self, id: UUID, ctx: OperationContext) -> VerifyJobResult:
         self.last_ctx = ctx
-        self.last_cmd = job_id
+        self.last_cmd = id
         self.verify_job_calls += 1
 
         if self.verify_job_fn is None:
             raise NotImplementedError("verify_job_fn not configured")
-        return self.verify_job_fn(job_id, ctx)
+        return self.verify_job_fn(id, ctx)
     
     def dispatch_job(self, ctx: OperationContext) -> DispatchJobResult:
         self.last_ctx = ctx
@@ -60,11 +60,11 @@ class FakeJobService:
             raise NotImplementedError("create_job_fn not configured")
         return self.create_job_fn(cmd, ctx)
     
-    def get_job_by_id(self, job_id: UUID, ctx: OperationContext) -> GetJobByIDResult:
-        self.last_cmd = job_id
+    def get_job_by_id(self, id: UUID, ctx: OperationContext) -> GetJobByIDResult:
+        self.last_cmd = id
         self.last_ctx = ctx
         self.get_job_by_id_calls += 1
 
         if self.get_job_by_id_fn is None:
             raise NotImplementedError("get_job_by_id_fn not configured")
-        return self.get_job_by_id_fn(job_id, ctx)
+        return self.get_job_by_id_fn(id, ctx)

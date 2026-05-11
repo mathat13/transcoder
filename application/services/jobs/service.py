@@ -77,7 +77,7 @@ class JobService:
         # Idempotent command so don't need to check if job exists
         # At least while we're not archiving jobs
         # Possibly move towards job checking once archiving comes into play
-        self.repo.delete(job_id=event.job_id)
+        self.repo.delete(id=event.job_id)
 
     # Placholder while event outbox is not implemented
     # Not the nicest as it modifies an object that isn't itself, use with caution
@@ -100,8 +100,8 @@ class JobService:
             f"{source_file.path.stem}_transcode.mp4"
             )
 
-    def get_job_by_id(self, job_id: UUID, ctx: OperationContext) -> GetJobByIDResult:
-        job = self.repo.get_job_by_id(job_id=job_id)
+    def get_job_by_id(self, id: UUID, ctx: OperationContext) -> GetJobByIDResult:
+        job = self.repo.get_job_by_id(id=id)
         if not job:
             return GetJobByIDNotFound()
         
@@ -133,11 +133,11 @@ class JobService:
         
         return JobDispatched(job=job)
 
-    def verify_job(self, job_id: UUID, ctx: OperationContext) -> VerifyJobResult:
-        job = self.repo.get_job_by_id(job_id=job_id)
+    def verify_job(self, id: UUID, ctx: OperationContext) -> VerifyJobResult:
+        job = self.repo.get_job_by_id(id=id)
 
         if not job:
-            return VerifyJobNotFound(job_id=job_id)
+            return VerifyJobNotFound(id=id)
         
         self._transition_job(job=job,
                              new_status=JobStatus.verifying,
