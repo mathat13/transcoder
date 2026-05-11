@@ -1,4 +1,4 @@
-from presentation.api.shared.responses import (
+from presentation.api.shared.response_envelopes import (
     APIErrorResponse,
     APIResponse,
 )

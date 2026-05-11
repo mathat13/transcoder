@@ -21,7 +21,7 @@ from .api.jobs.internal.commands.verify_job.literals import *
 from .api.jobs.internal.commands.verify_job.presenter import *
 from .api.jobs.internal.commands.verify_job.route import *
 from .api.jobs.internal.commands.verify_job.response import *
-from .api.shared.responses import *
+from .api.shared.response_envelopes import *
 from .api.shared.exceptions import *
 from .api.dependencies import *
 from .api.routers import *
