@@ -8,9 +8,9 @@ from domain import JobStatus
 
 from presentation import (
     VerifyJobPresenter,
-    VerifyJobResponse,
-    VerifyJobErrorResponse,
-    APIError,
+    VerifyJobSuccessResponse,
+    VerifyJobFailureResponse,
+    ApplicationFailure,
     )
 
 from application import (
@@ -30,7 +30,7 @@ def test_VerifyJobPresenter_with_VerificationStarted():
     response = VerifyJobPresenter.present(result=result)
 
     # Validation
-    assert isinstance(response, VerifyJobResponse)
+    assert isinstance(response, VerifyJobSuccessResponse)
     assert response.model_dump() == {
         "result": "verification_started",
         "data": {
@@ -48,7 +48,7 @@ def test_VerifyJobPresenter_with_VerifyJobNotFound():
             )
     
     # Exeution
-    with pytest.raises(APIError) as exc:
+    with pytest.raises(ApplicationFailure) as exc:
         VerifyJobPresenter.present(result=result)
 
     # Validation
@@ -57,7 +57,7 @@ def test_VerifyJobPresenter_with_VerifyJobNotFound():
 
     response = err.response
     # Verify model as needs to be dumped to dict to be transported in exception
-    assert isinstance(response, VerifyJobErrorResponse)
+    assert isinstance(response, VerifyJobFailureResponse)
     assert response.model_dump() == {
         "error": "job_not_found",
         "data": {

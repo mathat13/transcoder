@@ -5,7 +5,7 @@ from typing import TypeVar
 
 T = TypeVar("T")
 
-class APIResponse(BaseModel, Generic[T]):
+class APISuccessResponse(BaseModel, Generic[T]):
     """
     Base response template, expected to inject a result literal attribute.
     Example response will end up looking like:
@@ -16,7 +16,7 @@ class APIResponse(BaseModel, Generic[T]):
     data: T | None = None
     meta: dict | None = None
     
-class APIErrorResponse(BaseModel, Generic[T]):
+class APIFailureResponse(BaseModel, Generic[T]):
     """
     Response used for 'errors', currently designed to be used to represent failed application use cases,
     where application returned correctly, just a failure case,

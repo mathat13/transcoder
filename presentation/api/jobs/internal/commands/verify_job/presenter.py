@@ -1,10 +1,9 @@
-from presentation.api.jobs.internal.commands.verify_job.response import (
-    VerifyJobResponse,
-    VerifyJobErrorResponse,
-)
-from presentation.api.jobs.internal.commands.verify_job.dto import (
-    VerifyJobDTO,
-    VerifyJobErrorDTO,
+from presentation.api.jobs.internal.commands.verify_job.responses.success import VerifyJobSuccessResponse
+from presentation.api.jobs.internal.commands.verify_job.responses.failure import VerifyJobFailureResponse
+
+from presentation.api.jobs.internal.commands.verify_job.responses.dtos import (
+    VerifyJobSuccessDTO,
+    VerifyJobFailureDTO,
 )
 
 from application import (
@@ -13,29 +12,29 @@ from application import (
     VerifyJobResult,
 )
 
-from presentation.api.shared.exceptions import APIError
+from presentation.api.shared.exceptions import ApplicationFailure
 
 class VerifyJobPresenter:
     @staticmethod
-    def present(result: VerifyJobResult) -> VerifyJobResponse:
+    def present(result: VerifyJobResult) -> VerifyJobSuccessResponse:
         match result:
             case VerificationStarted(job):
-                dto = VerifyJobDTO(
+                dto = VerifyJobSuccessDTO(
                     id=str(job.id),
                     status=job.status.value,
                 )
-                return VerifyJobResponse(
+                return VerifyJobSuccessResponse(
                     result="verification_started",
                     data = dto,
                 )
             
             case VerifyJobNotFound(id):
-                dto = VerifyJobErrorDTO(
+                dto = VerifyJobFailureDTO(
                     id=str(id),
                 )
-                raise APIError(
+                raise ApplicationFailure(
                     status_code=404,
-                    response=VerifyJobErrorResponse(
+                    response=VerifyJobFailureResponse(
                         error="job_not_found",
                         data=dto,
                     )

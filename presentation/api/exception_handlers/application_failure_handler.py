@@ -1,10 +1,10 @@
 from fastapi.responses import JSONResponse
 
-from presentation.api.shared.exceptions import APIError
+from presentation.api.shared.exceptions import ApplicationFailure
 
-def api_error_handler(
+def application_failure_handler(
     request,
-    exc: APIError
+    exc: ApplicationFailure,
     ) -> JSONResponse:
 
     return JSONResponse(
