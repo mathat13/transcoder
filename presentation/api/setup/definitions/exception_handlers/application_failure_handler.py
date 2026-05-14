@@ -1,6 +1,6 @@
 from fastapi.responses import JSONResponse
 
-from presentation.api.shared.exceptions import ApplicationFailure
+from presentation.api.use_cases.common.exceptions import ApplicationFailure
 
 def application_failure_handler(
     request,

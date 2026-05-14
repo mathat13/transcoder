@@ -1,5 +1,5 @@
-from presentation.api.jobs.internal.queries.get_job_by_id.responses.success import GetJobByIDSuccessResponse
-from presentation.api.jobs.internal.queries.dtos.job_summary.mapper import JobSummaryMapper
+from presentation.api.use_cases.jobs.internal.queries.get_job_by_id.egress.responses.success import GetJobByIDSuccessResponse
+from presentation.api.use_cases.jobs.internal.queries.projections.job_summary.mapper import JobSummaryMapper
 
 from application import (
     GetJobByIDFound,

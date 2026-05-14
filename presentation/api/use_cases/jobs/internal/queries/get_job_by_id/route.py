@@ -1,14 +1,13 @@
 from fastapi import Depends
 from uuid import UUID
 
-from presentation.api.jobs.internal.queries.get_job_by_id.presenter import GetJobByIDPresenter
-from presentation.api.jobs.internal.queries.get_job_by_id.responses.success import GetJobByIDSuccessResponse
-from presentation.api.dependencies import (
+from presentation.api.use_cases.jobs.internal.queries.get_job_by_id.egress.presenter import GetJobByIDPresenter
+from presentation.api.use_cases.jobs.internal.queries.get_job_by_id.egress.responses.success import GetJobByIDSuccessResponse
+from presentation.api.use_cases.dependencies import (
     get_job_service,
     build_operation_context,
 )
-
-from presentation.api.routers import jobs_router as router
+from presentation.api.setup.definitions.routers import jobs_router as router
 
 from domain import OperationContext
 

@@ -4,9 +4,9 @@ from presentation.api.presenters.create_job import CreateJobResultPresenter
 from presentation.api.schemas.responses import CreateJobResponse
 from presentation.api.schemas.requests import RadarrWebhookCreateJobRequest
 from presentation.api.translators.RadarrWebhookCreateJobTranslator import RadarrWebhookCreateJobTranslator
-from presentation.api.routers import jobs_router as router
+from presentation.api.setup.definitions.routers import jobs_router as router
 from presentation.api.translators.result_types import *
-from presentation.api.dependencies import (
+from presentation.api.use_cases.dependencies import (
     get_job_service,
     build_operation_context,
 )

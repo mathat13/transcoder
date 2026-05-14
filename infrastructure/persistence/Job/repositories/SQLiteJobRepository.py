@@ -44,7 +44,6 @@ class SQLiteJobRepository(JobPersistenceCapable):
         self.session.delete(job)
         self.session.commit()
 
-
     def get_next_pending_job(self) -> Job | None:
         next_job_model = (
             self.session.query(JobModel)

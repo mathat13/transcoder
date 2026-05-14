@@ -1,6 +1,6 @@
 from domain import Job
 
-from presentation.api.jobs.internal.queries.dtos.job_summary.dto import JobSummaryDTO
+from presentation.api.use_cases.jobs.internal.queries.projections.job_summary.projection import JobSummaryDTO
 
 class JobSummaryMapper:
     @staticmethod

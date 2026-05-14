@@ -1,4 +1,4 @@
-from presentation.api.shared.response_envelopes import APIFailureResponse
+from presentation.api.use_cases.common.response_envelopes import APIFailureResponse
 
 class ApplicationFailure(Exception):
     def __init__(self, status_code: int, response: APIFailureResponse):

@@ -1,18 +1,14 @@
-from presentation.api.jobs.internal.commands.verify_job.responses.success import VerifyJobSuccessResponse
-from presentation.api.jobs.internal.commands.verify_job.responses.failure import VerifyJobFailureResponse
-
-from presentation.api.jobs.internal.commands.verify_job.responses.dtos import (
-    VerifyJobSuccessDTO,
-    VerifyJobFailureDTO,
-)
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.response import VerifyJobSuccessResponse
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.dto import VerifyJobSuccessDTO
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.response import VerifyJobFailureResponse
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.dto import VerifyJobFailureDTO
+from presentation.api.use_cases.common.exceptions import ApplicationFailure
 
 from application import (
     VerifyJobNotFound,
     VerificationStarted,
     VerifyJobResult,
 )
-
-from presentation.api.shared.exceptions import ApplicationFailure
 
 class VerifyJobPresenter:
     @staticmethod
