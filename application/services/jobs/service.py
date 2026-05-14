@@ -18,7 +18,7 @@ from application.services.jobs.commands.create_job.results import (
 )
 from application.services.jobs.commands.dispatch_job.results import (
     JobDispatched,
-    DispatchJobNoJobAvailable,
+    NoJobAvailable,
     DispatchJobResult,
 )
 from application.services.jobs.commands.verify_job.results import (
@@ -123,7 +123,7 @@ class JobService:
         job = self.repo.get_next_pending_job()
 
         if not job:
-            return DispatchJobNoJobAvailable()
+            return NoJobAvailable()
         
         self._transition_job(job=job,
                              new_status=JobStatus.processing,

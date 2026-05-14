@@ -27,7 +27,7 @@ from domain import (
 )
 
 from application import (JobDispatched,
-                         DispatchJobNoJobAvailable,
+                         NoJobAvailable,
                          JobNotFoundDuringVerification,
                          VerificationStarted,
                          VerifyJobNotFound,
@@ -167,7 +167,7 @@ def test_JobService_dispatch_job_with_no_job(job_service_test_system: JobService
     retrieved_job = job_service_test_system.job_repo.get_job_by_id(job.id)
     assert retrieved_job is None
 
-    assert isinstance(result, DispatchJobNoJobAvailable)
+    assert isinstance(result, NoJobAvailable)
 
 def test_JobService_call_method_with_TranscodeVerified_event_emits_JobNotFoundDuringVerification_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
     # Setup

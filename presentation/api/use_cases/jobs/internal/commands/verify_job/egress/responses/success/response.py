@@ -4,7 +4,7 @@ from presentation.api.use_cases.common.response_envelopes import APISuccessRespo
 
 from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.dto import VerifyJobSuccessDTO
 
-VerifyJobSuccessResultLiteral = Literal["verification_started", "job_not_found"]
+VerifyJobSuccessResultLiteral = Literal["verification_started"]
 
 class VerifyJobSuccessResponse(APISuccessResponse[VerifyJobSuccessDTO]):
     result: VerifyJobSuccessResultLiteral

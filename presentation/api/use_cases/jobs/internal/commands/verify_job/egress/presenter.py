@@ -21,7 +21,7 @@ class VerifyJobPresenter:
                 )
                 return VerifyJobSuccessResponse(
                     result="verification_started",
-                    data = dto,
+                    data=dto,
                 )
             
             case VerifyJobNotFound(id):
