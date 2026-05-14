@@ -1,11 +1,14 @@
-from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.response import VerifyJobSuccessResponse
-from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.dto import VerifyJobSuccessDTO
-from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.response import VerifyJobFailureResponse
-from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.dto import VerifyJobFailureDTO
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.response import (
+    VerifyJobSuccessResponse,
+    VerificationStartedResponse
+    )
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.dtos import VerificationStartedDTO
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.response import JobNotFoundResponse
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.dtos import JobNotFoundDTO
 from presentation.api.use_cases.common.exceptions import ApplicationFailure
 
-from application import (
-    VerifyJobNotFound,
+from application.services.jobs.commands.verify_job.results import (
+    JobNotFound,
     VerificationStarted,
     VerifyJobResult,
 )
@@ -15,22 +18,22 @@ class VerifyJobPresenter:
     def present(result: VerifyJobResult) -> VerifyJobSuccessResponse:
         match result:
             case VerificationStarted(job):
-                dto = VerifyJobSuccessDTO(
+                dto = VerificationStartedDTO(
                     id=str(job.id),
                     status=job.status.value,
                 )
-                return VerifyJobSuccessResponse(
+                return VerificationStartedResponse(
                     result="verification_started",
                     data=dto,
                 )
             
-            case VerifyJobNotFound(id):
-                dto = VerifyJobFailureDTO(
+            case JobNotFound(id):
+                dto = JobNotFoundDTO(
                     id=str(id),
                 )
                 raise ApplicationFailure(
                     status_code=404,
-                    response=VerifyJobFailureResponse(
+                    response=JobNotFoundResponse(
                         error="job_not_found",
                         data=dto,
                     )

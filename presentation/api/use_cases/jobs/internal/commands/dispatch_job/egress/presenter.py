@@ -1,4 +1,4 @@
-from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.responses.success.responses import (
+from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.responses.success.response import (
     DispatchJobSuccessResponse,
     NoJobAvailableResponse,
     JobDispatchedResponse,

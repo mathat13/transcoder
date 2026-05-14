@@ -22,13 +22,13 @@ from application.services.jobs.commands.dispatch_job.results import (
     DispatchJobResult,
 )
 from application.services.jobs.commands.verify_job.results import (
-    VerifyJobNotFound,
+    JobNotFound as VerifyJobNotFound,
     VerificationStarted,
     VerifyJobResult,
 )
 from application.services.jobs.queries.get_job_by_id.results import (
-    GetJobByIDNotFound,
-    GetJobByIDFound,
+    JobNotFound as GetJobByIDNotFound,
+    JobFound,
     GetJobByIDResult,
 )
 
@@ -105,7 +105,7 @@ class JobService:
         if not job:
             return GetJobByIDNotFound()
         
-        return GetJobByIDFound(job=job)
+        return JobFound(job=job)
 
     def create_job(self, cmd: CreateJobCommand, ctx: OperationContext) -> CreateJobResult:
         transcode_output = self._default_transcode_output_for(cmd.source_file)

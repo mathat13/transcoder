@@ -5,9 +5,9 @@ from uuid import uuid4, UUID
 from tests.fakes.FakeJobService import FakeJobService
 from tests.factories.JobFactory import JobFactory
 
-from application import (
+from application.services.jobs.commands.verify_job.results import (
+    JobNotFound,
     VerificationStarted,
-    VerifyJobNotFound,
 )
 
 from domain import (
@@ -44,7 +44,7 @@ def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService
     # Setup
     id = uuid4()
     # Set fake_job_service.verify_job return value 
-    fake_job_service.verify_job_fn=lambda id, ctx: VerifyJobNotFound(
+    fake_job_service.verify_job_fn=lambda id, ctx: JobNotFound(
             id=id
             )
 

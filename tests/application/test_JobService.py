@@ -26,16 +26,17 @@ from domain import (
     OperationContext,
 )
 
-from application import (JobDispatched,
-                         NoJobAvailable,
-                         JobNotFoundDuringVerification,
-                         VerificationStarted,
-                         VerifyJobNotFound,
-                         JobCreatedResult,
-                         CreateJobCommand,
-                         GetJobByIDFound,
-                         GetJobByIDNotFound,
-                         )
+from application import (
+    JobNotFoundDuringVerification,
+    JobDispatched,
+    NoJobAvailable,
+    JobFound,
+    VerificationStarted,
+    JobCreatedResult,
+    CreateJobCommand,
+)
+from application.services.jobs.commands.verify_job.results import JobNotFound as VerifyJobNotFound
+from application.services.jobs.queries.get_job_by_id.results import JobNotFound as GetJobByIDNotFound
 
 def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServiceTestSystem):
 
@@ -56,7 +57,7 @@ def test_JobService_emit_emits_events_correctly(job_service_test_system: JobServ
         JobMovedToVerifying,
         ]
     
-
+# Events
 
 @pytest.mark.parametrize(
     "initial_status, request_status, expected_event_list",
@@ -85,7 +86,48 @@ def test_JobService_emits_correct_events_on_status_transition(initial_status: Jo
     job_service_test_system.job_service._emit(job=job, context=context)
     assert job_service_test_system.event_bus.processed_event_types() == expected_event_list
 
-def test_JobService_get_job_by_id_with_job(job_service_test_system: JobServiceTestSystem):
+def test_JobService_call_method_with_TranscodeVerified_event_emits_JobNotFoundDuringVerification_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
+    # Setup
+    job = JobFactory(status=JobStatus.verifying)
+    envelope = EventEnvelopeFactory(event=TranscodeVerifiedEventFactory(job_id=job.id))
+
+    # Execution
+    job_service_test_system.event_bus.publish(envelope=envelope)
+
+    # Validation
+    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobNotFoundDuringVerification)) == 1
+    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobCompleted)) == 0
+
+    assert job_service_test_system.event_bus.processed_events_of_type(event_type=JobNotFoundDuringVerification)[0].job_id == job.id
+
+def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_on_success(job_service_test_system: JobServiceTestSystem):
+
+    # Setup
+    job = JobFactory(status=JobStatus.verifying)
+    job_service_test_system.job_repo.save(job)
+    envelope = EventEnvelopeFactory(event=TranscodeVerifiedEventFactory(job_id=job.id))
+
+    # Execution
+    job_service_test_system.event_bus.publish(envelope=envelope)
+
+    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobNotFoundDuringVerification)) == 0
+    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobCompleted)) == 1
+
+def test_JobService_call_method_with_JobCompletionSuccess_event_triggers_job_deletion(job_service_test_system: JobServiceTestSystem):
+
+    # Setup
+    job = JobFactory(status=JobStatus.verifying)
+    job_service_test_system.job_repo.save(job)
+    envelope = EventEnvelopeFactory(event=JobCompletionSuccessEventFactory(job_id=job.id))
+
+    # Execution
+    job_service_test_system.event_bus.publish(envelope=envelope)
+
+    assert job_service_test_system.job_repo.get_job_by_id(job.id) is None
+
+# Commands/ queries
+
+def test_JobService_get_job_by_id_with_job_success(job_service_test_system: JobServiceTestSystem):
     # Setup
     job = JobFactory(status=JobStatus.pending)
     ctx = OperationContext.create()
@@ -95,7 +137,7 @@ def test_JobService_get_job_by_id_with_job(job_service_test_system: JobServiceTe
     result = job_service_test_system.job_service.get_job_by_id(id=job.id, ctx=ctx)
 
     # Verification
-    assert isinstance(result, GetJobByIDFound)
+    assert isinstance(result, JobFound)
     assert result.job is job
 
 def test_JobService_get_job_by_id_with_no_job(job_service_test_system: JobServiceTestSystem):
@@ -168,45 +210,6 @@ def test_JobService_dispatch_job_with_no_job(job_service_test_system: JobService
     assert retrieved_job is None
 
     assert isinstance(result, NoJobAvailable)
-
-def test_JobService_call_method_with_TranscodeVerified_event_emits_JobNotFoundDuringVerification_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
-    # Setup
-    job = JobFactory(status=JobStatus.verifying)
-    envelope = EventEnvelopeFactory(event=TranscodeVerifiedEventFactory(job_id=job.id))
-
-    # Execution
-    job_service_test_system.event_bus.publish(envelope=envelope)
-
-    # Validation
-    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobNotFoundDuringVerification)) == 1
-    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobCompleted)) == 0
-
-    assert job_service_test_system.event_bus.processed_events_of_type(event_type=JobNotFoundDuringVerification)[0].job_id == job.id
-
-def test_JobService_call_method_with_TranscodeVerified_event_emits_JobCompleted_on_success(job_service_test_system: JobServiceTestSystem):
-
-    # Setup
-    job = JobFactory(status=JobStatus.verifying)
-    job_service_test_system.job_repo.save(job)
-    envelope = EventEnvelopeFactory(event=TranscodeVerifiedEventFactory(job_id=job.id))
-
-    # Execution
-    job_service_test_system.event_bus.publish(envelope=envelope)
-
-    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobNotFoundDuringVerification)) == 0
-    assert len(job_service_test_system.event_bus.processed_event_types(event_type=JobCompleted)) == 1
-
-def test_JobService_call_method_with_JobCompletionSuccess_event_triggers_job_deletion(job_service_test_system: JobServiceTestSystem):
-
-    # Setup
-    job = JobFactory(status=JobStatus.verifying)
-    job_service_test_system.job_repo.save(job)
-    envelope = EventEnvelopeFactory(event=JobCompletionSuccessEventFactory(job_id=job.id))
-
-    # Execution
-    job_service_test_system.event_bus.publish(envelope=envelope)
-
-    assert job_service_test_system.job_repo.get_job_by_id(job.id) is None
 
 def test_JobService_verify_job_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
     # Setup

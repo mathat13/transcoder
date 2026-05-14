@@ -4,11 +4,11 @@ from typing import Union
 from domain import Job
 
 @dataclass
-class GetJobByIDFound:
+class JobFound:
     job: Job
 
 @dataclass
-class GetJobByIDNotFound:
+class JobNotFound:
     pass
 
-GetJobByIDResult = Union[GetJobByIDFound, GetJobByIDNotFound]
+GetJobByIDResult = Union[JobFound, JobNotFound]

@@ -4,8 +4,8 @@ from tests.factories.JobFactory import JobFactory
 
 from domain import JobStatus
 
-from presentation import (
-    DispatchJobPresenter,
+from presentation import DispatchJobPresenter
+from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.responses.success.response import (
     NoJobAvailableResponse,
     JobDispatchedResponse,
 )

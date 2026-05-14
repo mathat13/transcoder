@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
-class VerifyJobSuccessDTO(BaseModel):
+class VerificationStartedDTO(BaseModel):
     id: str
     status: str

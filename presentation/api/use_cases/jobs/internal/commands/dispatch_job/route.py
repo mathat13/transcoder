@@ -2,7 +2,7 @@ from fastapi import Depends
 
 from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.presenter import DispatchJobPresenter
 from presentation.api.translators.result_types import *
-from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.responses.success.responses import DispatchJobSuccessResponse
+from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.responses.success.response import DispatchJobSuccessResponse
 
 from presentation.api.use_cases.dependencies import (
     get_job_service,

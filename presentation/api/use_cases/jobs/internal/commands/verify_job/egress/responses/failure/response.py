@@ -1,10 +1,15 @@
-from typing import Literal
+from typing import (
+    Literal,
+    Union,
+)
 
 from presentation.api.use_cases.common.response_envelopes import APIFailureResponse
 
-from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.dto import VerifyJobFailureDTO
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.dtos import JobNotFoundDTO
 
-VerifyJobFailureResultLiteral = Literal["job_not_found"]
+JobNotFoundResultLiteral = Literal["job_not_found"]
 
-class VerifyJobFailureResponse(APIFailureResponse[VerifyJobFailureDTO]):
-    error: VerifyJobFailureResultLiteral
+class JobNotFoundResponse(APIFailureResponse[JobNotFoundDTO]):
+    error: JobNotFoundResultLiteral
+
+VerifyJobFailureResponse = Union [JobNotFoundResponse]

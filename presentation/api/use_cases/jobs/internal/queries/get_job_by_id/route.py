@@ -2,7 +2,7 @@ from fastapi import Depends
 from uuid import UUID
 
 from presentation.api.use_cases.jobs.internal.queries.get_job_by_id.egress.presenter import GetJobByIDPresenter
-from presentation.api.use_cases.jobs.internal.queries.get_job_by_id.egress.responses.success import GetJobByIDSuccessResponse
+from presentation.api.use_cases.jobs.internal.queries.get_job_by_id.egress.responses.success.response import GetJobByIDSuccessResponse
 from presentation.api.use_cases.dependencies import (
     get_job_service,
     build_operation_context,

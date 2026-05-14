@@ -8,14 +8,14 @@ from domain import JobStatus
 
 from presentation import (
     VerifyJobPresenter,
-    VerifyJobSuccessResponse,
-    VerifyJobFailureResponse,
     ApplicationFailure,
     )
 
-from application import (
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.response import VerificationStartedResponse
+from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.failure.response import JobNotFoundResponse
+from application.services.jobs.commands.verify_job.results import (
     VerificationStarted,
-    VerifyJobNotFound,
+    JobNotFound,
 )
 
 def test_VerifyJobPresenter_with_VerificationStarted():
@@ -30,7 +30,7 @@ def test_VerifyJobPresenter_with_VerificationStarted():
     response = VerifyJobPresenter.present(result=result)
 
     # Validation
-    assert isinstance(response, VerifyJobSuccessResponse)
+    assert isinstance(response, VerificationStartedResponse)
     assert response.model_dump() == {
         "result": "verification_started",
         "data": {
@@ -40,10 +40,10 @@ def test_VerifyJobPresenter_with_VerificationStarted():
         "meta": None,
     }
 
-def test_VerifyJobPresenter_with_VerifyJobNotFound():
+def test_VerifyJobPresenter_with_JobNotFound():
     # Setup
     id = uuid4()
-    result = VerifyJobNotFound(
+    result = JobNotFound(
             id=id
             )
     
@@ -56,8 +56,7 @@ def test_VerifyJobPresenter_with_VerifyJobNotFound():
     assert err.status_code == 404
 
     response = err.response
-    # Verify model as needs to be dumped to dict to be transported in exception
-    assert isinstance(response, VerifyJobFailureResponse)
+    assert isinstance(response, JobNotFoundResponse)
     assert response.model_dump() == {
         "error": "job_not_found",
         "data": {

@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 
-class VerifyJobFailureDTO(BaseModel):
+class JobNotFoundDTO(BaseModel):
     id: str

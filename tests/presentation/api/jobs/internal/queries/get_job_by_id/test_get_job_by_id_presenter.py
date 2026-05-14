@@ -2,27 +2,28 @@ from tests.factories.JobFactory import JobFactory
 
 from domain import JobStatus
 
-from presentation import (
-    GetJobByIDPresenter,
-    GetJobByIDSuccessResponse,
-    )
+from presentation import GetJobByIDPresenter
+from presentation.api.use_cases.jobs.internal.queries.get_job_by_id.egress.responses.success.response import (
+    JobNotFoundResponse,
+    JobFoundResponse,
+)
 
 from application import (
-    GetJobByIDNotFound,
-    GetJobByIDFound,
+    JobFound,
+    JobNotFound
 )
 
 def test_GetJobByIDPresenter_with_GetJobByIDJobFound():
     # Setup
     job = JobFactory(status=JobStatus.verifying)
     # Set fake_job_service.verify_job return value
-    result = GetJobByIDFound(job=job)
+    result = JobFound(job=job)
     
     # Exeution
     response = GetJobByIDPresenter.present(result=result)
 
     # Validation
-    assert isinstance(response, GetJobByIDSuccessResponse)
+    assert isinstance(response, JobFoundResponse)
     assert response.model_dump() == {
         "result": "job_found",
         "data": {
@@ -37,15 +38,15 @@ def test_GetJobByIDPresenter_with_GetJobByIDJobFound():
 
 def test_GetJobByIDPresenter_with_GetJobByIDNotFound():
     # Setup
-    result = GetJobByIDNotFound()
+    result = JobNotFound()
     
     # Exeution
     response = GetJobByIDPresenter.present(result=result)
 
     # Validation
-    assert isinstance(response, GetJobByIDSuccessResponse)
+    assert isinstance(response, JobNotFoundResponse)
     assert response.model_dump() == {
         "result": "job_not_found",
-        "data": None,
+        "data": {},
         "meta": None,
     }
