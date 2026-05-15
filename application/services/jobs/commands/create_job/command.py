@@ -11,7 +11,7 @@ class CreateJobCommand:
     media_ids: ExternalMediaIDs | None = None
 
     @classmethod
-    def from_manual(cls,
+    def from_source_file(cls,
                     source_file: FileInfo
                     ) -> "CreateJobCommand":
         return cls(
@@ -19,7 +19,7 @@ class CreateJobCommand:
         )
     
     @classmethod
-    def from_radarr(cls,
+    def from_source_file_and_media_ids(cls,
                     source_file: FileInfo,
                     media_ids: ExternalMediaIDs
                     ) -> "CreateJobCommand":

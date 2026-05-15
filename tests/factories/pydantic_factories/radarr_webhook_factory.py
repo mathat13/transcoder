@@ -2,10 +2,10 @@ import factory
 from factory import SubFactory
 from faker import Faker
 
-from presentation import (
+from presentation.api.use_cases.jobs.external.radarr.commands.create_job.ingress.request import (
     Movie,
     MovieFile,
-    RadarrWebhookCreateJobRequest,
+    CreateJobRequest,
 )
 
 from integrations import RadarrWebhookPayload
@@ -25,9 +25,9 @@ class MovieFileFactory(factory.Factory):
     
     sourceFile = factory.LazyFunction(lambda: f"/source/{fake.file_name(extension='mkv')}")
 
-class RadarrWebhookCreateJobRequestFactory(factory.Factory):
+class CreateJobRequestFactory(factory.Factory):
     class Meta:
-        model = RadarrWebhookCreateJobRequest
+        model = CreateJobRequest
 
     movie = SubFactory(MovieFactory)
     movieFile = SubFactory(MovieFileFactory)

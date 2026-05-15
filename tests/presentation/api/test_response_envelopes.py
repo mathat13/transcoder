@@ -6,7 +6,7 @@ from presentation import (
 def test_APISuccessResponse_defaults():
     response = APISuccessResponse()
 
-    assert response.data == {}
+    assert response.data.model_dump() == {}
     assert response.meta == {}
 
 def test_APIFailureResponse_defaults():

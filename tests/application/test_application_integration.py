@@ -18,13 +18,13 @@ from application import (
     JobCompletionSuccess,
     JobDispatched,
     CreateJobCommand,
-    VerificationStarted,
     CreateJobResult,
+    VerificationStarted,
 )
 
 def test_manual_job_creation_happy_path(application_test_system: ApplicationTestSystem):
     # Setup
-    cmd = CreateJobCommand.from_manual(source_file=FileInfo.from_path("/media/input.mp4"))
+    cmd = CreateJobCommand.from_source_file(source_file=FileInfo.from_path("/media/input.mp4"))
     ctx = OperationContext.create()
 
     # Execution

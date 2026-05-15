@@ -1,10 +1,5 @@
 from pydantic import BaseModel, ConfigDict
 
-class ManualCreateRequest(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    source_file: str
-
 class Movie(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -15,10 +10,9 @@ class MovieFile(BaseModel):
 
     sourceFile: str
 
-class RadarrWebhookCreateJobRequest(BaseModel):
+class CreateJobRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     movie: Movie
     movieFile: MovieFile
     eventType: str
-

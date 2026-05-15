@@ -7,7 +7,7 @@ class CreateJob:
     pass
 
 @dataclass
-class JobCreatedResult(CreateJob):
+class JobCreated(CreateJob):
     job: Job
 
-CreateJobResult = Union[JobCreatedResult]
+CreateJobResult = Union[JobCreated]

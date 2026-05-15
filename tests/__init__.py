@@ -3,6 +3,7 @@ from .factories.JobModelFactory import *
 from .factories.ExceptionFactories import *
 from .factories.EventFactories import *
 from .factories.pydantic_factories.radarr_get_moviefile_factory import *
+from .factories.pydantic_factories.radarr_webhook_factory import *
 from .fakes.FakeFileSystem import *
 from .fakes.FakeSyncEventBus import *
 from .fakes.FakeJobRepository import *
@@ -11,5 +12,6 @@ from .fakes.FakeHTTPClient import *
 from .fakes.FakeRadarrAPIAdapter import *
 from .fakes.FakeJellyfinAPIAdapter import *
 from .fakes.FakeProcessRunner import *
+from .fakes.FakeJobService import *
 from .bootstrap.bootstrap_test_system import *
 from .bootstrap.Types import *

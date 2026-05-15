@@ -32,9 +32,9 @@ from application import (
     NoJobAvailable,
     JobFound,
     VerificationStarted,
-    JobCreatedResult,
     CreateJobCommand,
 )
+from application.services.jobs.commands.create_job.results import JobCreated as JobCreatedResult
 from application.services.jobs.commands.verify_job.results import JobNotFound as VerifyJobNotFound
 from application.services.jobs.queries.get_job_by_id.results import JobNotFound as GetJobByIDNotFound
 
@@ -152,9 +152,9 @@ def test_JobService_get_job_by_id_with_no_job(job_service_test_system: JobServic
     # Verification
     assert isinstance(result, GetJobByIDNotFound)
 
-def test_JobService_create_job_with_manual_command(job_service_test_system: JobServiceTestSystem):
+def test_JobService_create_job_from_source_file(job_service_test_system: JobServiceTestSystem):
     source_file=FileInfo.from_path("/media/input.mp4")
-    cmd = CreateJobCommand.from_manual(source_file=source_file)
+    cmd = CreateJobCommand.from_source_file(source_file=source_file)
     ctx = OperationContext.create()
 
     result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=ctx)
@@ -163,10 +163,10 @@ def test_JobService_create_job_with_manual_command(job_service_test_system: JobS
     assert result.job.external_media_ids is None
     assert result.job.source_file is source_file
 
-def test_JobService_create_job_with_radarr_command(job_service_test_system: JobServiceTestSystem):
+def test_JobService_create_job_from_source_file_and_media_ids(job_service_test_system: JobServiceTestSystem):
     source_file=FileInfo.from_path("/media/input.mp4")
     media_ids=ExternalMediaIDs.from_radarr(4)
-    cmd = CreateJobCommand.from_radarr(source_file=source_file, media_ids=media_ids)
+    cmd = CreateJobCommand.from_source_file_and_media_ids(source_file=source_file, media_ids=media_ids)
     ctx = OperationContext.create()
     
     result = job_service_test_system.job_service.create_job(cmd=cmd, ctx=ctx)
@@ -214,7 +214,7 @@ def test_JobService_dispatch_job_with_no_job(job_service_test_system: JobService
 def test_JobService_verify_job_on_no_job_in_repo(job_service_test_system: JobServiceTestSystem):
     # Setup
     job = JobFactory(status=JobStatus.processing)
-    job_id = job.id
+    id = job.id
     ctx = OperationContext.create()
 
     # Execution

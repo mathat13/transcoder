@@ -2,7 +2,6 @@ from fastapi import Depends
 from uuid import UUID
 
 from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.presenter import VerifyJobPresenter
-from presentation.api.translators.result_types import *
 from presentation.api.use_cases.jobs.internal.commands.verify_job.egress.responses.success.response import VerifyJobSuccessResponse
 
 from presentation.api.use_cases.dependencies import (

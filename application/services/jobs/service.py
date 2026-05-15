@@ -13,7 +13,7 @@ from application.services.jobs.commands.create_job.command import (
     CreateJobCommand,
 )
 from application.services.jobs.commands.create_job.results import (
-    JobCreatedResult,
+    JobCreated as JobCreatedResult,
     CreateJobResult,
 )
 from application.services.jobs.commands.dispatch_job.results import (
