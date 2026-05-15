@@ -5,6 +5,3 @@ class JobDispatchedDTO(BaseModel):
     source_file: str
     transcode_output_file: str
 
-class NoJobAvailableDTO(BaseModel):
-    pass
-

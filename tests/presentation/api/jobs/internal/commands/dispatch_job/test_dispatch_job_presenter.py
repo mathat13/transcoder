@@ -34,7 +34,7 @@ def test_DispatchJobResultPresenter_with_JobDispatched():
             "source_file": str(job.source_file.path),
             "transcode_output_file": str(job.transcode_output_file.path),
             },
-        "meta": None,
+        "meta": {},
     }
 
 def test_DispatchJobResultPresenter_with_NoJobAvailable():
@@ -49,5 +49,5 @@ def test_DispatchJobResultPresenter_with_NoJobAvailable():
     assert response.model_dump() == {
         "result": "no_job_available",
         "data": {},
-        "meta": None,
+        "meta": {},
     }

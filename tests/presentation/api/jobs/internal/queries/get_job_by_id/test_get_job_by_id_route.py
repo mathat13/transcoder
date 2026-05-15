@@ -30,8 +30,8 @@ def test_get_job_by_id_success(client, fake_job_service: FakeJobService):
     assert response.status_code == 200
     json = response.json()
     assert json["result"] == "job_found"
-    assert json["data"] is not None
-    assert json["meta"] is None
+    assert json["data"] != {}
+    assert json["meta"] == {}
 
 def test_get_job_by_id_no_job_found(client, fake_job_service: FakeJobService):
 
@@ -52,4 +52,4 @@ def test_get_job_by_id_no_job_found(client, fake_job_service: FakeJobService):
     json = response.json()
     assert json["result"] == "job_not_found"
     assert json["data"] == {}
-    assert json["meta"] is None
+    assert json["meta"] == {}

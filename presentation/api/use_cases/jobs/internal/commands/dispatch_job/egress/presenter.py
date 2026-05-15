@@ -3,10 +3,7 @@ from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.respo
     NoJobAvailableResponse,
     JobDispatchedResponse,
 )
-from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.responses.success.dtos import (
-    JobDispatchedDTO,
-    NoJobAvailableDTO,
-)
+from presentation.api.use_cases.jobs.internal.commands.dispatch_job.egress.responses.success.dtos import JobDispatchedDTO
 
 from application import (
     NoJobAvailable,
@@ -30,8 +27,6 @@ class DispatchJobPresenter:
                 )
             
             case NoJobAvailable():
-                dto = NoJobAvailableDTO()
                 return NoJobAvailableResponse(
                     result="no_job_available",
-                    data=dto,
                 )

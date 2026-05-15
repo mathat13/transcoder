@@ -1,4 +1,4 @@
 from pydantic import BaseModel
 
-class JobNotFoundDTO(BaseModel):
+class EmptyData(BaseModel):
     pass

@@ -37,7 +37,7 @@ def test_VerifyJobPresenter_with_VerificationStarted():
             "id": str(job.id),
             "status": job.status.value,
         },
-        "meta": None,
+        "meta": {},
     }
 
 def test_VerifyJobPresenter_with_JobNotFound():

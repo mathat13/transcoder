@@ -30,8 +30,8 @@ def test_dispatch_job_success(client, fake_job_service: FakeJobService):
     assert response.status_code == 200
     json = response.json()
     assert json["result"] == "job_dispatched"
-    assert json["data"] is not None
-    assert json["meta"] is None
+    assert json["data"] != {}
+    assert json["meta"] == {}
 
 def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService):
 
@@ -50,4 +50,4 @@ def test_dispatch_job_no_job_available(client, fake_job_service: FakeJobService)
     json = response.json()
     assert json["result"] == "no_job_available"
     assert json["data"] == {}
-    assert json["meta"] is None
+    assert json["meta"] == {}

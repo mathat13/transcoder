@@ -36,8 +36,8 @@ def test_verify_job_success(client, fake_job_service: FakeJobService):
 
     json = response.json()
     assert json["result"] == "verification_started"
-    assert json["data"] is not None
-    assert json["meta"] is None
+    assert json["data"] != {}
+    assert json["meta"] == {}
 
 def test_verify_job_job_not_found_error(client, fake_job_service: FakeJobService):
 

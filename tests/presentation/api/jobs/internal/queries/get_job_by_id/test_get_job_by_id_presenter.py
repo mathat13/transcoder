@@ -33,7 +33,7 @@ def test_GetJobByIDPresenter_with_GetJobByIDJobFound():
             "delivery_file": str(job.delivery_file.path),
             "status": job.status.value
         },
-        "meta": None,
+        "meta": {},
     }
 
 def test_GetJobByIDPresenter_with_GetJobByIDNotFound():
@@ -48,5 +48,5 @@ def test_GetJobByIDPresenter_with_GetJobByIDNotFound():
     assert response.model_dump() == {
         "result": "job_not_found",
         "data": {},
-        "meta": None,
+        "meta": {},
     }
