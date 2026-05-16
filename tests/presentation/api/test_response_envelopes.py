@@ -6,11 +6,15 @@ from presentation import (
 def test_APISuccessResponse_defaults():
     response = APISuccessResponse()
 
-    assert response.data.model_dump() == {}
-    assert response.meta == {}
+    assert response.model_dump() == {
+        "data": {},
+        "meta": {},
+    }
 
 def test_APIFailureResponse_defaults():
     response = APIFailureResponse()
     
-    assert response.data is None
-    assert response.meta is None
+    assert response.model_dump() == {
+        "data": None,
+        "meta": None,
+    }
