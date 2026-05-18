@@ -4,7 +4,7 @@ from typing import Union
 from application import CreateJobCommand
 
 @dataclass(frozen=True)
-class CommandReady:
+class Admit:
     cmd: CreateJobCommand
 
-TranslatorResult = Union[CommandReady]
+TranslatorResult = Union[Admit]

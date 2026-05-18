@@ -2,7 +2,7 @@ import pytest
 
 from presentation.api.use_cases.jobs.internal.commands.create_job.ingress.request import CreateJobRequest
 from presentation.api.use_cases.jobs.internal.commands.create_job.ingress.translation.translator import CreateJobTranslator
-from presentation.api.use_cases.jobs.internal.commands.create_job.ingress.translation.results import CommandReady
+from presentation.api.use_cases.jobs.internal.commands.create_job.ingress.translation.results import Admit
 
 from application import CreateJobCommand
 from domain import FileInfo
@@ -15,7 +15,7 @@ def test_ManualCreateJobTranslator_success():
     result = CreateJobTranslator.translate(request=CreateJobRequest(source_file=source_file))
     
     # Validation
-    assert isinstance(result, CommandReady)
+    assert isinstance(result, Admit)
     cmd = result.cmd
     assert isinstance(cmd, CreateJobCommand)
     assert isinstance(cmd.source_file, FileInfo)

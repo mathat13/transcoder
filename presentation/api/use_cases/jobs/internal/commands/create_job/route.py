@@ -26,6 +26,6 @@ def create_job(
     result = CreateJobTranslator.translate(request=request)
 
     match result:
-        case CommandReady(cmd):
+        case Admit(cmd):
             result = service.create_job(cmd=cmd, ctx=ctx)
             return CreateJobPresenter.present(result=result)

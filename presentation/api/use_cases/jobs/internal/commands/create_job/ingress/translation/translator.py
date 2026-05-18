@@ -2,7 +2,7 @@ from domain import FileInfo
 
 from presentation.api.use_cases.jobs.internal.commands.create_job.ingress.request import CreateJobRequest 
 from presentation.api.use_cases.jobs.internal.commands.create_job.ingress.translation.results import (
-    CommandReady,
+    Admit,
     TranslatorResult,
 )
 
@@ -17,4 +17,4 @@ class CreateJobTranslator:
             source_file=FileInfo.from_path(request.source_file)
             )
 
-        return CommandReady(cmd=cmd)
+        return Admit(cmd=cmd)
