@@ -52,7 +52,9 @@ def test_create_job_ingress_ignore_with_radarr_webhook_request(client, fake_job_
     # Execution
     response = client.post(url=f"/jobs/create/webhook/radarr", json=request.model_dump())
 
-    assert response.status_code == 200
+    assert response.status_code == 400
+    json = response.json()
+    assert json["reason"] == "unsupported_event_type"
 
 def test_create_job_success_with_radarr_webhook_request_with_extra_attributes(client,
                                                                               fake_job_service: FakeJobService):

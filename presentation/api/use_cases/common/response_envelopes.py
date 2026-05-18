@@ -3,6 +3,7 @@ from typing import Generic
 from typing import TypeVar
 
 T = TypeVar("T")
+R = TypeVar("R", bound=BaseModel)
 
 from presentation.api.use_cases.common.dtos import EmptyData
 
@@ -30,3 +31,7 @@ class APIFailureResponse(BaseModel, Generic[T]):
     """
     data: T | None = None
     meta: dict | None = None
+
+class HTTPPresentation(BaseModel, Generic[R]):
+    status_code: int
+    response: R

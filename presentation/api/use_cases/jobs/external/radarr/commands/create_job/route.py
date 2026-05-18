@@ -1,11 +1,12 @@
 from fastapi import Depends
+from fastapi.responses import JSONResponse
 
 from presentation.api.use_cases.jobs.external.radarr.commands.create_job.egress.presenter import CreateJobPresenter
 from presentation.api.use_cases.jobs.external.radarr.commands.create_job.egress.responses.success.response import CreateJobSuccessResponse
 from presentation.api.use_cases.jobs.external.radarr.commands.create_job.ingress.request import CreateJobRequest
 from presentation.api.use_cases.jobs.external.radarr.commands.create_job.ingress.translation.translator import CreateJobTranslator
 from presentation.api.use_cases.jobs.external.radarr.commands.create_job.ingress.translation.results import *
-
+from presentation.api.use_cases.jobs.external.radarr.commands.create_job.ingress.presenter import IngressPresenter
 from presentation.api.setup.definitions.routers import jobs_router as router
 from presentation.api.use_cases.dependencies import (
     get_job_service,
@@ -25,11 +26,14 @@ def create_job(
     result = CreateJobTranslator.translate(request=request)
 
     match result:
-        case Ignored(reason=reason):
-            return {
-                "status": "ignored",
-                "reason": reason.value
-                }
-        case CommandReady(cmd):
+        case Deny():
+            presentation = IngressPresenter.present(result)
+
+            return JSONResponse(
+                status_code=presentation.status_code,
+                content=presentation.response.model_dump(),
+            )
+        
+        case Admit(cmd):
             result = service.create_job(cmd=cmd, ctx=ctx)
             return CreateJobPresenter.present(result=result)

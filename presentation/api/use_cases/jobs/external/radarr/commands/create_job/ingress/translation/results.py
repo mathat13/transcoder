@@ -1,16 +1,19 @@
 from dataclasses import dataclass
 from typing import Union
-
-from presentation.api.use_cases.jobs.external.radarr.commands.create_job.ingress.translation.types import IgnoreReason
+from typing import Literal
 
 from application import CreateJobCommand
 
+IngressNonSuccessReason = Literal[
+    "unsupported_event_type",
+    ]
+
 @dataclass(frozen=True)
-class CommandReady:
+class Admit:
     cmd: CreateJobCommand
 
 @dataclass(frozen=True)
-class Ignored:
-    reason: IgnoreReason
+class Deny:
+    reason: IngressNonSuccessReason
 
-TranslatorResult = Union[CommandReady, Ignored]
+TranslatorResult = Union[Admit, Deny]
