@@ -1,0 +1,46 @@
+@startuml
+title HTTP API Request Success Path
+
+actor Client as client
+participant "FastAPI" as fastapi
+participant "Route" as route
+participant "Translator" as translator
+participant "Application" as app
+participant "Application Presenter" as egresspresenter
+
+== Ingress Presentation ==
+
+client -> fastapi : HTTP Request
+activate fastapi
+
+fastapi -> route : RequestDTO
+deactivate fastapi
+activate route
+
+route -> translator : translate(RequestDTO)
+activate translator
+translator --> route : Admit(cmd)
+deactivate translator
+
+== Application Layer ==
+
+route -> app : command(cmd)
+activate app
+app --> route : ApplicationResult
+deactivate app
+
+== Egress Presentation ==
+
+route -> egresspresenter : present(result)
+activate egresspresenter
+
+egresspresenter --> route : ResponseDTO
+deactivate egresspresenter
+
+route --> fastapi : ResponseDTO
+deactivate route
+activate fastapi
+fastapi --> client : HTTP Response
+deactivate fastapi
+
+@enduml

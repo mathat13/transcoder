@@ -1,48 +1,38 @@
 @startuml
 left to right direction
 component "Presentation Layer" {
+    component "Route"
     port "Presentation Port" as PresentationPort
     port "Application Access Port" as AppAccessPort
-
-    component "Transport Layer" {
-        component "FastAPI"
-    }
-    PresentationPort --> [FastAPI]
-
-    component "Adapter Layer" {
-        component "Translation Layer" {
-            component "Ingress Translation" {
-            }
-
-            component "Egress Translation" {
-            }
-        }
-        component "Route"
-    }
 }
 
 component "Application Layer" {
 
-    port "Application Port" as AppPort
+    port "JobService Port" as ServicePort
     component "JobService"
-    AppPort --> JobService
+    ServicePort --> JobService
 }
 
 interface "Presentation API" as PresentationAPI
-PresentationPort - PresentationAPI
+PresentationPort -left- PresentationAPI
+
+note right of PresentationAPI
+Takes: HTTP Request
+Returns: HTTP Response
+end note
 
 interface "JobService API" as JobServiceAPI
-AppPort - JobServiceAPI
+ServicePort -right- JobServiceAPI
 AppAccessPort --> JobServiceAPI: Command/ Query
+
+note right of JobServiceAPI
+Takes: Command/ Query
+Returns: ApplicationResult
+end note
 
 component "Client"
 [Client] --> PresentationAPI: HTTP Request
-[FastAPI] --> [Route]: RequestDTO
-[Route] --> [Ingress Translation]: RequestDTO
-[Ingress Translation] --> [Route]: Command/ Query
-[Route] --> AppAccessPort: Command/ Query
-[Route] --> [Egress Translation]: ApplicationResult
-[Egress Translation] --> [Route]: ResponseDTO
-[Route] --> [FastAPI]: ResponseDTO
+PresentationPort --> [Route]
+[Route] --> AppAccessPort
 PresentationAPI --> [Client]: HTTP Response
 @enduml

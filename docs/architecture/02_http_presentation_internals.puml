@@ -11,38 +11,56 @@ component "Presentation Layer" {
 
     component "Adapter Layer" {
         component "Translation Layer" {
-            component "Ingress Translation" {
+            package "Ingress" {
+                component "Ingress Translation" {      
+                }
             }
-
-            component "Egress Translation" {
+            package "Egress" {
+                component "Egress Translation" {
+                }
             }
         }
         component "Route"
+
+        note bottom of Route
+        Boundary orchestrator
+
+        Coordinates:
+        - ingress translation
+        - application interaction
+        - egress translation
+        end note
     }
 }
 
-component "Application Layer" {
-
-    port "Application Port" as AppPort
-    component "JobService"
-    AppPort --> JobService
-}
 
 interface "Presentation API" as PresentationAPI
-PresentationPort - PresentationAPI
+PresentationPort -left- PresentationAPI
+
+note right of PresentationAPI
+Provided Interface:
+
+HTTP Request
+→
+HTTP Response
+end note
 
 interface "JobService API" as JobServiceAPI
-AppPort - JobServiceAPI
-AppAccessPort --> JobServiceAPI: Command/ Query
+AppAccessPort -right-> JobServiceAPI: Command/ Query
 
-component "Client"
-[Client] --> PresentationAPI: HTTP Request
+note right of JobServiceAPI
+Required interface:
+Command/ Query
+→
+ApplicationResult
+end note
+
 [FastAPI] --> [Route]: RequestDTO
 [Route] --> [Ingress Translation]: RequestDTO
 [Ingress Translation] --> [Route]: Command/ Query
 [Route] --> AppAccessPort: Command/ Query
+AppAccessPort --> Route: ApplicationResult
 [Route] --> [Egress Translation]: ApplicationResult
 [Egress Translation] --> [Route]: ResponseDTO
 [Route] --> [FastAPI]: ResponseDTO
-PresentationAPI --> [Client]: HTTP Response
 @enduml

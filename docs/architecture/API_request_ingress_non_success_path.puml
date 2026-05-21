@@ -1,0 +1,38 @@
+@startuml
+title HTTP API Request Non-Success Lifecycle
+
+actor Client as client
+participant "FastAPI" as fastapi
+participant "Route" as route
+participant "Translator" as translator
+participant "Ingress Presenter" as ingresspresenter
+
+== Ingress Presentation ==
+
+client -> fastapi : HTTP Request
+
+activate fastapi
+fastapi -> route : RequestDTO
+deactivate fastapi
+
+activate route
+route -> translator : translate(RequestDTO)
+
+activate translator
+translator --> route : Deny(reason)
+deactivate translator
+
+route -> ingresspresenter : present(Deny(reason))
+
+activate ingresspresenter
+ingresspresenter --> route : ResponseDTO
+deactivate ingresspresenter
+
+route --> fastapi : ResponseDTO
+deactivate route
+
+activate fastapi
+fastapi --> client : HTTP Response
+deactivate fastapi
+
+@enduml

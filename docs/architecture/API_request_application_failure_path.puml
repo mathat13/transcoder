@@ -1,0 +1,47 @@
+@startuml
+title HTTP API Request Application Failure Lifecycle
+
+actor Client as client
+participant "FastAPI" as fastapi
+participant "Route" as route
+participant "Translator" as translator
+participant "Application" as app
+participant "Application Presenter" as egresspresenter
+
+== Ingress Presentation ==
+
+client -> fastapi : HTTP Request
+
+activate fastapi
+fastapi -> route : RequestDTO
+deactivate fastapi
+
+activate route
+route -> translator : translate(RequestDTO)
+
+activate translator
+translator --> route : Admit(cmd)
+deactivate translator
+
+== Application ==
+
+route -> app : command(cmd)
+
+activate app
+app --> route : FailureResult
+deactivate app
+
+== Egress Presentation ==
+
+route -> egresspresenter : present(result)
+deactivate route
+
+activate egresspresenter
+egresspresenter --> fastapi : raise ApplicationException(status_code, ResponseDTO)
+deactivate egresspresenter
+
+activate fastapi
+fastapi --> client : HTTP Response
+deactivate fastapi
+
+@enduml
